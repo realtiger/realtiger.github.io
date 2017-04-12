@@ -5,7 +5,8 @@
     <entry>
       <title><![CDATA[hexo的安装配置以及多终端文章编辑]]></title>
       <url>/2017/04/12/hexo%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%8F%8A%E5%A4%9A%E7%BB%88%E7%AB%AF%E6%96%87%E7%AB%A0%E7%BC%96%E8%BE%91/</url>
-      <content type="html"><![CDATA[<h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。<br>但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
+      <content type="html"><![CDATA[<p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）<br><a id="more"></a></p>
+<h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。<br>但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
 <h1 id="GitHub新建仓库"><a href="#GitHub新建仓库" class="headerlink" title="GitHub新建仓库"></a>GitHub新建仓库</h1><h2 id="注册GitHub帐号"><a href="#注册GitHub帐号" class="headerlink" title="注册GitHub帐号"></a>注册GitHub帐号</h2><p>这里就是普通的帐号注册，可以自己摸索，不是很难</p>
 <h2 id="新建仓库"><a href="#新建仓库" class="headerlink" title="新建仓库"></a>新建仓库</h2><p>点击右上角的“+”号，选择新建仓库选项</p>
 <h2 id="输入仓库信息"><a href="#输入仓库信息" class="headerlink" title="输入仓库信息"></a>输入仓库信息</h2><p>输入你的仓库名字，这个名字就是以后访问博客的地址。据说，后缀必须是github.io或者github.com，没有验证真伪，如果是别的代码平台需参考平台规则。</p>
