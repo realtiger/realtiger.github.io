@@ -1078,6 +1078,19 @@ color
 .post-list li:hover a {
   color: #88acdb;
 }
+.ui-tooltip {
+  padding: 6px;
+  max-width: 30em;
+  -webkit-box-shadow: 0 0 0.8em rgba(0,0,0,0.6);
+  box-shadow: 0 0 0.8em rgba(0,0,0,0.6);
+  color: #fff;
+  font-family: "Lucida Grande", Verdana, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "WenQuanYi Micro Hei", sans-serif;
+  font-size: 0.9em;
+  background: rgba(0,0,0,0.65);
+}
+body .ui-tooltip {
+  border: 1px solid #fff;
+}
 .pace .pace-progress {
   background: #77b6ff;
   -webkit-box-shadow: 0 0 10px rgba(119,182,255,0.7);
@@ -1373,6 +1386,10 @@ color
   background: rgba(255,255,255,0.4);
   -webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
   box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+  border-left: 5px solid rgba(112,134,142,0.85);
+  background: rgba(255,255,255,0.7);
+  border-left: 10px solid rgba(102,128,153,0.08);
+  background: rgba(102,128,153,0.08);
 }
 .article-entry blockquote p {
   margin: 0.4em auto;

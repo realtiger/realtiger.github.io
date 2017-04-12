@@ -21,7 +21,7 @@
 <meta property="og:url" content="http://realtiger.github.io/about/index.html">
 <meta property="og:site_name" content="realtiger's blog">
 <meta property="og:description" content="关于 &amp;amp; 留言小真虎 昵称：realtiger（心如止水） 联系QQ：909557892 邮箱地址：realtiger.alu@gmail.com Github 地址：https://github.com/realtiger 博客园地址：http://www.cnblogs.com/cdinc/ 知乎地址：https://www.zhihu.com/people/realtiger  小真">
-<meta property="og:updated_time" content="2017-04-11T09:33:16.651Z">
+<meta property="og:updated_time" content="2017-04-12T00:44:29.796Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="about">
 <meta name="twitter:description" content="关于 &amp;amp; 留言小真虎 昵称：realtiger（心如止水） 联系QQ：909557892 邮箱地址：realtiger.alu@gmail.com Github 地址：https://github.com/realtiger 博客园地址：http://www.cnblogs.com/cdinc/ 知乎地址：https://www.zhihu.com/people/realtiger  小真">
@@ -77,7 +77,9 @@
 </script>
 
 
-    <script> yiliaConfig.jquery_ui = [false]; </script>
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
 
 
 
@@ -334,10 +336,9 @@
 <li>博客园地址：<a href="http://www.cnblogs.com/cdinc/" target="_blank" rel="external">http://www.cnblogs.com/cdinc/</a></li>
 <li>知乎地址：<a href="https://www.zhihu.com/people/realtiger" target="_blank" rel="external">https://www.zhihu.com/people/realtiger</a></li>
 </ul>
-<p>小真虎的博客，用来分享小真虎向分享的东西，也许有你需要的东西，也许没有你需要的东西，但是看看总没有坏处嘛。</p>
+<p>小真虎的博客，用来分享小真虎想分享的东西，也许有你需要的东西，也许没有你需要的东西，但是看看总没有坏处嘛。</p>
 <hr>
-<p>赞助<br>如果哪篇文章对你有所帮助，且您手头还很宽裕，欢迎打赏赞助我</p>
-<p>感谢以上的朋友的无条件赞助，您的鼓励与支持，我会铭记于心。</p>
+<h2 id="赞助"><a href="#赞助" class="headerlink" title="赞助"></a>赞助</h2><p>如果哪篇文章对你有所帮助，且您手头还很宽裕，欢迎打赏赞助我</p>
 
       
     </div>
@@ -485,6 +486,23 @@
         }
     
 </script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
 
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
