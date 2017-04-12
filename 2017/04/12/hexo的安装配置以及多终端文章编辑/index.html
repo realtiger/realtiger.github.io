@@ -14,19 +14,18 @@
 <meta name="author" content="realtiger" />
 
 
-    
-    
 
-
-<meta name="description" content="小真虎的分享平台">
-<meta property="og:type" content="website">
-<meta property="og:title" content="realtiger's blog">
-<meta property="og:url" content="http://realtiger.github.io/index.html">
+<meta name="description" content="使用Linux搭建Hexo博客平台一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。 GitHub新">
+<meta name="keywords" content="hexo 博客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo的安装配置以及多终端文章编辑">
+<meta property="og:url" content="http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/index.html">
 <meta property="og:site_name" content="realtiger's blog">
-<meta property="og:description" content="小真虎的分享平台">
+<meta property="og:description" content="使用Linux搭建Hexo博客平台一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。 GitHub新">
+<meta property="og:updated_time" content="2017-04-12T03:15:04.717Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="realtiger's blog">
-<meta name="twitter:description" content="小真虎的分享平台">
+<meta name="twitter:title" content="hexo的安装配置以及多终端文章编辑">
+<meta name="twitter:description" content="使用Linux搭建Hexo博客平台一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。 GitHub新">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -54,13 +53,11 @@
 <link rel="stylesheet" href="/css/style.css">
 
 
-    <style> .article { opacity: 0;} </style>
-
 
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>realtiger&#39;s blog</title>
+<title>hexo的安装配置以及多终端文章编辑 | realtiger&#39;s blog</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -69,8 +66,8 @@
     var yiliaConfig = {
         fancybox: true,
         animate: true,
-        isHome: true,
-        isPost: false,
+        isHome: false,
+        isPost: true,
         isArchive: false,
         isTag: false,
         isCategory: false,
@@ -277,9 +274,7 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap">
-  
-    <article id="post-hexo的安装配置以及多终端文章编辑" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-hexo的安装配置以及多终端文章编辑" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" class="article-date">
@@ -297,12 +292,27 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a>
+    <h1 class="article-title" itemprop="name">
+      hexo的安装配置以及多终端文章编辑
     </h1>
   
 
       </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/markdown写作/">markdown写作</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
       
     
     <div class="article-entry" itemprop="articleBody">
@@ -608,83 +618,85 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
       
     </div>
     
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/markdown写作/">markdown写作</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
   </div>
   
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-first" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/10/first/" class="article-date">
-      <time datetime="2017-04-10T09:28:19.000Z" itemprop="datePublished">2017-04-10</time>
-</a>
-
-
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">realtiger</a></p>
+        <p><span>发布时间:</span>2017-04-12, 11:13:41</p>
+        <p><span>最后更新:</span>2017-04-12, 11:15:04</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" title="hexo的安装配置以及多终端文章编辑">http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/　　作者: realtiger" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
     </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
+
+
+
+    <nav id="article-nav">
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/10/first/">first</a>
-    </h1>
-  
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/04/10/first/">
+                    first
+                </a>
+            </div>
+        
+        
+    </nav>
 
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>欢迎大家访问我的新个人技术博客<a href="https://realtiger.github.io">小真虎的博客</a>。</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
   
 </article>
 
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用Linux搭建Hexo博客平台"><span class="toc-number">1.</span> <span class="toc-text">使用Linux搭建Hexo博客平台</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#GitHub新建仓库"><span class="toc-number">2.</span> <span class="toc-text">GitHub新建仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#注册GitHub帐号"><span class="toc-number">2.1.</span> <span class="toc-text">注册GitHub帐号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#新建仓库"><span class="toc-number">2.2.</span> <span class="toc-text">新建仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#输入仓库信息"><span class="toc-number">2.3.</span> <span class="toc-text">输入仓库信息</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#git使用密钥添加"><span class="toc-number">3.</span> <span class="toc-text">git使用密钥添加</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#生成密钥"><span class="toc-number">3.1.</span> <span class="toc-text">生成密钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#输入密钥"><span class="toc-number">3.2.</span> <span class="toc-text">输入密钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#验证密钥是否生效"><span class="toc-number">3.3.</span> <span class="toc-text">验证密钥是否生效</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装设置git"><span class="toc-number">4.</span> <span class="toc-text">安装设置git</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装git"><span class="toc-number">4.1.</span> <span class="toc-text">安装git</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-conf-设置"><span class="toc-number">4.2.</span> <span class="toc-text">git conf 设置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装nodejs"><span class="toc-number">5.</span> <span class="toc-text">安装nodejs</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#下载nodejs的安装包"><span class="toc-number">5.1.</span> <span class="toc-text">下载nodejs的安装包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#链接node和npm命令"><span class="toc-number">5.2.</span> <span class="toc-text">链接node和npm命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装hexo"><span class="toc-number">6.</span> <span class="toc-text">安装hexo</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#下载安装hexo"><span class="toc-number">6.1.</span> <span class="toc-text">下载安装hexo</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#初始化博客"><span class="toc-number">7.</span> <span class="toc-text">初始化博客</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#建立特定目录"><span class="toc-number">7.1.</span> <span class="toc-text">建立特定目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初始化博客目录"><span class="toc-number">7.2.</span> <span class="toc-text">初始化博客目录</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#配置博客"><span class="toc-number">8.</span> <span class="toc-text">配置博客</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#发表文章"><span class="toc-number">9.</span> <span class="toc-text">发表文章</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#发布、部署博客"><span class="toc-number">10.</span> <span class="toc-text">发布、部署博客</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#生成网站静态文件"><span class="toc-number">10.1.</span> <span class="toc-text">生成网站静态文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本地发布"><span class="toc-number">10.2.</span> <span class="toc-text">本地发布</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署博客"><span class="toc-number">10.3.</span> <span class="toc-text">部署博客</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#博客备份"><span class="toc-number">11.</span> <span class="toc-text">博客备份</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#主题更改"><span class="toc-number">12.</span> <span class="toc-text">主题更改</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#不同终端编辑文章"><span class="toc-number">13.</span> <span class="toc-text">不同终端编辑文章</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hexo整体目录创建"><span class="toc-number">13.1.</span> <span class="toc-text">Hexo整体目录创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#克隆目录的使用"><span class="toc-number">13.2.</span> <span class="toc-text">克隆目录的使用</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"hexo的安装配置以及多终端文章编辑　| realtiger's blog　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
 
 
 
@@ -692,9 +704,47 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
 
 
 
+    
+        <section class="youyan" id="comments">
+    <script>
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = 'http://v2.uyan.cc/code/uyan.js?uid=2130701';
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
 
-  
-  
+    <div id="uyan_frame"></div>
+</section>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/04/10/first/" title="上一篇: first">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/10/first/">first</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">
@@ -748,10 +798,6 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
         })
     </script>
 
-
-    
-
-     
 
 
 
