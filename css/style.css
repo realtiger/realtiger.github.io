@@ -2435,7 +2435,16 @@ pre .javascript .function {
 }
 #donate_guide img {
   height: 200px;
-  height: 200px;
+/* height: 200px; */
+}
+#donate_guide div {
+  position: relative;
+  display: inline;
+}
+#donate_guide span {
+  position: absolute;
+  left: 70px;
+  top: 20px;
 }
 #page-nav {
   text-align: center;
