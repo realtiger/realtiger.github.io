@@ -275,50 +275,50 @@
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
       <div class="body-wrap"><article id="post-hexo的安装配置以及多终端文章编辑" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" class="article-date">
+
+<div class="article-meta">
+<a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" class="article-date">
       <time datetime="2017-04-12T03:13:41.000Z" itemprop="datePublished">2017-04-12</time>
 </a>
 
 
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
+</div>
+
+<div class="article-inner">
+
+<input type="hidden" class="isFancy" />
+
+
+<header class="article-header">
+
   
     <h1 class="article-title" itemprop="name">
       hexo的安装配置以及多终端文章编辑
     </h1>
   
 
-      </header>
-      
-      <div class="article-info article-info-post">
-        
+</header>
+
+<div class="article-info article-info-post">
+
     <div class="article-category tagcloud">
     <a class="article-category-link" href="/categories/markdown写作/">markdown写作</a>
     </div>
 
 
-        
+
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li></ul>
     </div>
 
-        <div class="clearfix"></div>
-      </div>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）<br><a id="more"></a></p>
+<div class="clearfix"></div>
+</div>
+
+
+<div class="article-entry" itemprop="articleBody">
+
+  
+<p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）<br><a id="more"></a></p>
 <h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。<br>但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
 <h1 id="GitHub新建仓库"><a href="#GitHub新建仓库" class="headerlink" title="GitHub新建仓库"></a>GitHub新建仓库</h1><h2 id="注册GitHub帐号"><a href="#注册GitHub帐号" class="headerlink" title="注册GitHub帐号"></a>注册GitHub帐号</h2><p>这里就是普通的帐号注册，可以自己摸索，不是很难</p>
 <h2 id="新建仓库"><a href="#新建仓库" class="headerlink" title="新建仓库"></a>新建仓库</h2><p>点击右上角的“+”号，选择新建仓库选项</p>
@@ -616,12 +616,12 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
 <li><a href="http://www.jianshu.com/p/e99ed60390a8" target="_blank" rel="external">20分钟教你使用hexo搭建github博客</a></li>
 </ul>
 
-      
-    </div>
-    
-  </div>
-  
-    
+
+</div>
+
+</div>
+
+
     <div class="copyright">
         <p><span>本文标题:</span><a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">realtiger</a></p>
@@ -650,7 +650,40 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
         
     </nav>
 
-  
+
+
+	<! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+		   欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+	<div id="donate_guide" class="donate_bar center hidden" >
+		<!-- 支付宝打赏图案 -->
+		<div>
+			<img src="/img/alipay.png" alt="支付宝打赏">
+			<span>支付宝打赏</span>
+		</div>
+		<!-- 微信打赏图案 -->
+		<div>
+			<img src="/img/wechatpay.png" alt="微信打赏">
+			<span>微信打赏<span>
+		</div>
+    </div>
+	<script type="text/javascript">
+		document.getElementById('btn_donate').onclick = function(){
+			$('#donate_board').addClass('hidden');
+			$('#donate_guide').removeClass('hidden');
+		}
+	</script>
+</div>
+<! -- 添加捐赠图标 -->
+
+
 </article>
 
     <div id="toc" class="toc-article">
@@ -746,6 +779,7 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
     <script>
         
     </script>
+
 </div>
       <footer id="footer">
     <div class="outer">
