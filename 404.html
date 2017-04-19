@@ -41,7 +41,7 @@
 
 
 
-    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="/css/jquery.fancybox.min.css" rel="stylesheet">
 
 
 
@@ -58,7 +58,7 @@
 
 <title>404 Not Found：该页无法显示 | realtiger&#39;s blog</title>
 
-<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
 
 <script>
@@ -70,7 +70,7 @@
         isArchive: false,
         isTag: false,
         isCategory: false,
-        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        fancybox_js: "/js/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
         search: true
     }
@@ -187,6 +187,8 @@
                             
                                 <a class="fa 博客园" href="http://www.cnblogs.com/cdinc/" title="博客园"></a>
                             
+                                <a class="fa LOFTER" href="http://realtiger.lofter.com/" title="LOFTER"></a>
+                            
                         </ul>
                     </nav>
                 </section>
@@ -266,6 +268,8 @@
                                 <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
                             
                                 <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/cdinc/" title="博客园"></a>
+                            
+                                <a class="fa LOFTER" target="_blank" href="http://realtiger.lofter.com/" title="LOFTER"></a>
                             
                         </ul>
             </nav>
@@ -372,21 +376,19 @@ padding: 0;
         <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
         <span class="donate_txt">
            ↑<br>
-		   欣赏此文？求鼓励，求支持！
+		   Enjoy it? Donate me!  欣赏此文？求鼓励，求支持！
         </span>
         <br>
       </div>  
 	<div id="donate_guide" class="donate_bar center hidden" >
-		<!-- 支付宝打赏图案 -->
-		<div>
-			<img src="/img/alipay.png" alt="支付宝打赏">
-			<span>支付宝打赏</span>
-		</div>
-		<!-- 微信打赏图案 -->
-		<div>
-			<img src="/img/wechatpay.png" alt="微信打赏">
-			<span>微信打赏<span>
-		</div>
+		<a href="/img/alipay.png" data-caption="支付宝打赏" class="fancybox" rel="article0" data-fancybox="donate">
+			<!-- 支付宝打赏图案 -->
+			<img src="/img/alipay.png"  alt="支付宝打赏" title="支付宝打赏" id="alipay"/>
+		</a>
+		<a href="/img/wechatpay.png" data-caption="微信打赏" class="fancybox" rel="article0" data-fancybox="donate">
+			<!-- 微信打赏图案 -->
+			<img src="/img/wechatpay.png" alt="微信打赏" title="微信打赏" id="wechatpay"/> 
+		</a>
     </div>
 	<script type="text/javascript">
 		document.getElementById('btn_donate').onclick = function(){
