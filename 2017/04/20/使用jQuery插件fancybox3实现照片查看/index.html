@@ -1,11 +1,333 @@
-<?xml version="1.0" encoding="utf-8"?>
-<search> 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="realtiger" />
+
+
+
+<meta name="description" content="我们总会有在网页中插播图片的想法，jQuery Fancybox就是一个十分不错的插件，内容丰富，使用方便（看你怎么理解方便了）">
+<meta name="keywords" content="fancyBox,jQuery,插件,图片">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用jQuery插件fancybox3实现照片查看">
+<meta property="og:url" content="http://realtiger.github.io/2017/04/20/使用jQuery插件fancybox3实现照片查看/index.html">
+<meta property="og:site_name" content="realtiger's blog">
+<meta property="og:description" content="我们总会有在网页中插播图片的想法，jQuery Fancybox就是一个十分不错的插件，内容丰富，使用方便（看你怎么理解方便了）">
+<meta property="og:image" content="http://imglf2.nosdn.127.net/img/T29DNkRBMFB6cXFmc1J3cjNCYVQzNUJzMk9KMjVFVUZRcGdGRmV0bERReHBSY0pzaCtIZW1BPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg%7Cwatermark&type=2&text=wqkg6Jyc57OW5bCP5aeQa2l0aWMgLyBraXRpYy5sb2Z0ZXIuY29t&font=bXN5aA==&gravity=southwest&dissolve=30&fontsize=340&dx=16&dy=20&stripmeta=0">
+<meta property="og:image" content="http://imglf1.nosdn.127.net/img/TlB1TFBnUkQ0WEM4dUlXUUZzS0kxSjdTRWpDZndpRXBRV1lPcFFDT3o1RVBMVEFWTXVTVTR3PT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+<meta property="og:image" content="http://imglf0.nosdn.127.net/img/M01RMXowVys0Y2NFNE96MkMxalJDZStZSVlMVVVXaWxPdnM2eUJTN1dwdkx3UmljS29FdUd3PT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+<meta property="og:updated_time" content="2017-04-20T08:57:09.987Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用jQuery插件fancybox3实现照片查看">
+<meta name="twitter:description" content="我们总会有在网页中插播图片的想法，jQuery Fancybox就是一个十分不错的插件，内容丰富，使用方便（看你怎么理解方便了）">
+<meta name="twitter:image" content="http://imglf2.nosdn.127.net/img/T29DNkRBMFB6cXFmc1J3cjNCYVQzNUJzMk9KMjVFVUZRcGdGRmV0bERReHBSY0pzaCtIZW1BPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg%7Cwatermark&type=2&text=wqkg6Jyc57OW5bCP5aeQa2l0aWMgLyBraXRpYy5sb2Z0ZXIuY29t&font=bXN5aA==&gravity=southwest&dissolve=30&fontsize=340&dx=16&dy=20&stripmeta=0">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="realtiger&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+
+
+    <link href="/css/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>使用jQuery插件fancybox3实现照片查看 | realtiger&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "/js/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/realtiger.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">realtiger</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">小真虎的个人博客</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:realtiger.alu@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" href="http://www.cnblogs.com/cdinc/" title="博客园"></a>
+                            
+                                <a class="fa LOFTER" href="http://realtiger.lofter.com/" title="LOFTER"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/fancyBox/">fancyBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图片/">图片</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/插件/">插件</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">上善若水......即，心如止水。对，就是这么任性。。。。</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">realtiger</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/realtiger.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">realtiger</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">小真虎的个人博客</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:realtiger.alu@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="http://www.cnblogs.com/cdinc/" title="博客园"></a>
+                            
+                                <a class="fa LOFTER" target="_blank" href="http://realtiger.lofter.com/" title="LOFTER"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="photo-使用jQuery插件fancybox3实现照片查看" class="article article-type-photo" itemscope itemprop="blogPost">
+
+<div class="article-meta">
+<a href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/" class="article-date">
+      <time datetime="2017-04-20T06:32:51.000Z" itemprop="datePublished">2017-04-20</time>
+</a>
+
+
+</div>
+
+<div class="article-inner">
+
+
+<header class="article-header">
+
   
-    
-    <entry>
-      <title><![CDATA[使用jQuery插件fancybox3实现照片查看]]></title>
-      <url>/2017/04/20/%E4%BD%BF%E7%94%A8jQuery%E6%8F%92%E4%BB%B6fancybox3%E5%AE%9E%E7%8E%B0%E7%85%A7%E7%89%87%E6%9F%A5%E7%9C%8B/</url>
-      <content type="html"><![CDATA[<p>我们总会有在网页中插播图片的想法，jQuery Fancybox就是一个十分不错的插件，内容丰富，使用方便（看你怎么理解方便了）</p>
+    <h1 class="article-title" itemprop="name">
+      使用jQuery插件fancybox3实现照片查看
+    </h1>
+  
+
+</header>
+
+<div class="article-info article-info-post">
+
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/前端技术/">前端技术</a>
+    </div>
+
+
+
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fancyBox/">fancyBox</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/图片/">图片</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/插件/">插件</a></li></ul>
+    </div>
+
+<div class="clearfix"></div>
+</div>
+
+
+<div class="article-entry" itemprop="articleBody">
+
+  
+<p>我们总会有在网页中插播图片的想法，jQuery Fancybox就是一个十分不错的插件，内容丰富，使用方便（看你怎么理解方便了）</p>
 <a id="more"></a>
 <hr>
 <p><a href="http://imglf0.nosdn.127.net/img/M01RMXowVys0Y2NFNE96MkMxalJDZStZSVlMVVVXaWxPdnM2eUJTN1dwdkx3UmljS29FdUd3PT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg" data-fancybox="same" data-caption="cat" data-height="1365" target="_blank" rel="external">
@@ -188,367 +510,272 @@
 <p><a href="http://codepen.io/fancyapps/pen/dNGapJ" target="_blank" rel="external">点击这里，查看案例</a></p>
 <h3 id="如何重新定位缩略图网格"><a href="#如何重新定位缩略图网格" class="headerlink" title="如何重新定位缩略图网格"></a>如何重新定位缩略图网格</h3><p>当前没有JS选项来更改缩略图网格位置。但是，fancyBox3的设计使您可以使用CSS来更改每个块（例如，内容区域，标题或缩略图网格）的位置或维度。 如果需要，这可以让您自由地完全改变模态窗口的外观和感觉。
 <a href="http://codepen.io/fancyapps/pen/vgRajd" target="_blank" rel="external">点击这里，查看案例</a></p>
-]]></content>
-      
-        <categories>
-            
-            <category> 前端技术 </category>
-            
-        </categories>
+
+
+</div>
+
+</div>
+
+
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/">使用jQuery插件fancybox3实现照片查看</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">realtiger</a></p>
+        <p><span>发布时间:</span>2017-04-20, 14:32:51</p>
+        <p><span>最后更新:</span>2017-04-20, 16:57:09</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/" title="使用jQuery插件fancybox3实现照片查看">http://realtiger.github.io/2017/04/20/使用jQuery插件fancybox3实现照片查看/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/2017/04/20/使用jQuery插件fancybox3实现照片查看/　　作者: realtiger" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">
+                    hexo的安装配置以及多终端文章编辑
+                </a>
+            </div>
         
         
-        <tags>
-            
-            <tag> fancyBox </tag>
-            
-            <tag> jQuery </tag>
-            
-            <tag> 插件 </tag>
-            
-            <tag> 图片 </tag>
-            
-        </tags>
+    </nav>
+
+
+
+	<! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+		   Enjoy it? Donate me!  欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+	<div id="donate_guide" class="donate_bar center hidden" >
+		<a href="/img/alipay.png" data-caption="支付宝打赏" class="fancybox" rel="article0" data-fancybox="donate">
+			<!-- 支付宝打赏图案 -->
+			<img src="/img/alipay.png"  alt="支付宝打赏" title="支付宝打赏" id="alipay"/>
+		</a>
+		<a href="/img/wechatpay.png" data-caption="微信打赏" class="fancybox" rel="article0" data-fancybox="donate">
+			<!-- 微信打赏图案 -->
+			<img src="/img/wechatpay.png" alt="微信打赏" title="微信打赏" id="wechatpay"/> 
+		</a>
+    </div>
+	<script type="text/javascript">
+		document.getElementById('btn_donate').onclick = function(){
+			$('#donate_board').addClass('hidden');
+			$('#donate_guide').removeClass('hidden');
+		}
+	</script>
+</div>
+<! -- 添加捐赠图标 -->
+
+
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
         
-    </entry>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#安装方法"><span class="toc-number">1.</span> <span class="toc-text">安装方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#初始化导入"><span class="toc-number">2.</span> <span class="toc-text">初始化导入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用方法"><span class="toc-number">3.</span> <span class="toc-text">使用方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#媒体类型"><span class="toc-number">4.</span> <span class="toc-text">媒体类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#图片"><span class="toc-number">4.0.1.</span> <span class="toc-text">图片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内联样式"><span class="toc-number">4.0.2.</span> <span class="toc-text">内联样式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ajax"><span class="toc-number">4.0.3.</span> <span class="toc-text">Ajax</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Iframe"><span class="toc-number">4.0.4.</span> <span class="toc-text">Iframe</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#嵌入"><span class="toc-number">5.</span> <span class="toc-text">嵌入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#视频尺寸"><span class="toc-number">5.0.1.</span> <span class="toc-text">视频尺寸</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#视频参数"><span class="toc-number">5.0.2.</span> <span class="toc-text">视频参数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#选项"><span class="toc-number">6.</span> <span class="toc-text">选项</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#API"><span class="toc-number">7.</span> <span class="toc-text">API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内核方法"><span class="toc-number">7.0.1.</span> <span class="toc-text">内核方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实例方法"><span class="toc-number">7.0.2.</span> <span class="toc-text">实例方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件"><span class="toc-number">7.0.3.</span> <span class="toc-text">事件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#模块"><span class="toc-number">8.</span> <span class="toc-text">模块</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FAQ"><span class="toc-number">9.</span> <span class="toc-text">FAQ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#开启-关闭导致固定元素跳动"><span class="toc-number">9.0.1.</span> <span class="toc-text">开启/关闭导致固定元素跳动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何自定义标题"><span class="toc-number">9.0.2.</span> <span class="toc-text">如何自定义标题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何在工具栏中创建自定义按钮"><span class="toc-number">9.0.3.</span> <span class="toc-text">如何在工具栏中创建自定义按钮</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何重新定位缩略图网格"><span class="toc-number">9.0.4.</span> <span class="toc-text">如何重新定位缩略图网格</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
     
-    <entry>
-      <title><![CDATA[hexo的安装配置以及多终端文章编辑]]></title>
-      <url>/2017/04/12/hexo%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%8F%8A%E5%A4%9A%E7%BB%88%E7%AB%AF%E6%96%87%E7%AB%A0%E7%BC%96%E8%BE%91/</url>
-      <content type="html"><![CDATA[<p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）
-<a id="more"></a></p>
-<h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。
-但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
-<h1 id="GitHub新建仓库"><a href="#GitHub新建仓库" class="headerlink" title="GitHub新建仓库"></a>GitHub新建仓库</h1><h2 id="注册GitHub帐号"><a href="#注册GitHub帐号" class="headerlink" title="注册GitHub帐号"></a>注册GitHub帐号</h2><p>这里就是普通的帐号注册，可以自己摸索，不是很难</p>
-<h2 id="新建仓库"><a href="#新建仓库" class="headerlink" title="新建仓库"></a>新建仓库</h2><p>点击右上角的“+”号，选择新建仓库选项</p>
-<h2 id="输入仓库信息"><a href="#输入仓库信息" class="headerlink" title="输入仓库信息"></a>输入仓库信息</h2><p>输入你的仓库名字，这个名字就是以后访问博客的地址。据说，后缀必须是github.io或者github.com，没有验证真伪，如果是别的代码平台需参考平台规则。</p>
-<h1 id="git使用密钥添加"><a href="#git使用密钥添加" class="headerlink" title="git使用密钥添加"></a>git使用密钥添加</h1><h2 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h2><p>在Linux机器上注册密钥</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -C &quot;GitHub注册邮箱&quot;</div></pre></td></tr></table></figure>
-<p>直接一路回车就可以了，会在当前目录的.ssh目录下生成id_rsa和id_rsa.pub两个文件，注意，id_rsa不要泄漏给其他人。
-使用命令打开id_rsa.pub，复制里面的内容。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat .ssh/id_rsa.pub</div></pre></td></tr></table></figure>
-<h2 id="输入密钥"><a href="#输入密钥" class="headerlink" title="输入密钥"></a>输入密钥</h2><p>点击右上角的头像旁的三角，选择设置选项卡。
-在新页面中选择“SSH and GPG keys”选项卡。
-点击添加“SSH key”按钮。
-将刚才复制的内容都添加进去。</p>
-<h2 id="验证密钥是否生效"><a href="#验证密钥是否生效" class="headerlink" title="验证密钥是否生效"></a>验证密钥是否生效</h2><p>回到Linux机器，输入以下命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -T git@github.com</div></pre></td></tr></table></figure>
-<p>中间会有一个询问，输入yes，如果能够看到以下提示就说明连接没有问题。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">You&apos;ve successfully authenticated, but GitHub does not provide shell access.</div></pre></td></tr></table></figure>
-<h1 id="安装设置git"><a href="#安装设置git" class="headerlink" title="安装设置git"></a>安装设置git</h1><h2 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h2><p>我使用的版本是centos7.2，默认没有安装，如果你使用的是其他版本除了安装命令不同之外，其他的差别不大，具体参考相应的命令。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install git -y</div></pre></td></tr></table></figure>
-<h2 id="git-conf-设置"><a href="#git-conf-设置" class="headerlink" title="git conf 设置"></a>git conf 设置</h2><p>安装完成之后设置你的用户名以及邮箱</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git config --global user.name &quot;realtiger&quot;</div><div class="line">git config --global user.email &quot;ganchangde@163.com&quot;</div></pre></td></tr></table></figure>
-<h1 id="安装nodejs"><a href="#安装nodejs" class="headerlink" title="安装nodejs"></a>安装nodejs</h1><p>因为Hexo需要使用nodejs，所以我们要先安装nodejs</p>
-<h2 id="下载nodejs的安装包"><a href="#下载nodejs的安装包" class="headerlink" title="下载nodejs的安装包"></a>下载nodejs的安装包</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget http://nodejs.org/dist/v7.8.0/node-v7.8.0-linux-x64.tar.xz</div></pre></td></tr></table></figure>
-<p>解压至你想要放置的地方</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tar Jxf node-v7.8.0-linux-x64.tar.xz -C /usr/local</div></pre></td></tr></table></figure>
-<h2 id="链接node和npm命令"><a href="#链接node和npm命令" class="headerlink" title="链接node和npm命令"></a>链接node和npm命令</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ln -s ~/node-v7.8.0-linux-x64/bin/node /usr/local/bin/node</div><div class="line">ln -s ~/node-v7.8.0-linux-x64/bin/npm /usr/local/bin/npm</div></pre></td></tr></table></figure>
-<h1 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h1><h2 id="下载安装hexo"><a href="#下载安装hexo" class="headerlink" title="下载安装hexo"></a>下载安装hexo</h2><p>由于国外源并不稳定，因此使用淘宝源</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">npm install -g hexo-cli --registry=https://registry.npm.taobao.org</div><div class="line">ln -s /usr/local/node-v7.8.0-linux-x64/bin/hexo /usr/local/bin/hexo</div></pre></td></tr></table></figure>
-<p>安装完成，输入hexo命令，如果显示如下提示，则说明安装成功</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Usage: hexo &lt;command&gt;</div><div class="line"></div><div class="line">Commands:</div><div class="line">  help     Get help on a command.</div><div class="line">  init     Create a new Hexo folder.</div><div class="line">  version  Display version information.</div><div class="line"></div><div class="line">Global Options:</div><div class="line">  --config  Specify config file instead of using _config.yml</div><div class="line">  --cwd     Specify the CWD</div><div class="line">  --debug   Display all verbose messages in the terminal</div><div class="line">  --draft   Display draft posts</div><div class="line">  --safe    Disable all plugins and scripts</div><div class="line">  --silent  Hide output on console</div><div class="line"></div><div class="line">For more help, you can use &apos;hexo help [command]&apos; for the detailed information</div><div class="line">or you can check the docs: http://hexo.io/docs/</div></pre></td></tr></table></figure>
-<h1 id="初始化博客"><a href="#初始化博客" class="headerlink" title="初始化博客"></a>初始化博客</h1><h2 id="建立特定目录"><a href="#建立特定目录" class="headerlink" title="建立特定目录"></a>建立特定目录</h2><p>因为有需求需要在不同的电脑上进行文档的编辑，所以最终会将所有的Hexo目录进行上传备份保存。因为博客也是要给其他人看的，博客框架以及主题又是开源的，所以谈不上什么信息泄露之类的，我比较懒，就直接传到github
-但是目前还是先建立一个特定目录。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir realtiger</div><div class="line">cd realtiger/</div></pre></td></tr></table></figure>
-<h2 id="初始化博客目录"><a href="#初始化博客目录" class="headerlink" title="初始化博客目录"></a>初始化博客目录</h2><p>hexoblog是自定义的文件夹名，可以随便起名字，hexo所有的目录文件都会初始化到hexoblog目录里</p>
-<pre><code>hexo init hexoblog
-cd hexoblog/
-# 根据博客安装依赖包
-npm install --registry=https://registry.npm.taobao.org
-</code></pre><p>此时博客目录下是这样的</p>
-<pre><code>$ ls -a
-.  ..  _config.yml  .gitignore  node_modules  package.json  scaffolds  source  themes
-</code></pre><h1 id="配置博客"><a href="#配置博客" class="headerlink" title="配置博客"></a>配置博客</h1><p>修改_config.yml文件，根据自身不同要求进行不同的修改。以下是默认文件，我添加了一些注释，我在后面配置了一些配置示例，也可跳过默认配置直接查看示例。
-注意：因为文件是yaml格式，所以冒号后面有一个空格，不能省略，否则解析会出现错误。</p>
-<pre><code># Hexo Configuration
-## Docs: https://hexo.io/docs/configuration.html
-## Source: https://github.com/hexojs/hexo/
-
-# 站点信息
-# Site
-# 博客标题
-title: # The title of your website
-# 博客副标题
-subtitle: # The subtitle of your website
-# 博客描述
-description: # The description of your website
-# 作者
-author: # Your name
-# 语言，支持的语言在&quot;./themes/landscape/languages/&quot;下
-language: # The language of your website
-# 时区
-timezone: 
-
-# 网址信息
-# URL
-## If your site is put in a subdirectory, set url as &apos;http://yoursite.com/child&apos; and root as &apos;/child/&apos;
-# 绑定域名，就是新建github时填写的那个网址
-url: http://yoursite.com/child
-# 网站的根目录
-root: /
-# 网站的永久链接
-permalink: :year/:month/:day/:title/
-# 网站的默认永久链接
-permalink_defaults:
-
-# 目录信息
-# Directory
-# 源文件目录
-source_dir: source
-# 网站网页目录
-public_dir: public
-# 标签目录
-tag_dir: tags
-# 归档目录
-archive_dir: archives
-# 分类目录
-category_dir: categories
-# 代码目录
-code_dir: downloads/code
-# 国际化
-i18n_dir: :lang
-skip_render:
-
-# 写作信息
-# Writing
-# 新文章标题
-new_post_name: :title.md # File name of new posts
-# 默认布局
-default_layout: post
-# 标题转换大小写
-titlecase: false # Transform title into titlecase
-# 是否在新标签页打开
-external_link: true # Open external links in new tab
-filename_case: 0
-render_drafts: false
-post_asset_folder: false
-relative_link: false
-future: true
-# 语法高亮设置
-highlight:
-  # 是否启用
-  enable: true
-  # 显示行号
-  line_number: true
-  auto_detect: false
-  tab_replace:
-
-# Category &amp; Tag
-default_category: uncategorized
-category_map:
-tag_map:
-
-# Date / Time format
-## Hexo uses Moment.js to parse and display date
-## You can customize the date format as defined in
-## http://momentjs.com/docs/#/displaying/format/
-date_format: YYYY-MM-DD
-time_format: HH:mm:ss
-
-# 分页信息
-# Pagination
-## Set per_page to 0 to disable pagination
-# 每页的文章数
-per_page: 10
-# 分页目录
-pagination_dir: page
-
-# 扩展信息
-# Extensions
-## Plugins: https://hexo.io/plugins/
-## Themes: https://hexo.io/themes/
-# 使用主题
-theme: landscape
-
-# 部署信息
-# Deployment
-## Docs: https://hexo.io/docs/deployment.html
-deploy:
-  type:
-</code></pre><p>以下是以我的博客配置做的示例。</p>
-<ol>
-<li><p>站点信息</p>
-<pre><code># Site
-title: realtiger&apos;s blog
-subtitle: 小真虎的个人博客
-description: 小真虎的分享平台
-author: realtiger
-language: zh-CN
-timezone: Asia/Shanghai
-</code></pre></li>
-<li><p>个人网址设定</p>
-<pre><code>url: http://realtiger.github.io
-root: /
-permalink: :year/:month/:day/:title/
-permalink_defaults:
-</code></pre></li>
-<li><p>部署配置</p>
-</li>
-</ol>
-<p>以下信息是部署至GitHub的配置，如果需要部署至其他地方请再参考其他资料。</p>
-<pre><code># Deployment
-## Docs: https://hexo.io/docs/deployment.html
-deploy:
-  type: git
-  repo: https://github.com/realtiger/realtiger.github.io.git
-  branch: master
-</code></pre><p>repo是你的GitHub仓库，可以进入你的仓库，点击右上角的“Clone or download”按钮，获得对应的URL</p>
-<p>branch是项目的分支，默认使用主分支master</p>
-<h1 id="发表文章"><a href="#发表文章" class="headerlink" title="发表文章"></a>发表文章</h1><p>输入以下命令新建一篇文章：</p>
-<pre><code>hexo new &quot;first&quot;
-INFO  Created: ~/realtiger/hexoblog/source/_posts/first.md
-</code></pre><p>可以看到系统已经创建了一个markdown文档，下面我们对文档进行编辑</p>
-<pre><code>---
-title: first
-date: 2017-04-10 17:28:19
-tags:
----
-欢迎大家来到我的新博客[1](https://realtiger.github.io):https://realtiger.github.io
-</code></pre><p>保存。</p>
-<h1 id="发布、部署博客"><a href="#发布、部署博客" class="headerlink" title="发布、部署博客"></a>发布、部署博客</h1><h2 id="生成网站静态文件"><a href="#生成网站静态文件" class="headerlink" title="生成网站静态文件"></a>生成网站静态文件</h2><pre><code>hexo generate
-
-INFO  Start processing
-INFO  Files loaded in 368 ms
-INFO  Generated: index.html
-INFO  Generated: archives/index.html
-INFO  Generated: fancybox/blank.gif
-INFO  Generated: fancybox/jquery.fancybox.css
-INFO  Generated: fancybox/jquery.fancybox.pack.js
-INFO  Generated: fancybox/jquery.fancybox.js
-INFO  Generated: fancybox/fancybox_loading.gif
-INFO  Generated: fancybox/fancybox_sprite.png
-INFO  Generated: fancybox/fancybox_loading@2x.gif
-INFO  Generated: fancybox/fancybox_overlay.png
-INFO  Generated: fancybox/fancybox_sprite@2x.png
-INFO  Generated: archives/2017/04/index.html
-INFO  Generated: archives/2017/index.html
-INFO  Generated: js/script.js
-INFO  Generated: fancybox/helpers/jquery.fancybox-buttons.css
-INFO  Generated: css/fonts/FontAwesome.otf
-INFO  Generated: fancybox/helpers/jquery.fancybox-buttons.js
-INFO  Generated: fancybox/helpers/jquery.fancybox-thumbs.css
-INFO  Generated: fancybox/helpers/jquery.fancybox-media.js
-INFO  Generated: fancybox/helpers/jquery.fancybox-thumbs.js
-INFO  Generated: css/style.css
-INFO  Generated: fancybox/helpers/fancybox_buttons.png
-INFO  Generated: css/fonts/fontawesome-webfont.eot
-INFO  Generated: css/fonts/fontawesome-webfont.woff
-INFO  Generated: css/fonts/fontawesome-webfont.svg
-INFO  Generated: css/images/banner.jpg
-INFO  Generated: css/fonts/fontawesome-webfont.ttf
-INFO  Generated: 2017/04/10/hello-world/index.html
-INFO  Generated: 2017/04/10/first/index.html
-INFO  29 files generated in 1.04 s
-</code></pre><h2 id="本地发布"><a href="#本地发布" class="headerlink" title="本地发布"></a>本地发布</h2><pre><code>hexo server
-
-INFO  Start processing
-INFO  Hexo is running at http://localhost:4000/. Press Ctrl+C to stop.
-</code></pre><p>然后在浏览器中打开<a href="http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。" target="_blank" rel="external">http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。</a>
-注意：因为是linux机器，一定要打开防火墙的对应端口，否则无法进行访问。</p>
-<p>防火墙的打开方法如下：</p>
-<pre><code># 防火墙临时打开端口
-firewall-cmd --add-port=4000/tcp
-
-# 防火墙永久打开端口，需要重新载入，载入前端口规则不生效
-firewall-cmd --add-port=4000/tcp --permanent
-firewall-cmd --reload
-</code></pre><h2 id="部署博客"><a href="#部署博客" class="headerlink" title="部署博客"></a>部署博客</h2><p>现在还只是我们自己可以看到博客，其他人没有办法访问，只要输入以下命令就可以将博客部署到GitHub上了，这样其他人就可以访问，访问时只要输入自定义的网址即可，比如我的URL是:<a href="https://realtiger.github.io">https://realtiger.github.io</a></p>
-<pre><code># 安装deployer git
-npm install hexo-deployer-git --save --registry=https://registry.npm.taobao.org
-hexo deploy
-</code></pre><h1 id="博客备份"><a href="#博客备份" class="headerlink" title="博客备份"></a>博客备份</h1><p>返回目录上层，然后将博客目录作为一个整体目录备份到GitHub上的另一个仓库中</p>
-<pre><code>cd ..
-git init
-git add hexoblog
-git commit -m &quot;没有更改主题的初始形态&quot;
-# person_blog_setting是我用于存储blog的新仓库
-git remote add origin git@github.com:realtiger/person_blog_setting.git
-# 将hexoblog整体进行推送
-git push -u origin master
-</code></pre><p>至此，博客已经全部进行了备份</p>
-<h1 id="主题更改"><a href="#主题更改" class="headerlink" title="主题更改"></a>主题更改</h1><p>作为一个看脸的吃瓜群众，我个人认为，默认主题还是不符合自己的要求，本来自己想写一个，无奈懒癌已经晚期，于是东找西找，觉得<a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" rel="external">Yelee</a>的主题还是挺不错的，直接拿来用吧。</p>
-<p>为了能够备份自己的配置，首先需要将主题fork到自己的仓库</p>
-<p>然后进入自己的博客目录中，将fork的主题clone到主题目录中</p>
-<pre><code>git clone git@github.com:realtiger/hexo-theme-yelee.git themes/yelee
-</code></pre><p>然后根据自己的需求配置“./themes/yelee/_config.yml”，配置方法参考，<a href="http://moxfive.coding.me/yelee/" target="_blank" rel="external">Yelee 主题使用说明 [简中]</a></p>
-<p>其中特意提示一下404页面，我认为，我这个人虽然有很多不足，心还是善良的。我在自己的404页面上加入了腾讯的公益信息，至于能起多大作用，我不知道，但是如果能够起到哪怕一丝丝作用，即使一个站长看到了产生一些共鸣，用在了自己的404页面上也是一件好事。</p>
-<p>在Hexo主目录下使用一下命令创建404页面。</p>
-<pre><code>hexo new page 404
-</code></pre><p>然后修改<code>source/404/index.md</code>页面</p>
-<pre><code>---
-title: 404 Not Found：该页无法显示
-date: 2017-04-12 09:23:55
-toc: false
-comments: false
-permalink: /404
----
-&lt;script type=&quot;text/javascript&quot; src=&quot;//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js&quot; charset=&quot;utf-8&quot; homePageUrl=&quot;https://realtiger.github.io&quot; homePageName=&quot;回到我的主页&quot;&gt;&lt;/script&gt;
-</code></pre><p>其中js部分是腾讯的公益广告代码，因为404页面只能绑定顶级域名，所以我这里使用先跳转到自己的页面然后再跳转到腾讯公益广告页面的这种办法。</p>
-<p>如果你想使用以上的404代码，请留意homePageUrl和homePageName属性，根据你自己的情况进行更改。</p>
-<p>配置完成后，更改”./_config.yml”</p>
-<pre><code>theme: yelee
-</code></pre><p>之后再从本地发布</p>
-<pre><code>hexo server
-</code></pre><p>如果没有问题，提交yelee主题到仓库。
-注意：如果提交的是主分支，你之后就无法提交对yelee主题的贡献了，如果还想要提交不同的贡献，建议提交到分支，具体如何提交到分支，请参考git命令，这里不再赘述。</p>
-<pre><code>cd themes/yelee/
-git add .
-git commit -m &quot;first&quot;
-git push origin master 
-</code></pre><p>这样就将修改文件上传到了GitHub上了。</p>
-<p>最后不要忘了将Hexo进行更新，部署，上传，否则公网的博客主题不会有变化的。</p>
-<pre><code>cd ../..
-hexo generate
-hexo deploy
-cd ..
-git add .
-git commit -m &quot;更改主题&quot;
-git push
-</code></pre><h1 id="不同终端编辑文章"><a href="#不同终端编辑文章" class="headerlink" title="不同终端编辑文章"></a>不同终端编辑文章</h1><h2 id="Hexo整体目录创建"><a href="#Hexo整体目录创建" class="headerlink" title="Hexo整体目录创建"></a>Hexo整体目录创建</h2><p>首先在GitHub上添加密钥，安装nodejs就不再叙述了，主要看不同的地方。
-首先要克隆Hexo整体目录</p>
-<pre><code>git clone git@github.com:realtiger/person_blog_setting.git realtiger
-# 进入hexoblog目录
-cd realtiger/hexoblog
-# 根据博客安装依赖包
-npm install --registry=https://registry.npm.taobao.org
-# 安装deployer git
-npm install hexo-deployer-git --save --registry=https://registry.npm.taobao.org
-# 克隆主题
-git clone git@github.com:realtiger/hexo-theme-yelee.git themes/yelee
-# 如果有搜索插件需求，还要将插件进行安装
-npm install hexo-generator-search --save --registry=https://registry.npm.taobao.org
-</code></pre><h2 id="克隆目录的使用"><a href="#克隆目录的使用" class="headerlink" title="克隆目录的使用"></a>克隆目录的使用</h2><p>之后这个文件夹就完全一样了，写文章，发布，修改就都一样了。如果做了更改，记得保存配置哦。
-如果在别的机器上做了更改，本机要<code>git pull</code>更新一下本地目录再进行操作。</p>
-<p>相关文章推荐：</p>
-<ul>
-<li><a href="http://www.jianshu.com/p/e99ed60390a8" target="_blank" rel="external">20分钟教你使用hexo搭建github博客</a></li>
-</ul>
-]]></content>
-      
-        <categories>
-            
-            <category> markdown写作 </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> hexo 博客 </tag>
-            
-        </tags>
-        
-    </entry>
+<div class="share">
     
-    <entry>
-      <title><![CDATA[first]]></title>
-      <url>/2017/04/10/first/</url>
-      <content type="html"><![CDATA[<p>欢迎大家访问我的新个人技术博客<a href="https://realtiger.github.io">小真虎的博客</a>。</p>
-]]></content>
-      
-        
-    </entry>
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"使用jQuery插件fancybox3实现照片查看　| realtiger's blog　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
     
-  
-  
-</search>
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section class="youyan" id="comments">
+    <script>
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = 'http://v2.uyan.cc/code/uyan.js?uid=2130701';
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+    <div id="uyan_frame"></div>
+</section>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" title="上一篇: hexo的安装配置以及多终端文章编辑">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/">使用jQuery插件fancybox3实现照片查看</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/10/first/">first</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2017 realtiger
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

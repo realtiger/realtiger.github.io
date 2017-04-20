@@ -2427,24 +2427,22 @@ pre .javascript .function {
 }
 .post-donate {
   margin-top: 80px;
+  padding-bottom: 50px;
 }
 #donate_guide {
   height: 210px;
-  width: 420px;
+  width: 440px;
   margin: 0 auto;
 }
 #donate_guide img {
   height: 200px;
 /* height: 200px; */
 }
-#donate_guide div {
-  position: relative;
-  display: inline;
+#wechatpay {
+  margin-left: 16px;
 }
-#donate_guide span {
-  position: absolute;
-  left: 70px;
-  top: 20px;
+#alipay {
+  margin-right: 16px;
 }
 #page-nav {
   text-align: center;

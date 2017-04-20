@@ -22,7 +22,7 @@
 <meta property="og:url" content="http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/index.html">
 <meta property="og:site_name" content="realtiger's blog">
 <meta property="og:description" content="通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）">
-<meta property="og:updated_time" content="2017-04-12T09:38:07.707Z">
+<meta property="og:updated_time" content="2017-04-20T06:51:06.670Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hexo的安装配置以及多终端文章编辑">
 <meta name="twitter:description" content="通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）">
@@ -39,6 +39,8 @@
 
 
     <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
 
 
 
@@ -92,6 +94,7 @@
 
 
 </head>
+
 <body>
   <div id="container">
     <div class="left-col">
@@ -197,7 +200,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li></ul>
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/fancyBox/">fancyBox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo-博客/">hexo 博客</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图片/">图片</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/插件/">插件</a></li></ul>
                     </div>
                 </section>
                 
@@ -290,8 +293,6 @@
 
 <div class="article-inner">
 
-<input type="hidden" class="isFancy" />
-
 
 <header class="article-header">
 
@@ -322,16 +323,22 @@
 <div class="article-entry" itemprop="articleBody">
 
   
-<p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）<br><a id="more"></a></p>
-<h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。<br>但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
+<p>通过Linux利用GitHub平台搭建Hexo博客平台，并且实现多终端能够编辑文章，上传（笨办法）
+<a id="more"></a></p>
+<h1 id="使用Linux搭建Hexo博客平台"><a href="#使用Linux搭建Hexo博客平台" class="headerlink" title="使用Linux搭建Hexo博客平台"></a>使用Linux搭建Hexo博客平台</h1><p>一直以来都想自己搭建一个自己的博客平台，至于为什么，只能说就是这么任性。经过一段时间的考察（其实是正好看到），个人感觉Hexo还不错，同时作为颜控，Hexo的皮肤还是能够满足需求的。
+但是网上搜索之后发现，Hexo大部分都是使用windows进行搭建，却没有Linux搭建的教程，以下就是我在Linux操作系统下进行搭建的过程，只能说，就是这么爱折腾。</p>
 <h1 id="GitHub新建仓库"><a href="#GitHub新建仓库" class="headerlink" title="GitHub新建仓库"></a>GitHub新建仓库</h1><h2 id="注册GitHub帐号"><a href="#注册GitHub帐号" class="headerlink" title="注册GitHub帐号"></a>注册GitHub帐号</h2><p>这里就是普通的帐号注册，可以自己摸索，不是很难</p>
 <h2 id="新建仓库"><a href="#新建仓库" class="headerlink" title="新建仓库"></a>新建仓库</h2><p>点击右上角的“+”号，选择新建仓库选项</p>
 <h2 id="输入仓库信息"><a href="#输入仓库信息" class="headerlink" title="输入仓库信息"></a>输入仓库信息</h2><p>输入你的仓库名字，这个名字就是以后访问博客的地址。据说，后缀必须是github.io或者github.com，没有验证真伪，如果是别的代码平台需参考平台规则。</p>
 <h1 id="git使用密钥添加"><a href="#git使用密钥添加" class="headerlink" title="git使用密钥添加"></a>git使用密钥添加</h1><h2 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h2><p>在Linux机器上注册密钥</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -C &quot;GitHub注册邮箱&quot;</div></pre></td></tr></table></figure>
-<p>直接一路回车就可以了，会在当前目录的.ssh目录下生成id_rsa和id_rsa.pub两个文件，注意，id_rsa不要泄漏给其他人。<br>使用命令打开id_rsa.pub，复制里面的内容。</p>
+<p>直接一路回车就可以了，会在当前目录的.ssh目录下生成id_rsa和id_rsa.pub两个文件，注意，id_rsa不要泄漏给其他人。
+使用命令打开id_rsa.pub，复制里面的内容。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat .ssh/id_rsa.pub</div></pre></td></tr></table></figure>
-<h2 id="输入密钥"><a href="#输入密钥" class="headerlink" title="输入密钥"></a>输入密钥</h2><p>点击右上角的头像旁的三角，选择设置选项卡。<br>在新页面中选择“SSH and GPG keys”选项卡。<br>点击添加“SSH key”按钮。<br>将刚才复制的内容都添加进去。</p>
+<h2 id="输入密钥"><a href="#输入密钥" class="headerlink" title="输入密钥"></a>输入密钥</h2><p>点击右上角的头像旁的三角，选择设置选项卡。
+在新页面中选择“SSH and GPG keys”选项卡。
+点击添加“SSH key”按钮。
+将刚才复制的内容都添加进去。</p>
 <h2 id="验证密钥是否生效"><a href="#验证密钥是否生效" class="headerlink" title="验证密钥是否生效"></a>验证密钥是否生效</h2><p>回到Linux机器，输入以下命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -T git@github.com</div></pre></td></tr></table></figure>
 <p>中间会有一个询问，输入yes，如果能够看到以下提示就说明连接没有问题。</p>
@@ -349,7 +356,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">npm install -g hexo-cli --registry=https://registry.npm.taobao.org</div><div class="line">ln -s /usr/local/node-v7.8.0-linux-x64/bin/hexo /usr/local/bin/hexo</div></pre></td></tr></table></figure>
 <p>安装完成，输入hexo命令，如果显示如下提示，则说明安装成功</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Usage: hexo &lt;command&gt;</div><div class="line"></div><div class="line">Commands:</div><div class="line">  help     Get help on a command.</div><div class="line">  init     Create a new Hexo folder.</div><div class="line">  version  Display version information.</div><div class="line"></div><div class="line">Global Options:</div><div class="line">  --config  Specify config file instead of using _config.yml</div><div class="line">  --cwd     Specify the CWD</div><div class="line">  --debug   Display all verbose messages in the terminal</div><div class="line">  --draft   Display draft posts</div><div class="line">  --safe    Disable all plugins and scripts</div><div class="line">  --silent  Hide output on console</div><div class="line"></div><div class="line">For more help, you can use &apos;hexo help [command]&apos; for the detailed information</div><div class="line">or you can check the docs: http://hexo.io/docs/</div></pre></td></tr></table></figure>
-<h1 id="初始化博客"><a href="#初始化博客" class="headerlink" title="初始化博客"></a>初始化博客</h1><h2 id="建立特定目录"><a href="#建立特定目录" class="headerlink" title="建立特定目录"></a>建立特定目录</h2><p>因为有需求需要在不同的电脑上进行文档的编辑，所以最终会将所有的Hexo目录进行上传备份保存。因为博客也是要给其他人看的，博客框架以及主题又是开源的，所以谈不上什么信息泄露之类的，我比较懒，就直接传到github<br>但是目前还是先建立一个特定目录。</p>
+<h1 id="初始化博客"><a href="#初始化博客" class="headerlink" title="初始化博客"></a>初始化博客</h1><h2 id="建立特定目录"><a href="#建立特定目录" class="headerlink" title="建立特定目录"></a>建立特定目录</h2><p>因为有需求需要在不同的电脑上进行文档的编辑，所以最终会将所有的Hexo目录进行上传备份保存。因为博客也是要给其他人看的，博客框架以及主题又是开源的，所以谈不上什么信息泄露之类的，我比较懒，就直接传到github
+但是目前还是先建立一个特定目录。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir realtiger</div><div class="line">cd realtiger/</div></pre></td></tr></table></figure>
 <h2 id="初始化博客目录"><a href="#初始化博客目录" class="headerlink" title="初始化博客目录"></a>初始化博客目录</h2><p>hexoblog是自定义的文件夹名，可以随便起名字，hexo所有的目录文件都会初始化到hexoblog目录里</p>
 <pre><code>hexo init hexoblog
@@ -359,7 +367,8 @@ npm install --registry=https://registry.npm.taobao.org
 </code></pre><p>此时博客目录下是这样的</p>
 <pre><code>$ ls -a
 .  ..  _config.yml  .gitignore  node_modules  package.json  scaffolds  source  themes
-</code></pre><h1 id="配置博客"><a href="#配置博客" class="headerlink" title="配置博客"></a>配置博客</h1><p>修改_config.yml文件，根据自身不同要求进行不同的修改。以下是默认文件，我添加了一些注释，我在后面配置了一些配置示例，也可跳过默认配置直接查看示例。<br>注意：因为文件是yaml格式，所以冒号后面有一个空格，不能省略，否则解析会出现错误。</p>
+</code></pre><h1 id="配置博客"><a href="#配置博客" class="headerlink" title="配置博客"></a>配置博客</h1><p>修改_config.yml文件，根据自身不同要求进行不同的修改。以下是默认文件，我添加了一些注释，我在后面配置了一些配置示例，也可跳过默认配置直接查看示例。
+注意：因为文件是yaml格式，所以冒号后面有一个空格，不能省略，否则解析会出现错误。</p>
 <pre><code># Hexo Configuration
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
@@ -543,7 +552,8 @@ INFO  29 files generated in 1.04 s
 
 INFO  Start processing
 INFO  Hexo is running at http://localhost:4000/. Press Ctrl+C to stop.
-</code></pre><p>然后在浏览器中打开<a href="http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。" target="_blank" rel="external">http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。</a><br>注意：因为是linux机器，一定要打开防火墙的对应端口，否则无法进行访问。</p>
+</code></pre><p>然后在浏览器中打开<a href="http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。" target="_blank" rel="external">http://localhost:4000/就可以看到我们搭建好的博客和发布的文章了。</a>
+注意：因为是linux机器，一定要打开防火墙的对应端口，否则无法进行访问。</p>
 <p>防火墙的打开方法如下：</p>
 <pre><code># 防火墙临时打开端口
 firewall-cmd --add-port=4000/tcp
@@ -588,7 +598,8 @@ permalink: /404
 <pre><code>theme: yelee
 </code></pre><p>之后再从本地发布</p>
 <pre><code>hexo server
-</code></pre><p>如果没有问题，提交yelee主题到仓库。<br>注意：如果提交的是主分支，你之后就无法提交对yelee主题的贡献了，如果还想要提交不同的贡献，建议提交到分支，具体如何提交到分支，请参考git命令，这里不再赘述。</p>
+</code></pre><p>如果没有问题，提交yelee主题到仓库。
+注意：如果提交的是主分支，你之后就无法提交对yelee主题的贡献了，如果还想要提交不同的贡献，建议提交到分支，具体如何提交到分支，请参考git命令，这里不再赘述。</p>
 <pre><code>cd themes/yelee/
 git add .
 git commit -m &quot;first&quot;
@@ -602,7 +613,8 @@ cd ..
 git add .
 git commit -m &quot;更改主题&quot;
 git push
-</code></pre><h1 id="不同终端编辑文章"><a href="#不同终端编辑文章" class="headerlink" title="不同终端编辑文章"></a>不同终端编辑文章</h1><h2 id="Hexo整体目录创建"><a href="#Hexo整体目录创建" class="headerlink" title="Hexo整体目录创建"></a>Hexo整体目录创建</h2><p>首先在GitHub上添加密钥，安装nodejs就不再叙述了，主要看不同的地方。<br>首先要克隆Hexo整体目录</p>
+</code></pre><h1 id="不同终端编辑文章"><a href="#不同终端编辑文章" class="headerlink" title="不同终端编辑文章"></a>不同终端编辑文章</h1><h2 id="Hexo整体目录创建"><a href="#Hexo整体目录创建" class="headerlink" title="Hexo整体目录创建"></a>Hexo整体目录创建</h2><p>首先在GitHub上添加密钥，安装nodejs就不再叙述了，主要看不同的地方。
+首先要克隆Hexo整体目录</p>
 <pre><code>git clone git@github.com:realtiger/person_blog_setting.git realtiger
 # 进入hexoblog目录
 cd realtiger/hexoblog
@@ -614,7 +626,8 @@ npm install hexo-deployer-git --save --registry=https://registry.npm.taobao.org
 git clone git@github.com:realtiger/hexo-theme-yelee.git themes/yelee
 # 如果有搜索插件需求，还要将插件进行安装
 npm install hexo-generator-search --save --registry=https://registry.npm.taobao.org
-</code></pre><h2 id="克隆目录的使用"><a href="#克隆目录的使用" class="headerlink" title="克隆目录的使用"></a>克隆目录的使用</h2><p>之后这个文件夹就完全一样了，写文章，发布，修改就都一样了。如果做了更改，记得保存配置哦。<br>如果在别的机器上做了更改，本机要<code>git pull</code>更新一下本地目录再进行操作。</p>
+</code></pre><h2 id="克隆目录的使用"><a href="#克隆目录的使用" class="headerlink" title="克隆目录的使用"></a>克隆目录的使用</h2><p>之后这个文件夹就完全一样了，写文章，发布，修改就都一样了。如果做了更改，记得保存配置哦。
+如果在别的机器上做了更改，本机要<code>git pull</code>更新一下本地目录再进行操作。</p>
 <p>相关文章推荐：</p>
 <ul>
 <li><a href="http://www.jianshu.com/p/e99ed60390a8" target="_blank" rel="external">20分钟教你使用hexo搭建github博客</a></li>
@@ -630,7 +643,7 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
         <p><span>本文标题:</span><a href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">realtiger</a></p>
         <p><span>发布时间:</span>2017-04-12, 11:13:41</p>
-        <p><span>最后更新:</span>2017-04-12, 17:38:07</p>
+        <p><span>最后更新:</span>2017-04-20, 14:51:06</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/" title="hexo的安装配置以及多终端文章编辑">http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/</a>
             <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/2017/04/12/hexo的安装配置以及多终端文章编辑/　　作者: realtiger" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -651,6 +664,12 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
                 </a>
             </div>
         
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/">
+                    使用jQuery插件fancybox3实现照片查看
+                </a>
+            </div>
         
     </nav>
 
@@ -769,11 +788,13 @@ npm install hexo-generator-search --save --registry=https://registry.npm.taobao.
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/" title="下一篇: 使用jQuery插件fancybox3实现照片查看">
+                <i class="fa fa-angle-right"></i>
+            </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/10/first/">first</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/20/使用jQuery插件fancybox3实现照片查看/">使用jQuery插件fancybox3实现照片查看</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/12/hexo的安装配置以及多终端文章编辑/">hexo的安装配置以及多终端文章编辑</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/10/first/">first</a></li></ul>
 
 
 
