@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="重载（Overload）和重写（Override）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python design patterns 02">
+<meta property="og:url" content="http://realtiger.github.io/python-design-patterns-02/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="重载（Overload）和重写（Override）">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-04-30T08:47:39.000Z">
+<meta property="article:modified_time" content="2023-05-01T17:33:24.429Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>python design patterns 02 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-python-design-patterns-02" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/python-design-patterns-02/" class="article-date">
+      <time datetime="2023-04-30T08:47:39.000Z" itemprop="datePublished">2023-04-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      python design patterns 02
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4.3k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">18分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="重载（Overload）和重写（Override）"><a href="#重载（Overload）和重写（Override）" class="headerlink" title="重载（Overload）和重写（Override）"></a>重载（Overload）和重写（Override）</h1><span id="more"></span>
+
+<h2 id="重载（Overload）"><a href="#重载（Overload）" class="headerlink" title="重载（Overload）"></a>重载（Overload）</h2><h3 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h3><p>重载是在一个类里面，方法名字相同，而参数不同。返回类型可以相同也可以不同。</p>
+<p>每个重载的方法（或者构造函数）都必须有一个独一无二的参数类型列表。</p>
+<p>方法重载的好处就是让类以统一的方式处理不同类型的一种手段，调用方法时通过传递给他们的不同个数和类型的参数来决定具体使用哪个方法，这就是多态性。</p>
+<p>它的特点是：重载发生在本类，方法名相同，参数列表不同，与返回值无关，只和方法名，参数的类型相关。</p>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>没有重载前，不同的参数的方法需要定义不同的名字防止冲突（JAVA示例）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class TestMath &#123;</span><br><span class="line"></span><br><span class="line">    public int sumWithTwoNum(int num1, int num2) &#123;</span><br><span class="line">        return num1 + num2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int sumWithThreeNum(int num1, int num2, int num3) &#123;</span><br><span class="line">        return num1 + num2 + num3;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int sumWithFourNum(int num1, int num2, int num3, int num4) &#123;</span><br><span class="line">        return num1 + num2 + num3 + num4;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重载后可以定义为同一个名字的方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class TestMath &#123;</span><br><span class="line"></span><br><span class="line">    public int sum(int num1, int num2) &#123;</span><br><span class="line">        return num1 + num2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int sum(int num1, int num2, int num3) &#123;</span><br><span class="line">        return num1 + num2 + num3;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int sum(int num1, int num2, int num3, int num4) &#123;</span><br><span class="line">        return num1 + num2 + num3 + num4;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>java重载有一些规则，比如仅仅是返回值类型不同和修饰符不同都不构成方法的重载，仅仅是方法参数的名称不同也不构成重载。</p>
+<p>主要是介绍python，只介绍重载定义，具体重载规则请自行百度学习。</p>
+<h2 id="重写（Override）"><a href="#重写（Override）" class="headerlink" title="重写（Override）"></a>重写（Override）</h2><p>重写是子类对父类的允许访问的方法的实现过程进行重新编写, 返回值和形参都不能改变。即外壳不变，核心重写。</p>
+<p>重写是发生在类的继承关系，或者类的实现关系中的，重写后的方法和原方法需要保持完全相同的返回值类型、方法名、参数个数以及参数类型，简单来说，就是子类重写的方法必须和父类保持完全一致，说白了就是多态。</p>
+<p>比如：定义了一个动物类，其中有一个进食的方法，动物类有两个子类：猫类和狗类，猫类应该对这个进食的方法重写，具体为：猫吃鱼，而狗类则应重写为：狗啃骨头。因为猫和狗进食的具体内容都不同，所以需要重写。</p>
+<h1 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h1><p>不同对象调用父类的同一方法产生不同的结果。调用不同的子类将会产生不同的行为，而无须明确知道这个子类实际上是什么，这是多态的重要应用场景。多态的表现形式之一就是继承，先抽象，再继承。</p>
+<p>鸭子类型（英语：duck typing）是动态类型的一种风格。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由”当前方法和属性的集合”决定。</p>
+<p>鸭子类型这一名字出自美国James Whitcomb Riley(有的材料说他是诗人，有的说他是测试人员)提出的如下的表述：</p>
+<p>When I see a bird that walks like a duck and swims like a duck and quacks like a duck, I call that bird a duck.</p>
+<p>当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，那么这只鸟就可以被称为鸭子。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">class Duck:</span><br><span class="line">    def walk(self):</span><br><span class="line">        print(&quot;Walk like a duck&quot;)</span><br><span class="line"></span><br><span class="line">    def quack(self):</span><br><span class="line">        print(&quot;Quack like a duck&quot;)</span><br><span class="line"></span><br><span class="line">    def attack(self):</span><br><span class="line">        print(&quot;Attack like a duck&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 可达鸭</span><br><span class="line">class MallardDuck(Duck):</span><br><span class="line">    def walk(self):</span><br><span class="line">        print(&quot;MallardDuck walking&quot;)</span><br><span class="line"></span><br><span class="line">    def quack(self):</span><br><span class="line">        print(&quot;MallardDuck quacking&quot;)</span><br><span class="line"></span><br><span class="line">    def attack(self):</span><br><span class="line">        print(&quot;MallardDuck attacking&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 大葱鸭</span><br><span class="line">class FarfetchdDuck(Duck):</span><br><span class="line">    def walk(self):</span><br><span class="line">        print(&quot;FarfetchdDuck walking&quot;)</span><br><span class="line"></span><br><span class="line">    def quack(self):</span><br><span class="line">        print(&quot;FarfetchdDuck quacking&quot;)</span><br><span class="line"></span><br><span class="line">    def attack(self):</span><br><span class="line">        print(&quot;FarfetchdDuck attacking&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 和火箭队战斗</span><br><span class="line">def fight_with_team_rocket(duck: Duck):</span><br><span class="line">    duck.walk()</span><br><span class="line">    duck.quack()</span><br><span class="line">    duck.attack()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    mallard_duck = MallardDuck()</span><br><span class="line">    fight_with_team_rocket(mallard_duck)</span><br><span class="line">    farfetchd_duck = FarfetchdDuck()</span><br><span class="line">    fight_with_team_rocket(farfetchd_duck)</span><br></pre></td></tr></table></figure>
+
+<h1 id="C-设计模式"><a href="#C-设计模式" class="headerlink" title="C# 设计模式"></a>C# 设计模式</h1><p>继承分为「接口继承」和「实现继承」。在编程语言或者 framework 中实现「接口继承」比较容易，一般保证一定的二进制接口兼容，或者一定的命名规范即可（比如 SICP 中的查表 data-driven）。著名的 Microsoft Component Object Model 和 CORBA 只有接口继承。实现「实现继承」则相对复杂。一般需要在编译级别支持，所以多为语言本身支持。拥有「实现继承」的语言可以通过通过自限的方式模拟「接口继承」。C++ 实现了完全的「多实现继承」，所以它可以完全通过自限的方式模拟「多接口继承」。Java 和 C# 只有「单实现继承」，如果通过自限的方式只能支持「单接口继承」，所以 Java 和 C# 引入了特别的 interface。</p>
+<p>作者：冯东<br>链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/question/20685467/answer/15848984">https://www.zhihu.com/question/20685467/answer/15848984</a><br>来源：知乎</p>
+<p>根据以上信息可以知道，再Java或者C#中，实现设计模式都是通过接口的方式进行设计。</p>
+<h1 id="结构型模式"><a href="#结构型模式" class="headerlink" title="结构型模式"></a>结构型模式</h1><h2 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h2><h3 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h3><p>将一个类的接口转换成客户希望的另一个接口。适配器模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。</p>
+<p>两种实现方式：</p>
+<ol>
+<li>类适配器：使用多继承</li>
+<li>对象适配器：使用组合</li>
+</ol>
+<h3 id="角色："><a href="#角色：" class="headerlink" title="角色："></a>角色：</h3><ul>
+<li>目标接口（Target）</li>
+<li>待适配的类（Adaptee）</li>
+<li>适配器（Adapter）</li>
+</ul>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ol>
+<li>想使用一个已经存在的类，而它的接口不符合你的要求<br>2.（对象适配器）想使用一些已经存在的子类，但不可能对每一个都进行子类化以匹配它们的接口。对象适配器可以适配它的父类接口。</li>
+</ol>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>类适配器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class AlgorithmInterface(ABC):</span><br><span class="line">    @abstractmethod</span><br><span class="line">    def run(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ColMap(AlgorithmInterface):</span><br><span class="line">    def __init__(self, params):</span><br><span class="line">        self.params = params</span><br><span class="line"></span><br><span class="line">    def run(self):</span><br><span class="line">        print(f&quot;I am running with params: &#123;self.params&#125;&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class TorchNgp:</span><br><span class="line">    def view(self):</span><br><span class="line">        print(&quot;I am running with no params&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 类适配器</span><br><span class="line">class TorchNgpAdapter(AlgorithmInterface, TorchNgp):</span><br><span class="line">    def run(self):</span><br><span class="line">        self.view()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># web点击算法发起任务</span><br><span class="line">def web_show_and_click(algorithm):</span><br><span class="line">    algorithm.run()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    colmap = ColMap(&quot;params&quot;)</span><br><span class="line">    web_show_and_click(colmap)</span><br><span class="line"></span><br><span class="line">    torch_ngp = TorchNgpAdapter()</span><br><span class="line">    web_show_and_click(torch_ngp)</span><br></pre></td></tr></table></figure>
+
+<p>对象适配器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class AlgorithmInterface(ABC):</span><br><span class="line">    @abstractmethod</span><br><span class="line">    def run(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ColMap(AlgorithmInterface):</span><br><span class="line">    def __init__(self, params):</span><br><span class="line">        self.params = params</span><br><span class="line"></span><br><span class="line">    def run(self):</span><br><span class="line">        print(f&quot;I am running with params: &#123;self.params&#125;&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class TorchNgp:</span><br><span class="line">    def view(self):</span><br><span class="line">        print(&quot;I am running with no params&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 类适配器</span><br><span class="line">class AlgorithmAdapter(AlgorithmInterface):</span><br><span class="line">    def __init__(self, algorithm):</span><br><span class="line">        self.algorithm = algorithm</span><br><span class="line"></span><br><span class="line">    def run(self):</span><br><span class="line">        if hasattr(self.algorithm, &quot;run&quot;):</span><br><span class="line">            self.algorithm.run()</span><br><span class="line">        elif hasattr(self.algorithm, &quot;view&quot;):</span><br><span class="line">            self.algorithm.view()</span><br><span class="line">        else:</span><br><span class="line">            raise NotImplementedError</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># web点击算法发起任务</span><br><span class="line">def web_show_and_click(algorithm):</span><br><span class="line">    algorithm.run()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    col_map = ColMap(&quot;params&quot;)</span><br><span class="line">    torch_ngp = TorchNgp()</span><br><span class="line">    web_show_and_click(AlgorithmAdapter(col_map))</span><br><span class="line">    web_show_and_click(AlgorithmAdapter(torch_ngp))</span><br></pre></td></tr></table></figure>
+
+<h3 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h3><p>聚合(aggregation)：指的是整体与部分的关系。通常在定义一个整体类后，再去分析这个整体类的组成结构。从而找出一些组成类，该整体类和组成类之间就形成了聚合关系。需求描述中“包含”、“组成”、“分为…部分”等词常意味着聚合关系。</p>
+<p>简单的说就是类中使用的实例是外部传入的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class Cpu:</span><br><span class="line">    def show(self):</span><br><span class="line">        print(&quot;I am cpu&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Computer:</span><br><span class="line">    def __init__(self, cpu):</span><br><span class="line">        self.cpu = cpu</span><br><span class="line"></span><br><span class="line">    def has_cpu(self):</span><br><span class="line">        self.cpu.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cpu = Cpu()</span><br><span class="line">computer = Computer(cpu)</span><br><span class="line">computer.has_cpu()</span><br></pre></td></tr></table></figure>
+
+<p>组合(composition)：也表示类之间整体和部分的关系，但是组合关系中部分和整体具有统一的生存期。一旦整体对象不存在，部分对象也将不存在。部分对象与整体对象之间具有共生死的关系。</p>
+<p>简单的说就是使用的实例是类中生成的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class Cpu:</span><br><span class="line">    def show(self):</span><br><span class="line">        print(&quot;I am cpu&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Computer:</span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.cpu = Cpu()</span><br><span class="line"></span><br><span class="line">    def has_cpu(self):</span><br><span class="line">        self.cpu.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">computer = Computer()</span><br><span class="line">computer.has_cpu()</span><br></pre></td></tr></table></figure>
+
+<h2 id="桥模式"><a href="#桥模式" class="headerlink" title="桥模式"></a>桥模式</h2><h3 id="内容-1"><a href="#内容-1" class="headerlink" title="内容"></a>内容</h3><p>将一个事物的两个维度分离，使其都可以独立地变化</p>
+<h3 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h3><ul>
+<li>抽象（Abstraction）</li>
+<li>细化抽象（RefinedAbstraction）</li>
+<li>实现者（Implementor）</li>
+<li>具体实现者（ConcreteImplementor</li>
+</ul>
+<h3 id="实现-1"><a href="#实现-1" class="headerlink" title="实现"></a>实现</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 实现者</span><br><span class="line">class GL(ABC):</span><br><span class="line">    def __init__(self, loader):</span><br><span class="line">        self.loader = loader</span><br><span class="line"></span><br><span class="line">    @abstractmethod</span><br><span class="line">    def screen(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 抽象</span><br><span class="line">class Loader(ABC):</span><br><span class="line">    @abstractmethod</span><br><span class="line">    def loader(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 细化抽象</span><br><span class="line">class PlyLoader(Loader):</span><br><span class="line">    def loader(self):</span><br><span class="line">        print(&quot;ply loader&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ObjLoader(Loader):</span><br><span class="line">    def loader(self):</span><br><span class="line">        print(&quot;obj loader&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 具体实现者</span><br><span class="line">class WebGL(GL):</span><br><span class="line">    def screen(self):</span><br><span class="line">        self.loader.loader()</span><br><span class="line">        print(&quot;call webgl screen method&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class OpenGL(GL):</span><br><span class="line">    def screen(self):</span><br><span class="line">        self.loader.loader()</span><br><span class="line">        print(&quot;call opengl screen method&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    webgl = WebGL(PlyLoader())</span><br><span class="line">    webgl.screen()</span><br><span class="line">    opengl = OpenGL(ObjLoader())</span><br><span class="line">    opengl.screen()</span><br></pre></td></tr></table></figure>
+
+<p>这样之后即使再增加其他模型的加在类或者其他类型的GL方式都可以方便的添加。</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>当事物有两个维度上的表现，两个维度都可能扩展时。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>抽象和实现相分离</li>
+<li>优秀的扩展能力</li>
+</ul>
+<h2 id="组合模式"><a href="#组合模式" class="headerlink" title="组合模式"></a>组合模式</h2><h3 id="内容-2"><a href="#内容-2" class="headerlink" title="内容"></a>内容</h3><p>将对象组合成树形结构以表示“部分-整体”的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。</p>
+<h3 id="角色-1"><a href="#角色-1" class="headerlink" title="角色"></a>角色</h3><ul>
+<li>抽象组件（Component）</li>
+<li>叶子组件（Leaf）</li>
+<li>复合组件（Composite）</li>
+<li>客户端（Client）</li>
+</ul>
+<h3 id="实现-2"><a href="#实现-2" class="headerlink" title="实现"></a>实现</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class AlgorithmInterface(ABC):</span><br><span class="line">    @abstractmethod</span><br><span class="line">    def train_model(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ColMapApp(AlgorithmInterface):</span><br><span class="line">    def __init__(self, params):</span><br><span class="line">        self.params = params</span><br><span class="line"></span><br><span class="line">    def train_model(self):</span><br><span class="line">        print(f&quot;ColMapApp am training with params: &#123;self.params&#125;&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class TorchNgpApp(AlgorithmInterface):</span><br><span class="line">    def train_model(self):</span><br><span class="line">        print(f&quot;TorchNgpApp am training with no params&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class NewBeeApp(AlgorithmInterface):</span><br><span class="line">    def __init__(self, algorithms):</span><br><span class="line">        self.algorithms = []</span><br><span class="line"></span><br><span class="line">        for algorithm in algorithms:</span><br><span class="line">            self.add_algorithm(algorithm)</span><br><span class="line"></span><br><span class="line">    def add_algorithm(self, algorithm):</span><br><span class="line">        self.algorithms.append(algorithm)</span><br><span class="line"></span><br><span class="line">    def train_model(self):</span><br><span class="line">        print(&quot;###### NewBeeApp Training ######&quot;)</span><br><span class="line">        for algorithm in self.algorithms:</span><br><span class="line">            algorithm.train_model()</span><br><span class="line">        print(&quot;###### NewBeeApp Trained ######&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># web点击算法发起任务</span><br><span class="line">def web_show_and_click(algorithm):</span><br><span class="line">    algorithm.train_model()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    colmap_app = ColMapApp(params=&quot;colmap_params&quot;)</span><br><span class="line">    torch_ngp_app = TorchNgpApp()</span><br><span class="line">    new_bee_app = NewBeeApp(algorithms=[colmap_app, torch_ngp_app])</span><br><span class="line"></span><br><span class="line">    # 单个算法发起任务</span><br><span class="line">    web_show_and_click(colmap_app)</span><br><span class="line">    # 组合算法发起任务，调用方式相同</span><br><span class="line">    web_show_and_click(new_bee_app)</span><br></pre></td></tr></table></figure>
+
+<h3 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h3><ol>
+<li>表示对象的“部分-整体”层次结构（特别是结构是递归的）</li>
+<li>希望用户忽略组合对象与单个对象的不同，用户统一地使用组合结构中的所有对象</li>
+</ol>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>定义了包含基本对象和组合对象的类层次结构</li>
+<li>简化客户端代码，即客户端可以一致地使用组合对象和单个对象</li>
+<li>更容易增加新类型的组件</li>
+</ul>
+<h2 id="装饰模式"><a href="#装饰模式" class="headerlink" title="装饰模式"></a>装饰模式</h2><h3 id="内容-3"><a href="#内容-3" class="headerlink" title="内容"></a>内容</h3><p>装饰模式是在原有对象的基础上，动态增加一个新的特性。与继承的最大区别是，这种新增特性是比较泛化的，可以被多种对象增加。</p>
+<p>python中通常用的是通过函数装饰器或者类装饰器，直接对对象所属的类进行装饰，语言特性已包含，因此此设计模式略过。</p>
+<h2 id="外观模式"><a href="#外观模式" class="headerlink" title="外观模式"></a>外观模式</h2><h3 id="内容-4"><a href="#内容-4" class="headerlink" title="内容"></a>内容</h3><p>外观模式又被称为门面模式，为子系统中的一组接口提供一个一致的界面，外观模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。</p>
+<h3 id="角色-2"><a href="#角色-2" class="headerlink" title="角色"></a>角色</h3><ul>
+<li>外观（facade）</li>
+<li>子系统类（subsystem classes）</li>
+</ul>
+<h3 id="实现-3"><a href="#实现-3" class="headerlink" title="实现"></a>实现</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">class LoaderModel:</span><br><span class="line">    def loader(self):</span><br><span class="line">        print(&quot;loader model&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class DrawScreen:</span><br><span class="line">    def draw(self):</span><br><span class="line">        print(&quot;draw screen&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class LoadAnimation:</span><br><span class="line">    def animation(self):</span><br><span class="line">        print(&quot;load animation&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Page:</span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.loader = LoaderModel()</span><br><span class="line">        self.draw = DrawScreen()</span><br><span class="line">        self.animation = LoadAnimation()</span><br><span class="line"></span><br><span class="line">    def load(self):</span><br><span class="line">        self.loader.loader()</span><br><span class="line">        self.draw.draw()</span><br><span class="line">        self.animation.animation()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    page = Page()</span><br><span class="line">    page.load()</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>一个例子是比如维护一个遗留的大型系统时，可能这个系统已经非常难以维护和扩展，但是它包含很重要的功能，新的开发必须依赖于它，这样增加外观Facade类，为系统封装一个比较清晰简单的接口，让新系统与Facade对象交互，Facade与遗留代码交互所有复杂的工作。</p>
+<h3 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>减少系统相互依赖</li>
+<li>提高了灵活性</li>
+<li>提高了安全性</li>
+</ul>
+<h2 id="享元模式-Flyweight"><a href="#享元模式-Flyweight" class="headerlink" title="享元模式(Flyweight)"></a>享元模式(Flyweight)</h2><h3 id="内容-5"><a href="#内容-5" class="headerlink" title="内容"></a>内容</h3><ul>
+<li>图形图像处理软件：在图形图像处理软件中，可能需要创建大量的形状对象，如矩形、圆形等。通过使用享元模式，可以共享形状对象的属性，从而减少内存使用和提高性能。</li>
+<li>游戏开发：在游戏开发中，可能需要创建大量的游戏角色、武器等对象。通过使用享元模式，可以共享游戏对象的属性，从而减少内存使用和提高性能。</li>
+<li>网络服务器：在网络服务器中，可能需要创建大量的网络连接对象。通过使用享元模式，可以共享网络连接对象的属性，从而减少内存使用和提高性能。</li>
+<li>数据库连接池：在数据库连接池中，可能需要创建大量的数据库连接对象。通过使用享元模式，可以共享数据库连接对象的属性，从而减少内存使用和提高性能。</li>
+</ul>
+<h3 id="角色：-1"><a href="#角色：-1" class="headerlink" title="角色："></a>角色：</h3><ul>
+<li>抽象享元角色（Flyweight）</li>
+<li>具体享元角色（Concrete Flyweight）</li>
+<li>非享元角色（Unsharable Flyweight)</li>
+<li>享元工厂角色（Flyweight Factory）</li>
+</ul>
+<h3 id="适用场景-2"><a href="#适用场景-2" class="headerlink" title="适用场景"></a>适用场景</h3><ol>
+<li>想使用一个已经存在的类，而它的接口不符合你的要求<br>2.（对象适配器）想使用一些已经存在的子类，但不可能对每一个都进行子类化以匹配它们的接口。对象适配器可以适配它的父类接口。</li>
+</ol>
+<h3 id="实现-4"><a href="#实现-4" class="headerlink" title="实现"></a>实现</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Flyweight(ABC):</span><br><span class="line">    def __init__(self, shared_state):</span><br><span class="line">        self.shared_state = shared_state</span><br><span class="line">        print(f&quot;Flyweight: (&#123;self.shared_state&#125;)&quot;)</span><br><span class="line"></span><br><span class="line">    @abstractmethod</span><br><span class="line">    def show(self, unique_state):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ConcreteFlyweight(Flyweight):</span><br><span class="line">    def show(self, unique_state):</span><br><span class="line">        print(f&quot;ConcreteFlyweight: (&#123;self.shared_state&#125;, &#123;unique_state&#125;)&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class FlyweightFactory:</span><br><span class="line">    _flyweights = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    def __init__(self, shared_states):</span><br><span class="line">        for shared_state in shared_states:</span><br><span class="line">            self._flyweights[str(shared_state)] = ConcreteFlyweight(shared_state)</span><br><span class="line"></span><br><span class="line">    def get_flyweight(self, shared_state):</span><br><span class="line">        key = str(shared_state)</span><br><span class="line">        if key not in self._flyweights:</span><br><span class="line">            self._flyweights[key] = ConcreteFlyweight(shared_state)</span><br><span class="line">        return self._flyweights[key]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 显示模型的客户端代码</span><br><span class="line">class Client:</span><br><span class="line">    def __init__(self, factory):</span><br><span class="line">        self.factory = factory</span><br><span class="line"></span><br><span class="line">    def screen(self, model, position):</span><br><span class="line">        flyweight = self.factory.get_flyweight(model)</span><br><span class="line">        flyweight.show(position)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 这里定义模型类，load_model在FlyweightFactory中的初始化时调用</span><br><span class="line">class Model:</span><br><span class="line">    def __init__(self, name):</span><br><span class="line">        self.name = name</span><br><span class="line"></span><br><span class="line">    def __str__(self):</span><br><span class="line">        return self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    # 初始化模型</span><br><span class="line">    roma = Model(&quot;罗马斗兽场&quot;)</span><br><span class="line">    lion = Model(&quot;狮子&quot;)</span><br><span class="line">    wolf = Model(&quot;狼&quot;)</span><br><span class="line">    bird = Model(&quot;鸟&quot;)</span><br><span class="line">    car = Model(&quot;汽车&quot;)</span><br><span class="line"></span><br><span class="line">    # 客户端代码, 初始化时加载模型</span><br><span class="line">    client = Client(FlyweightFactory([roma, lion, bird, car]))</span><br><span class="line"></span><br><span class="line">    # 显示模型</span><br><span class="line">    client.screen(roma, (0, 0, 0))</span><br><span class="line">    client.screen(lion, (1, 1, 1))</span><br><span class="line">    client.screen(wolf, (2, 2, 2))</span><br><span class="line">    client.screen(bird, (3, 3, 3))</span><br><span class="line">    client.screen(car, (4, 4, 4))</span><br><span class="line">    client.screen(lion, (5, 5, 5))</span><br><span class="line">    client.screen(wolf, (6, 6, 6))</span><br><span class="line">    client.screen(bird, (7, 7, 7))</span><br></pre></td></tr></table></figure>
+
+<h3 id="优点-3"><a href="#优点-3" class="headerlink" title="优点"></a>优点</h3><p>相同对象只要保存一份，这降低了系统中对象的数量，从而降低了系统中细粒度对象给内存带来的压力。</p>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>1.为了共享对象，需要将不能共享的状态外部化，会增加程序的复杂性</p>
+<p>2.对享元模式的外部状态会增长运行时间</p>
+<h2 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h2><h3 id="内容-6"><a href="#内容-6" class="headerlink" title="内容"></a>内容</h3><p>为其他对象提供一种代理，以此控制一个对象的访问方式。在某些情况下，一个对象不适合或者不能直接引用另一个对象，而代理对象可以在客户端和目标对象之间起到中介的作用。</p>
+<h3 id="角色：-2"><a href="#角色：-2" class="headerlink" title="角色："></a>角色：</h3><ul>
+<li>抽象角色（Subject）</li>
+<li>真实角色（Real Subject）</li>
+<li>代理角色（Proxy）</li>
+</ul>
+<h3 id="适用场景-3"><a href="#适用场景-3" class="headerlink" title="适用场景"></a>适用场景</h3><ul>
+<li>远程代理：隐藏对象位于远程地址空间的事实。例如写入数据，而数据库不在本地，需要远程访问。隐藏数据库不在本地的事实，使用代理进行远程存储。</li>
+<li>虚代理：为了节省资源开销，在功能没有被真正调用时，就不运行。例如浏览器中的无图模式，不显示图片，等你真正需要查看某张时，点击才会真正加载图像，不点击时，只会告诉你，此处是一张图像，并不显示</li>
+<li>保护代理：访问一个对象时有一些附加的内务处理。例如为了区分用户权限而设置的代理，普通用户只有访问权限，而开发人员有写入权限。</li>
+</ul>
+<h3 id="实现-5"><a href="#实现-5" class="headerlink" title="实现"></a>实现</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">from abc import ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Subject(ABC):</span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.model = None</span><br><span class="line"></span><br><span class="line">    @abstractmethod</span><br><span class="line">    def load(self, model, *args):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">    @abstractmethod</span><br><span class="line">    def show(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class RealSubject(Subject):</span><br><span class="line">    def load(self, model, *args):</span><br><span class="line">        if not self.model:</span><br><span class="line">            print(f&quot;本地模型 &#123;model&#125; 加载中...&quot;)</span><br><span class="line">            self.model = model</span><br><span class="line">        print(f&quot;&#123;model&#125; 模型加载完成！&quot;)</span><br><span class="line"></span><br><span class="line">    def show(self):</span><br><span class="line">        print(f&quot;&#123;self.model&#125; 模型展示！&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class RemoteProxy(Subject):</span><br><span class="line">    def __init__(self):</span><br><span class="line">        super().__init__()</span><br><span class="line">        self.subject = RealSubject()</span><br><span class="line"></span><br><span class="line">    def load(self, model, *args):</span><br><span class="line">        print(&quot;远程模型加载中...&quot;)</span><br><span class="line">        self.subject.model = model</span><br><span class="line">        self.subject.load(model)</span><br><span class="line"></span><br><span class="line">    def show(self):</span><br><span class="line">        return self.subject.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class VirtualProxy(Subject):</span><br><span class="line">    def __init__(self):</span><br><span class="line">        super().__init__()</span><br><span class="line">        self.subject = RemoteProxy()</span><br><span class="line"></span><br><span class="line">    def load(self, model, *args):</span><br><span class="line">        self.model = model</span><br><span class="line">        print(&quot;虚拟模型已经记录...&quot;)</span><br><span class="line"></span><br><span class="line">    def show(self):</span><br><span class="line">        if not self.model:</span><br><span class="line">            print(&quot;虚拟模型未记录！&quot;)</span><br><span class="line">            return</span><br><span class="line">        print(&quot;虚拟模型展示！&quot;)</span><br><span class="line">        self.subject.load(self.model)</span><br><span class="line">        self.subject.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class ProtectionProxy(Subject):</span><br><span class="line">    def __init__(self):</span><br><span class="line">        super().__init__()</span><br><span class="line">        self.subject = VirtualProxy()</span><br><span class="line"></span><br><span class="line">    def load(self, model, *args):</span><br><span class="line">        user = args[0]</span><br><span class="line">        if user == &quot;admin&quot;:</span><br><span class="line">            self.subject.load(model)</span><br><span class="line">            self.model = model</span><br><span class="line">        else:</span><br><span class="line">            print(&quot;权限不足！&quot;)</span><br><span class="line"></span><br><span class="line">    def show(self):</span><br><span class="line">        if not self.model:</span><br><span class="line">            print(&quot;模型未加载！&quot;)</span><br><span class="line">            return</span><br><span class="line">        self.subject.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def client_code(models_and_users):</span><br><span class="line">    proxy_list = []</span><br><span class="line"></span><br><span class="line">    for user, model in models_and_users:</span><br><span class="line">        # proxy = RealSubject()</span><br><span class="line">        # proxy = RemoteProxy()</span><br><span class="line">        # proxy = VirtualProxy()</span><br><span class="line">        proxy = ProtectionProxy()</span><br><span class="line">        proxy.load(model, user)</span><br><span class="line">        proxy_list.append(proxy)</span><br><span class="line"></span><br><span class="line">    for proxy in proxy_list:</span><br><span class="line">        proxy.show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    model_and_user = [</span><br><span class="line">        (&quot;admin&quot;, &quot;roma&quot;),</span><br><span class="line">        (&quot;user&quot;, &quot;bird&quot;),</span><br><span class="line">        (&quot;admin&quot;, &quot;car&quot;)</span><br><span class="line">    ]</span><br><span class="line">    client_code(model_and_user)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/python-design-patterns-02/">python design patterns 02</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-04-30, 16:47:39</p>
+        <p><span>最后更新:</span>2023-05-02, 01:33:24</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/python-design-patterns-02/" title="python design patterns 02">http://realtiger.github.io/python-design-patterns-02/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/python-design-patterns-02/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/python-design-patterns-03/">
+                    python design patterns 03
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/python-design-patterns-01/">
+                    python design patterns 01
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E8%BD%BD%EF%BC%88Overload%EF%BC%89%E5%92%8C%E9%87%8D%E5%86%99%EF%BC%88Override%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">重载（Overload）和重写（Override）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E8%BD%BD%EF%BC%88Overload%EF%BC%89"><span class="toc-number">1.1.</span> <span class="toc-text">重载（Overload）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%87%8A"><span class="toc-number">1.1.1.</span> <span class="toc-text">解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">举例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E5%86%99%EF%BC%88Override%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">重写（Override）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%9A%E6%80%81"><span class="toc-number">2.</span> <span class="toc-text">多态</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#C-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">C# 设计模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">结构型模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.1.</span> <span class="toc-text">适配器模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9"><span class="toc-number">4.1.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%EF%BC%9A"><span class="toc-number">4.1.2.</span> <span class="toc-text">角色：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.1.3.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.1.4.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95"><span class="toc-number">4.1.5.</span> <span class="toc-text">扩展</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%A5%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">桥模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-1"><span class="toc-number">4.2.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2"><span class="toc-number">4.2.2.</span> <span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0-1"><span class="toc-number">4.2.3.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.2.4.</span> <span class="toc-text">应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">4.2.5.</span> <span class="toc-text">优点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">组合模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-2"><span class="toc-number">4.3.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2-1"><span class="toc-number">4.3.2.</span> <span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0-2"><span class="toc-number">4.3.3.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">4.3.4.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-1"><span class="toc-number">4.3.5.</span> <span class="toc-text">优点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.4.</span> <span class="toc-text">装饰模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-3"><span class="toc-number">4.4.1.</span> <span class="toc-text">内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.5.</span> <span class="toc-text">外观模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-4"><span class="toc-number">4.5.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2-2"><span class="toc-number">4.5.2.</span> <span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0-3"><span class="toc-number">4.5.3.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">4.5.4.</span> <span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-2"><span class="toc-number">4.5.5.</span> <span class="toc-text">优点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F-Flyweight"><span class="toc-number">4.6.</span> <span class="toc-text">享元模式(Flyweight)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-5"><span class="toc-number">4.6.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%EF%BC%9A-1"><span class="toc-number">4.6.2.</span> <span class="toc-text">角色：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-2"><span class="toc-number">4.6.3.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0-4"><span class="toc-number">4.6.4.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E7%82%B9-3"><span class="toc-number">4.6.5.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">4.6.6.</span> <span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.7.</span> <span class="toc-text">代理模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AE%B9-6"><span class="toc-number">4.7.1.</span> <span class="toc-text">内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%92%E8%89%B2%EF%BC%9A-2"><span class="toc-number">4.7.2.</span> <span class="toc-text">角色：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-3"><span class="toc-number">4.7.3.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0-5"><span class="toc-number">4.7.4.</span> <span class="toc-text">实现</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"python design patterns 02　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/python-design-patterns-03/" title="上一篇: python design patterns 03">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/python-design-patterns-01/" title="下一篇: python design patterns 01">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python design patterns 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python design patterns 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python design patterns 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style="display:none">
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style="display:none">
+                        <span id="page-visit" title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/unitychan.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
