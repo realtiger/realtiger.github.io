@@ -1,6 +1,6 @@
 import Model from "./model.js";
 import showMessage from "./message.js";
-import randomSelection from "./utils.js";
+import {randomSelection} from "./utils.js";
 import tools from "./tools.js";
 
 function loadWidget(config) {
@@ -25,7 +25,7 @@ function loadWidget(config) {
         }
         for (let tool of config.tools) {
             if (tools[tool]) {
-                const { icon, callback } = tools[tool];
+                const {icon, callback} = tools[tool];
                 document.getElementById("waifu-tool").insertAdjacentHTML("beforeend", `<span id="waifu-tool-${tool}">${icon}</span>`);
                 document.getElementById(`waifu-tool-${tool}`).addEventListener("click", callback);
             }
@@ -34,7 +34,7 @@ function loadWidget(config) {
 
     function welcomeMessage(time) {
         if (location.pathname === "/") { // 如果是主页
-            for (let { hour, text } of time) {
+            for (let {hour, text} of time) {
                 const now = new Date(),
                     after = hour.split("-")[0],
                     before = hour.split("-")[1] || after;
@@ -83,7 +83,7 @@ function loadWidget(config) {
         }, 1000);
         showMessage(welcomeMessage(result.time), 7000, 11);
         window.addEventListener("mouseover", event => {
-            for (let { selector, text } of result.mouseover) {
+            for (let {selector, text} of result.mouseover) {
                 if (!event.target.closest(selector)) continue;
                 if (lastHoverElement === selector) return;
                 lastHoverElement = selector;
@@ -94,7 +94,7 @@ function loadWidget(config) {
             }
         });
         window.addEventListener("click", event => {
-            for (let { selector, text } of result.click) {
+            for (let {selector, text} of result.click) {
                 if (!event.target.closest(selector)) continue;
                 text = randomSelection(text);
                 text = text.replace("{text}", event.target.innerText);
@@ -102,7 +102,7 @@ function loadWidget(config) {
                 return;
             }
         });
-        result.seasons.forEach(({ date, text }) => {
+        result.seasons.forEach(({date, text}) => {
             const now = new Date(),
                 after = date.split("-")[0],
                 before = date.split("-")[1] || after;
@@ -113,7 +113,8 @@ function loadWidget(config) {
             }
         });
 
-        const devtools = () => { };
+        const devtools = () => {
+        };
         console.log("%c", devtools);
         devtools.toString = () => {
             showMessage(result.message.console, 6000, 9);
@@ -148,31 +149,39 @@ function initWidget(config, apiPath) {
             apiPath
         };
     }
+
+    if (config.modelId) {
+        localStorage.setItem("modelId", config.modelId);
+    }
+    if (config.modelTexturesId) {
+        localStorage.setItem("modelTexturesId", config.modelTexturesId);
+    }
+
     document.body.insertAdjacentHTML("beforeend", `<div id="waifu-toggle">
             <span>看板娘</span>
         </div>`);
-    // const toggle = document.getElementById("waifu-toggle");
-    // toggle.addEventListener("click", () => {
-    //     toggle.classList.remove("waifu-toggle-active");
-    //     if (toggle.getAttribute("first-time")) {
-    //         loadWidget(config);
-    //         toggle.removeAttribute("first-time");
-    //     } else {
-    //         localStorage.removeItem("waifu-display");
-    //         document.getElementById("waifu").style.display = "";
-    //         setTimeout(() => {
-    //             document.getElementById("waifu").style.bottom = 0;
-    //         }, 0);
-    //     }
-    // });
-    // if (localStorage.getItem("waifu-display") && Date.now() - localStorage.getItem("waifu-display") <= 86400000) {
-    //     toggle.setAttribute("first-time", true);
-    //     setTimeout(() => {
-    //         toggle.classList.add("waifu-toggle-active");
-    //     }, 0);
-    // } else {
-    //     loadWidget(config);
-    // }
+    const toggle = document.getElementById("waifu-toggle");
+    toggle.addEventListener("click", () => {
+        toggle.classList.remove("waifu-toggle-active");
+        if (toggle.getAttribute("first-time")) {
+            loadWidget(config);
+            toggle.removeAttribute("first-time");
+        } else {
+            localStorage.removeItem("waifu-display");
+            document.getElementById("waifu").style.display = "";
+            setTimeout(() => {
+                document.getElementById("waifu").style.bottom = 0;
+            }, 0);
+        }
+    });
+    if (localStorage.getItem("waifu-display") && Date.now() - localStorage.getItem("waifu-display") <= 86400000) {
+        toggle.setAttribute("first-time", true);
+        setTimeout(() => {
+            toggle.classList.add("waifu-toggle-active");
+        }, 0);
+    } else {
+        loadWidget(config);
+    }
 }
 
 export default initWidget;

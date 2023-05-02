@@ -1,9 +1,9 @@
 import showMessage from "./message.js";
-import randomSelection from "./utils.js";
+import {randomSelection, modelSelection} from "./utils.js";
 
 class Model {
     constructor(config) {
-        let { apiPath, cdnPath } = config;
+        let {apiPath, cdnPath} = config;
         let useCDN = false;
         if (typeof cdnPath === "string") {
             useCDN = true;
@@ -25,12 +25,14 @@ class Model {
 
     async loadModel(modelId, modelTexturesId, message) {
         localStorage.setItem("modelId", modelId);
+        if (modelTexturesId === undefined) modelTexturesId = 0;
         localStorage.setItem("modelTexturesId", modelTexturesId);
         showMessage(message, 4000, 10);
         if (this.useCDN) {
             if (!this.modelList) await this.loadModelList();
-            const target = randomSelection(this.modelList.models[modelId]);
+            const target = modelSelection(this.modelList.models[modelId], modelTexturesId);
             loadlive2d("live2d", `${this.cdnPath}model/${target}/index.json`);
+            console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
         } else {
             loadlive2d("live2d", `${this.apiPath}get/?id=${modelId}-${modelTexturesId}`);
             console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
