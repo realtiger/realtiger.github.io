@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="认识dockerDocker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（LXC）（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。 Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker 介绍">
+<meta property="og:url" content="http://realtiger.github.io/docker-introduction/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="认识dockerDocker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（LXC）（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。 Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/docker-different.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/containerd.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/docker-command.jpg">
+<meta property="article:published_time" content="2023-05-04T09:10:17.000Z">
+<meta property="article:modified_time" content="2023-05-05T12:41:02.111Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/docker-different.svg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>docker 介绍 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-docker-introduction" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/docker-introduction/" class="article-date">
+      <time datetime="2023-05-04T09:10:17.000Z" itemprop="datePublished">2023-05-04</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      docker 介绍
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">2.6k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="认识docker"><a href="#认识docker" class="headerlink" title="认识docker"></a>认识docker</h1><p>Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（LXC）（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。</p>
+<p>Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。</p>
+<p>Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。Docker是其中最知名的一种容器Container Runtime，其他的还有 CoreOS 容器 Rkt ，Podman。</p>
+<span id="more"></span>
+
+<p><img src="/post/docker/docker-different.svg" alt="docker-different"></p>
+<p>docker能做什么呢？ 它主要基于轻量的特性，解决软件交付过程中的环境依赖</p>
+<ul>
+<li>可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署</li>
+<li>可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）</li>
+<li>container容器之间相互隔离，且每个容器可以设置资源限额</li>
+<li>提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立</li>
+</ul>
+<h1 id="docker的发展史"><a href="#docker的发展史" class="headerlink" title="docker的发展史"></a>docker的发展史</h1><h6 id="发展史"><a href="#发展史" class="headerlink" title="发展史"></a>发展史</h6><p>13年成立，15年开始，迎来了飞速发展。</p>
+<p>Docker 1.8 之前，使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://linuxcontainers.org/lxc/introduction/">LXC</a>，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。</p>
+<p>之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。</p>
+<p>2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。</p>
+<p>OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/opencontainers/runc">https://github.com/opencontainers/runc</a> )， 目前runC已经成为一个功能强大的runtime工具。</p>
+<p>Docker也做了架构调整。将容器运行时相关的程序从docker daemon剥离出来，形成了<strong>containerd</strong>。containerd向上为Docker Daemon提供了<code>gRPC接口</code>，使得Docker Daemon屏蔽下面的结构变化，确保原有接口向下兼容。向下通过<code>containerd-shim</code>结合<code>runC</code>，使得引擎可以独立升级，避免之前Docker Daemon升级会导致所有容器不可用的问题。</p>
+<p><img src="/post/docker/containerd.png" alt="containerd"></p>
+<ul>
+<li>runC（libcontainer）是符合OCI标准的一个实现，与底层系统交互</li>
+<li>containerd是实现了OCI之上的容器的高级功能，比如镜像管理、容器执行的调用等</li>
+<li>Dockerd目前是最上层与CLI交互的进程，接收cli的请求并与containerd协作</li>
+</ul>
+<h1 id="docker总结"><a href="#docker总结" class="headerlink" title="docker总结"></a>docker总结</h1><ol>
+<li>为了提供一种更加轻量的虚拟化技术，docker出现了</li>
+<li>借助于docker容器的轻、快等特性，解决了软件交付过程中的环境依赖问题，使得docker得以快速发展</li>
+<li>Docker是一种CS架构的软件产品，可以把代码及依赖打包成镜像，作为交付介质，并且把镜像启动成为容器，提供容器生命周期的管理</li>
+<li>docker-ce，每季度发布stable版本。18.06，18.09，19.03</li>
+<li>发展至今，docker已经通过制定OCI标准对最初的项目做了拆分，其中runC和containerd是docker的核心项目，理解docker整个请求的流程，对我们深入理解docker有很大的帮助</li>
+</ol>
+<h1 id="docker安装"><a href="#docker安装" class="headerlink" title="docker安装"></a>docker安装</h1><p>docker安装查看这篇文章 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.ganchangde.com/article/cc0cb74b891f731e4f37c683b3f7362b5481e0f1_Vc1tfQHK_0">docker安装（Centos8版本）</a></p>
+<h1 id="核心要素"><a href="#核心要素" class="headerlink" title="核心要素"></a>核心要素</h1><p>docker中的三大核心要素：镜像(Image)、容器(Container)、仓库(Registry)</p>
+<ol>
+<li>镜像（Image）:打包了业务代码及运行环境的包，是静态的文件，不能直接对外提供服务。</li>
+<li>容器（Container）: 镜像的运行时，可以对外提供服务。</li>
+<li>仓库（Registry）: 存放镜像的地方<ul>
+<li>公有仓库，Docker Hub，阿里仓库，网易仓库…</li>
+<li>私有仓库，企业内部搭建<ul>
+<li>Docker Registry，Docker官方提供的镜像仓库存储服务</li>
+<li>Harbor, 是Docker Registry的更高级封装，它除了提供友好的Web UI界面，角色和用户权限管理，用户操作审计等功能</li>
+</ul>
+</li>
+<li>镜像访问地址形式 registry.devops.com&#x2F;demo&#x2F;hello:latest,若没有前面的url地址，则默认寻找Docker Hub中的镜像，若没有tag标签，则使用latest作为标签。 比如，docker pull nginx，会被解析成docker.io&#x2F;library&#x2F;nginx:latest</li>
+<li>公有的仓库中，一般存在这么几类镜像<ul>
+<li>操作系统基础镜像（centos，ubuntu，suse，alpine）</li>
+<li>中间件（nginx，redis，mysql，tomcat）</li>
+<li>语言编译环境（python，java，golang）</li>
+<li>业务镜像（django-demo…）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>容器和仓库不会直接交互，都是以镜像为载体来操作。</p>
+<h1 id="docker基本命令"><a href="#docker基本命令" class="headerlink" title="docker基本命令"></a>docker基本命令</h1><p><img src="/post/docker/docker-command.jpg" alt="docker-command"></p>
+<ol>
+<li><p>查看镜像列表</p>
+<p>根据以下指标确定唯一镜像</p>
+<ul>
+<li>image_id</li>
+<li>repository:tag</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ docker images</span><br><span class="line">REPOSITORY    TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">nginx         alpine              377c0837328f        2 weeks ago         19.7MB</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如何获取镜像</p>
+<ul>
+<li><p>从远程仓库拉取</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 推荐alpine</span></span><br><span class="line">$ docker pull nginx:alpine</span><br><span class="line">$ docker images</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用tag命令</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker tag nginx:alpine 172.21.51.143:5000/nginx:alpine</span><br><span class="line">$ docker images</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>本地构建（通过Dockerfile）</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker build . -t my-nginx:ubuntu -f Dockerfile</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>如何通过镜像启动容器</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --name my-nginx-alpine -d nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如何知道容器内部运行了什么程序？</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入容器内部,分配一个tty终端</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -ti my-nginx-alpine /bin/sh</span><br><span class="line"><span class="comment"># ps aux</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker怎么知道容器启动后该执行什么命令？</p>
+<p> 通过docker build来模拟构建一个nginx的镜像，</p>
+<ul>
+<li><p>创建Dockerfile</p>
+  <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 告诉docker使用哪个基础镜像作为模板，后续命令都以这个镜像为基础 </span></span><br><span class="line"><span class="keyword">FROM</span> ubuntu</span><br><span class="line"></span><br><span class="line"><span class="comment"># 替换源</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> sed -i <span class="string">&#x27;s/archive.ubuntu.com/mirrors.ustc.edu.cn/g&#x27;</span> /etc/apt/sources.list &amp;&amp; sed -i <span class="string">&#x27;s/security.ubuntu.com/mirrors.ustc.edu.cn/g&#x27;</span> /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># RUN命令会在上面指定的镜像里执行命令 </span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt-get update &amp;&amp; apt install -y nginx</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#告诉docker，启动容器时执行如下命令</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;/usr/sbin/nginx&quot;</span>, <span class="string">&quot;-g&quot;</span>,<span class="string">&quot;daemon off;&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>构建本地镜像</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker build . -t my-nginx:ubuntu -f Dockerfile</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用新镜像启动容器</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --name my-nginx-ubuntu -d my-nginx:ubuntu</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入容器查看进程</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">exec</span> -ti my-nginx-ubuntu /bin/sh</span><br><span class="line"><span class="comment"># ps aux</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>如何访问容器内服务</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入容器内部</span></span><br><span class="line">$ docker <span class="built_in">exec</span> -ti my-nginx-alpine /bin/sh</span><br><span class="line"><span class="comment"># ps aux|grep nginx</span></span><br><span class="line"><span class="comment"># curl localhost:80</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>宿主机中如何访问容器服务</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删掉旧服务,重新启动</span></span><br><span class="line">$ docker <span class="built_in">rm</span> -f my-nginx-alpine</span><br><span class="line">$ docker run --name my-nginx-alpine -d -p 8080:80 nginx:alpine</span><br><span class="line">$ curl 172.21.51.143:8080</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker client如何与daemon通信</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /var/run/docker.sock</span></span><br><span class="line">$ docker run --name portainer -d -p 9001:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>导出镜像到文件中</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker save -o nginx-alpine.tar nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从文件中加载镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker load -i nginx-alpine.tar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>部署带认证的镜像仓库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 Docker Registry 认证文件目录</span></span><br><span class="line"><span class="built_in">mkdir</span> /var/lib/registry_auth</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 htpasswd 来创建加密文件</span></span><br><span class="line">yum install -y httpd-tools</span><br><span class="line">htpasswd -Bbn admin admin &gt; /var/lib/registry_auth/htpasswdhtpasswd</span><br><span class="line"></span><br><span class="line"><span class="comment">## 使用docker镜像启动镜像仓库服务</span></span><br><span class="line">docker run -p 5000:5000 \</span><br><span class="line">--restart=always \</span><br><span class="line">--name registry \</span><br><span class="line">-v /var/lib/registry:/var/lib/registry \</span><br><span class="line">-v /var/lib/registry_auth/:/auth/ \</span><br><span class="line">-e <span class="string">&quot;REGISTRY_AUTH=htpasswd&quot;</span> \</span><br><span class="line">-e <span class="string">&quot;REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm&quot;</span> \</span><br><span class="line">-e <span class="string">&quot;REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd&quot;</span> \</span><br><span class="line">-d registry</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>推送本地镜像到镜像仓库中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 镜像仓库给外部访问，不能通过localhost，尝试使用内网地址172.21.51.143:5000/nginx:alpine</span></span><br><span class="line">docker tag nginx:alpine 172.21.51.143:5000/nginx:alpine</span><br><span class="line">docker push 172.21.51.143:5000/nginx:alpine</span><br><span class="line">The push refers to repository [172.21.51.143:5000/nginx]</span><br><span class="line">Get https://172.21.51.143:5000/v2/: http: server gave HTTP response to HTTPS client</span><br><span class="line"><span class="comment">## docker默认不允许向http的仓库地址推送，如何做成https的，参考：https://docs.docker.com/registry/deploying/#run-an-externally-accessible-registry</span></span><br><span class="line"><span class="comment">## 我们没有可信证书机构颁发的证书和域名，自签名证书需要在每个节点中拷贝证书文件，比较麻烦，因此我们通过配置daemon的方式，来跳过证书的验证：</span></span><br><span class="line"><span class="built_in">cat</span> /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;registry-mirrors&quot;</span>: [</span><br><span class="line">    <span class="string">&quot;https://8xpk5wnt.mirror.aliyuncs.com&quot;</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">&quot;insecure-registries&quot;</span>: [</span><br><span class="line">    <span class="string">&quot;172.21.51.143:5000&quot;</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line">systemctl restart docker</span><br><span class="line">docker push 172.21.51.143:5000/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 会提示认证失败 ，no basic auth credentials,需要登录</span></span><br><span class="line">docker login 172.21.51.143:5000</span><br><span class="line"></span><br><span class="line"><span class="comment">## 查看仓库内元数据</span></span><br><span class="line">curl -u admin:admin -X GET http://172.21.51.143:5000/v2/_catalog</span><br><span class="line">curl -u admin:admin  -X GET http://172.21.51.143:5000/v2/nginx/tags/list</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器列表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 查看运行状态的容器列表</span></span><br><span class="line">$ docker ps</span><br><span class="line"></span><br><span class="line"><span class="comment">## 查看全部状态的容器列表</span></span><br><span class="line">$ docker ps -a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 后台启动</span></span><br><span class="line">$ docker run --name nginx -d nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment">## 映射端口,把容器的端口映射到宿主机中,-p &lt;host_port&gt;:&lt;container_port&gt;</span></span><br><span class="line">$ docker run --name nginx -d -p 8080:80 nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment">## 资源限制,最大可用内存500M</span></span><br><span class="line">$ docker run --memory=500m nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器数据持久化</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 挂载主机目录</span></span><br><span class="line">$ docker run --name nginx -d -v /opt:/opt nginx:alpine</span><br><span class="line">$ docker run --name mysql -e MYSQL_ROOT_PASSWORD=123456 -d -v /opt/mysql/:/var/lib/mysql mysql:5.7</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入容器或者执行容器内的命令</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">exec</span> -ti &lt;container_id_or_name&gt; /bin/sh</span><br><span class="line">$ docker <span class="built_in">exec</span> &lt;container_id_or_name&gt; hostname</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>主机与容器之间拷贝数据</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 主机拷贝到容器</span></span><br><span class="line">$ <span class="built_in">echo</span> <span class="string">&#x27;data&#x27;</span>&gt;/tmp/test.txt</span><br><span class="line">$ docker <span class="built_in">cp</span> /tmp/test.txt nginx:/tmp</span><br><span class="line">$ docker <span class="built_in">exec</span> nginx <span class="built_in">cat</span> /tmp/test.txt</span><br><span class="line">data</span><br><span class="line"></span><br><span class="line"><span class="comment">## 容器拷贝到主机</span></span><br><span class="line">$ docker <span class="built_in">cp</span> nginx:/tmp/test.txt ./</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器日志</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 查看全部日志</span></span><br><span class="line">$ docker logs nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 实时查看最新日志</span></span><br><span class="line">$ docker logs -f nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 从最新的100条开始查看</span></span><br><span class="line">$ docker logs --<span class="built_in">tail</span>=100 -f nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>停止或者删除容器</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 停止运行中的容器</span></span><br><span class="line">$ docker stop nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 启动退出容器</span></span><br><span class="line">$ docker start nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 删除非运行中状态的容器</span></span><br><span class="line">$ docker <span class="built_in">rm</span> nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 删除运行中的容器</span></span><br><span class="line">$ docker <span class="built_in">rm</span> -f nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器或者镜像的明细</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 查看容器详细信息，包括容器IP地址等</span></span><br><span class="line">$ docker inspect nginx</span><br><span class="line"></span><br><span class="line"><span class="comment">## 查看镜像的明细信息</span></span><br><span class="line">$ docker inspect nginx:alpine</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/docker-introduction/">docker 介绍</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-05-04, 17:10:17</p>
+        <p><span>最后更新:</span>2023-05-05, 20:41:02</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/docker-introduction/" title="docker 介绍">http://realtiger.github.io/docker-introduction/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/docker-introduction/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/yaml-introduction/">
+                    yaml introduction
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/python-design-patterns-03/">
+                    python design patterns 03
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%A4%E8%AF%86docker"><span class="toc-number">1.</span> <span class="toc-text">认识docker</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker%E7%9A%84%E5%8F%91%E5%B1%95%E5%8F%B2"><span class="toc-number">2.</span> <span class="toc-text">docker的发展史</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8F%91%E5%B1%95%E5%8F%B2"><span class="toc-number">2.0.0.0.0.1.</span> <span class="toc-text">发展史</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#docker%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">docker总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker%E5%AE%89%E8%A3%85"><span class="toc-number">4.</span> <span class="toc-text">docker安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E8%A6%81%E7%B4%A0"><span class="toc-number">5.</span> <span class="toc-text">核心要素</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">docker基本命令</span></a></li>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"docker 介绍　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/yaml-introduction/" title="上一篇: yaml introduction">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/python-design-patterns-03/" title="下一篇: python design patterns 03">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml introduction</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python design patterns 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python design patterns 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python design patterns 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
