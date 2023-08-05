@@ -15,19 +15,26 @@
 
 
 
-<meta name="description" content="经常遇到给linux升级python的需求，这里记录一下 linux版本：centos8">
+<meta name="description" content="本节主要介绍containerd的基本概念，以及docker的一些总结。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="centos8 升级 python 版本">
-<meta property="og:url" content="http://realtiger.github.io/centos8-python-upgrade/index.html">
+<meta property="og:title" content="containerd 介绍 与 docker 总结">
+<meta property="og:url" content="http://realtiger.github.io/containerd-introduction/index.html">
 <meta property="og:site_name" content="一雾银的博客">
-<meta property="og:description" content="经常遇到给linux升级python的需求，这里记录一下 linux版本：centos8">
+<meta property="og:description" content="本节主要介绍containerd的基本概念，以及docker的一些总结。">
 <meta property="og:locale">
-<meta property="article:published_time" content="2023-05-12T13:11:03.000Z">
-<meta property="article:modified_time" content="2023-05-12T13:12:42.913Z">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/cri-k8s.drawio.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/oci+cri.drawio.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/kubelet-cri.drawio.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/runcPerformance.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/Docker.png">
+<meta property="article:published_time" content="2023-08-04T16:17:01.000Z">
+<meta property="article:modified_time" content="2023-08-05T19:44:35.296Z">
 <meta property="article:author" content="aaron">
-<meta property="article:tag" content="python">
-<meta property="article:tag" content="linux">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="containerd">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/cri-k8s.drawio.svg">
 
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
@@ -61,7 +68,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>centos8 升级 python 版本 | 一雾银的博客</title>
+<title>containerd 介绍 与 docker 总结 | 一雾银的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -282,11 +289,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
 </nav>
-      <div class="body-wrap"><article id="post-centos8-python-upgrade" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-containerd-introduction" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/centos8-python-upgrade/" class="article-date">
-      <time datetime="2023-05-12T13:11:03.000Z" itemprop="datePublished">2023-05-12</time>
+      <a href="/containerd-introduction/" class="article-date">
+      <time datetime="2023-08-04T16:17:01.000Z" itemprop="datePublished">2023-08-05</time>
 </a>
 
 
@@ -301,7 +308,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      centos8 升级 python 版本
+      containerd 介绍 与 docker 总结
     </h1>
   
 
@@ -311,7 +318,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">943字</span>
+        <span class="post-count">1.7k字</span>
       </span>
     </span>
 
@@ -320,7 +327,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">5分</span>
+        <span class="post-count">6分</span>
       </span>
     </span>
 </div>
@@ -332,7 +339,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -342,11 +349,53 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>经常遇到给linux升级python的需求，这里记录一下</p>
-<p>linux版本：centos8</p>
+        <p>本节主要介绍containerd的基本概念，以及docker的一些总结。</p>
 <span id="more"></span>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"># init</span><br><span class="line"># 修改centos8的yum源</span><br><span class="line">find /etc/yum.repos.d/ -type f | xargs -i sed -i &#x27;s#http://mirror.centos.org/$contentdir/$releasever/#https://mirrors.aliyun.com/centos/8-stream/#g&#x27; &#123;&#125;</span><br><span class="line"></span><br><span class="line">sudo sed -i &#x27;s/SELINUX=\w*/SELINUX=disabled/&#x27; /etc/selinux/config</span><br><span class="line">sudo dnf -y install epel-release</span><br><span class="line">sudo dnf install -y bash-com* bzip2-devel bind-utils cmake dkms dos2unix drpm expect gcc gcc-c++ gdb gdm git kernel-devel kernel-headers libffi libffi-devel lrzsz make ncurses-devel nfs-utils nmap openssl-devel rsync sqlite-devel sysstat tar telnet tmux traceroute tree unzip vim wget yum-utils zlib-devel xz-devel</span><br><span class="line">sudo touch /etc/profile.d/custom.sh</span><br><span class="line"></span><br><span class="line"># 安装rust</span><br><span class="line">sudo curl https://sh.rustup.rs -sSf | sh</span><br><span class="line"></span><br><span class="line"># 安装python</span><br><span class="line">python_version=&quot;3.9.1&quot;</span><br><span class="line">wget https://www.python.org/ftp/python/$&#123;python_version&#125;/Python-$&#123;python_version&#125;.tar.xz</span><br><span class="line">sudo dnf install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel gcc libffi make libffi-devel -y</span><br><span class="line">tar Jxvf Python-$&#123;python_version&#125;.tar.xz</span><br><span class="line">cd Python-$&#123;python_version&#125;/</span><br><span class="line">sudo ./configure --prefix=/usr/local/python3 --enable-shared  --enable-optimizations --with-ssl</span><br><span class="line">sudo make</span><br><span class="line">sudo make altinstall</span><br><span class="line"></span><br><span class="line">sudo bash -c &#x27;echo &quot;/usr/local/python3/lib&quot; &gt; /etc/ld.so.conf.d/python3.conf&#x27;</span><br><span class="line">sudo ldconfig</span><br><span class="line">sudo ln -s /usr/local/python3/bin/python3 /usr/bin/python</span><br><span class="line">sudo ln -s /usr/local/python3/bin/pip3 /usr/bin/pip</span><br><span class="line">python -V</span><br><span class="line">pip -V</span><br><span class="line"></span><br><span class="line">user=&quot;aaron&quot;</span><br><span class="line">home_path=&quot;/home/$&#123;user&#125;/&quot;</span><br><span class="line">root_path=&quot;/root/&quot;</span><br><span class="line"></span><br><span class="line">sudo bash -c &#x27;echo -e &quot;[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple\n&quot; &gt; /etc/pip.conf&#x27;</span><br><span class="line">sudo pip install --upgrade pip</span><br><span class="line">sudo pip install ipython</span><br><span class="line">sudo ln -s /usr/local/python3/bin/ipython /usr/bin/</span><br><span class="line">sudo pip install virtualenv</span><br><span class="line">sudo ln -s /usr/local/python3/bin/virtualenv /usr/bin/</span><br><span class="line">sudo pip install virtualenvwrapper</span><br><span class="line">sudo ln -s /usr/local/python3/bin/virtualenvwrapper /usr/bin/</span><br><span class="line">sudo mkdir $&#123;home_path&#125;.virtualenvs $&#123;root_path&#125;.virtualenvs</span><br><span class="line">grep -q &#x27;^if \[ ! -d &quot;$HOME/.virtualenvs&quot; ];then$&#x27; /etc/profile.d/custom.sh || sudo sh -c &#x27;echo -e &quot;if [ ! -d \&quot;\$HOME/.virtualenvs\&quot; ];then\n  mkdir \$HOME/.virtualenvs\nfi&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line">grep -q &#x27;^export WORKON_HOME=$HOME/.virtualenvs$&#x27; /etc/profile.d/custom.sh || sudo sh -c &#x27;echo -e &quot;export WORKON_HOME=\$HOME/.virtualenvs&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line">grep -q &#x27;^export PROJECT_HOME=$HOME/.workspaces$&#x27; /etc/profile.d/custom.sh || sudo sh -c &#x27;echo -e &quot;export PROJECT_HOME=\$HOME/.workspaces&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line">grep -q &#x27;^source /usr/local/python3/bin/virtualenvwrapper.sh$&#x27; /etc/profile.d/custom.sh || sudo sh -c &#x27;echo -e &quot;source /usr/local/python3/bin/virtualenvwrapper.sh&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line"></span><br><span class="line"># vimrc</span><br><span class="line">sudo mkdir -p $&#123;home_path&#125;.undodir $&#123;root_path&#125;.undodir $&#123;home_path&#125;.vim $&#123;root_path&#125;.vim</span><br><span class="line">sudo chown -R $&#123;user&#125;: $&#123;home_path&#125;</span><br><span class="line"># 参考vimrc</span><br><span class="line">vim  $&#123;home_path&#125;.vim/vimrc</span><br><span class="line">sudo cp  $&#123;home_path&#125;.vim/vimrc $&#123;root_path&#125;.vim/</span><br><span class="line">grep -q &#x27;^export EDITOR=/usr/bin/vim$&#x27; /etc/profile.d/custom.sh &amp;&amp; sudo sed -i &#x27;s/^export EDITOR.*$/export EDITOR=/usr/bin/vim/&#x27; /etc/profile.d/custom.sh || sudo bash -c &#x27;echo &quot;EDITOR=/usr/bin/vim/&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line">grep -q &#x27;^if \[ ! -d &quot;$HOME/.undodir&quot; ];then$&#x27; /etc/profile.d/custom.sh || sudo sh -c &#x27;echo -e &quot;if [ ! -d \&quot;\$HOME/.undodir\&quot; ];then\n  mkdir \$HOME/.undodir\nfi\n&quot; &gt;&gt; /etc/profile.d/custom.sh&#x27;</span><br><span class="line"># 参考init.sh</span><br><span class="line">sudo vim /etc/init.sh</span><br><span class="line">ln -s /etc/init.sh $&#123;home_path&#125;.init.sh</span><br><span class="line">sudo ln -s /etc/init.sh $&#123;root_path&#125;.init.sh</span><br><span class="line">grep -q &#x27;^if \[ -f ~/.init.sh ]; then$&#x27; $&#123;home_path&#125;.bash_profile || sh -c &#x27;echo -e &quot;if [ -f ~/.init.sh ]; then\n    . ~/.init.sh login\nfi\n&quot; &gt;&gt; $&#123;home_path&#125;.bash_profile&#x27;</span><br><span class="line">sudo grep -q &#x27;^if \[ -f ~/.init.sh ]; then$&#x27; $&#123;root_path&#125;.bash_profile || sudo sh -c &#x27;echo -e &quot;if [ -f ~/.init.sh ]; then\n    . ~/.init.sh login\nfi\n&quot; &gt;&gt; $&#123;root_path&#125;.bash_profile&#x27;</span><br><span class="line"># 参考ssh_banner</span><br><span class="line">sudo vim /etc/ssh_banner</span><br><span class="line">sudo grep -q &#x27;^Banner .*$&#x27; /etc/ssh/sshd_config || sudo sh -c &#x27;echo -e &quot;Banner /etc/ssh_banner&quot; &gt;&gt; /etc/ssh/sshd_config&#x27;</span><br><span class="line"></span><br><span class="line"># docker</span><br><span class="line">sudo dnf remove docker docker-common docker-selinux docker-engine -y</span><br><span class="line">sudo dnf config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line">sudo dnf install device-mapper-persistent-data lvm2 -y</span><br><span class="line">sudo dnf install docker-ce --nobest -y</span><br><span class="line">sudo systemctl enable docker</span><br><span class="line">sudo systemctl start docker</span><br><span class="line">sudo usermod -aG docker $&#123;user&#125;</span><br><span class="line">docker version</span><br><span class="line">docker info</span><br><span class="line"></span><br><span class="line"># 注意修改权限</span><br><span class="line">sudo chown -R $&#123;user&#125;: $&#123;home_path&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">sudo pip install jupyter</span><br><span class="line">ll $&#123;home_path&#125;.jupyter/jupyter_notebook_config.py</span><br><span class="line">sudo ln -s /usr/local/python3/bin/jupyter-notebook /usr/bin/</span><br><span class="line">jupyter-notebook --generate-config</span><br><span class="line">mkdir -p $&#123;home_path&#125;project/ipython</span><br><span class="line">vim $&#123;home_path&#125;.jupyter/jupyter_notebook_config.py</span><br><span class="line">    c.NotebookApp.ip = &#x27;192.168.100.10&#x27;</span><br><span class="line">    c.NotebookApp.notebook_dir = &#x27;/home/aaron/project/ipython&#x27;</span><br><span class="line">    c.NotebookApp.open_browser = False</span><br><span class="line">    # jupyter</span><br><span class="line">    c.NotebookApp.password = &#x27;argon2:$argon2id$v=19$m=10240,t=10,p=8$ZyZnmpT3p/nmdXpgVV3mQw$JWkHVEJos0t/XQNix9uwvQ&#x27;</span><br><span class="line">    c.NotebookApp.password_required = True</span><br><span class="line">    c.NotebookApp.port = 8880</span><br><span class="line">    </span><br><span class="line"># 添加系统systemd</span><br><span class="line">sudo vim /usr/lib/systemd/system/jupyter-notebook.service</span><br></pre></td></tr></table></figure>
+<h1 id="containerd"><a href="#containerd" class="headerlink" title="containerd"></a>containerd</h1><p>容器运行时（ContainerRuntime），运行于 kubernetes（k8s）集群的每个节点中，负责容器的整个生命周期，其中 docker 是目前应用最广的。</p>
+<p>随着容器云的发展，越来越多的容器运行时涌现。为了解决这些容器运行时和 k8s 的集成问题，在 k8s 1.5 版本中，社区推出了 CRI（ContainerRuntimeInterface,容器运行时接口），以支持更多的容器运行时。</p>
+<p>Kubelet 通过 CRI 和容器运行时进行通信，使得容器运行时能够像插件一样单独运行。可以说每个容器运行时都有自己的优势，这就允许用户更容易选择和替换自己的容器运行时。</p>
+<p><img src="/post/docker/cri-k8s.drawio.svg" alt="cri-k8s"></p>
+<h2 id="CRI-amp-OCI"><a href="#CRI-amp-OCI" class="headerlink" title="CRI &amp; OCI"></a>CRI &amp; OCI</h2><p>OCI（OpenContainerInitiative，开放容器计划）定义了创建容器的格式和运行时的开源行业标准，包括镜像规范（ImageSpecification）和运行时规范(RuntimeSpecification)。</p>
+<p>镜像规范定义了 OCI 镜像的标准。高层级运行时将会下载一个 OCI 镜像，并把它解压成 OCI 运行时文件系统包（filesystembundle）。</p>
+<p><img src="/post/docker/oci+cri.drawio.svg" alt="oci+cri"></p>
+<p>运行时规范则描述了如何从 OCI 运行时文件系统包运行容器程序，并且定义它的配置、运行环境和生命周期。如何为新容器设置命名空间(namepsaces)和控制组(cgroups)，以及挂载根文件系统等等操作，都是在这里定义的。它的一个参考实现是 runC。我们称其为低层级运行时（Low-levelRuntime）。除 runC 以外，也有很多其他的运行时遵循 OCI 标准，例如 kata-runtime。</p>
+<h2 id="为什么弃用Docker"><a href="#为什么弃用Docker" class="headerlink" title="为什么弃用Docker"></a>为什么弃用Docker</h2><p>目前 docker 仍是 kubernetes 默认的容器运行时。那为什么会选择换掉 docker 呢？主要的原因是它的复杂性。</p>
+<p>我们总结了 docker,containerd 以及 cri-o 的详细调用层级。Docker 的多层封装和调用，导致其在可维护性上略逊一筹，增加了线上问题的定位难度（貌似除了重启 docker，我们就毫无他法了）。Containerd 和 cri-o 的方案比起 docker 简洁很多。因此我们更偏向于选用更加简单和纯粹的 containerd 和 cri-o 作为我们的容器运行时。</p>
+<p><img src="/post/docker/kubelet-cri.drawio.svg" alt="kubelet-cri"></p>
+<p>我们对 containerd 和 cri-o 进行了一组性能测试，包括创建、启动、停止和删除容器，以比较它们所耗的时间。containerd 在各个方面都表现良好，除了启动容器这项。从总用时来看，containerd 的用时还是要比 cri-o 要短的。</p>
+<p><img src="/post/docker/runcPerformance.webp" alt="runcPerformance"></p>
+<p>从功能性来讲，containerd 和 cri-o 都符合 CRI 和 OCI 的标准。从稳定性来说，单独使用 containerd 和 cri-o 都没有足够的生产环境经验。但庆幸的是，containerd 一直在 docker 里使用，而 docker 的生产环境经验可以说比较充足。可见在稳定性上 containerd 略胜一筹。所以我们最终选用了 containerd</p>
+<h2 id="containerd操作"><a href="#containerd操作" class="headerlink" title="containerd操作"></a>containerd操作</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/Michaelwubo/article/details/122745348">https://blog.csdn.net/Michaelwubo/article/details/122745348</a><br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/liugp/p/16633732.html">https://www.cnblogs.com/liugp/p/16633732.html</a></p>
+<h1 id="docker-总结"><a href="#docker-总结" class="headerlink" title="docker 总结"></a>docker 总结</h1><h2 id="实用技巧"><a href="#实用技巧" class="headerlink" title="实用技巧"></a>实用技巧</h2><ol>
+<li><p>清理主机上所有退出的容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">rm</span>  $(docker ps -aq)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调试或者排查容器启动错误</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 若有时遇到容器启动失败的情况，可以先使用相同的镜像启动一个临时容器，先进入容器</span></span><br><span class="line">$ docker run --<span class="built_in">rm</span> -ti &lt;image_id&gt; sh</span><br><span class="line"><span class="comment">## 进入容器后，手动执行该容器对应的ENTRYPOINT或者CMD命令，这样即使出错，容器也不会退出，因为bash作为1号进程，我们只要不退出容器，该容器就不会自动退出</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="docker总结"><a href="#docker总结" class="headerlink" title="docker总结"></a>docker总结</h2><p><img src="/post/docker/Docker.png" alt="Docker"></p>
+<ol>
+<li>为了解决软件交付过程中的环境依赖，同时提供一种更加轻量的虚拟化技术，Docker出现了。</li>
+<li>2013年诞生，15年开始迅速发展，从17.03月开始，使用时间日期管理版本，稳定版以每季度为准。</li>
+<li>Docker是一种CS架构的软件产品，可以把代码及依赖打包成镜像，作为交付介质，并且把镜像启动成为容器，提供容器生命周期的管理。</li>
+<li>使用yum部署docker，启动后通过操作docker这个命令行，自动调用docker daemon完成容器相关操作。</li>
+<li>常用操作，围绕<code>镜像|容器|仓库</code>三大核心要素<ul>
+<li>systemctl  start|stop|restart docker</li>
+<li>docker build | pull  -&gt; docker tag -&gt; docker push</li>
+<li>docker run –name my-demo  -d  -p 8080:80 -v  &#x2F;opt&#x2F;data:&#x2F;data  demo:v20200327 ping xx.com</li>
+<li>docker cp  &#x2F;path&#x2F;a.txt  mycontainer:&#x2F;opt</li>
+<li>docker exec -ti  mycontainer  &#x2F;bin&#x2F;sh</li>
+<li>docker logs -f –tail&#x3D;100 mycontainer</li>
+</ul>
+</li>
+<li>通过dockerfile构建业务镜像，先使用基础镜像，然后通过一系列的指令把我们的业务应用所需要的运行环境和依赖都打包到镜像中，然后通过CMD或者ENTRYPOINT指令把镜像启动时的入口制定好，完成封装即可。有点类似于，先找来一个集装箱模板(基础镜像)，然后把项目依赖的服务都扔到集装箱中，然后设置好服务的启动入口，关闭箱门，即完成了业务镜像的制作。</li>
+<li>容器的实现依赖于内核模块提供的namespace和control-group的功能，通过namespace创建一块虚拟空间，空间内实现了各类资源(进程、网络、文件系统)的隔离，提供control-group实现了对隔离的空间的资源使用的限制。</li>
+<li>docker镜像使用分层的方式进行存储，根据主机的存储驱动的不同，实现方式会不同，kernel在3.10.0-514以上自动支持overlay2 存储驱动，也是目前Docker推荐的方式。</li>
+<li>得益于分层存储的模式，多个容器可以通过copy-on-write的策略，在镜像的最上层加一个可写层，同时利用存储驱动的UnionFS的能力，实现一个镜像快速启动多个容器的场景。</li>
+<li>docker的网络模式分为4种，最常用的为bridge和host模式。bridge模式通过docker0网桥，启动容器的时候通过创建一对虚拟网卡，将容器连接在桥上，同时维护了虚拟网卡与网桥端口的关系，实现容器间的通信。容器与宿主机之间的通信通过iptables端口映射的方式，docker利用iptables的PREROUTING和POSTROUTING的nat功能，实现了SNAT与DNAT，使得容器内部的服务被完美的保护起来。</li>
+<li>本章重点内容是docker的核心要素及基础的操作，实现原理以及docker的网络模式为选修包，目的为了帮助有docker基础及经验的同学更好的进一步理解docker。</li>
+</ol>
 
       
     </div>
@@ -355,13 +404,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/centos8-python-upgrade/">centos8 升级 python 版本</a></p>
+        <p><span>本文标题:</span><a href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
-        <p><span>发布时间:</span>2023-05-12, 21:11:03</p>
-        <p><span>最后更新:</span>2023-05-12, 21:12:42</p>
+        <p><span>发布时间:</span>2023-08-05, 00:17:01</p>
+        <p><span>最后更新:</span>2023-08-06, 03:44:35</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/centos8-python-upgrade/" title="centos8 升级 python 版本">http://realtiger.github.io/centos8-python-upgrade/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/centos8-python-upgrade/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/containerd-introduction/" title="containerd 介绍 与 docker 总结">http://realtiger.github.io/containerd-introduction/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/containerd-introduction/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -373,16 +422,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/sphinx-python-documentation-generator/">
-                    sphinx - python文档生成器
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/docker-file/">
-                    docker file
+                <a href="/docker-network/">
+                    Docker 网络
                 </a>
             </div>
         
@@ -394,7 +437,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#containerd"><span class="toc-number">1.</span> <span class="toc-text">containerd</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI-amp-OCI"><span class="toc-number">1.1.</span> <span class="toc-text">CRI &amp; OCI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%83%E7%94%A8Docker"><span class="toc-number">1.2.</span> <span class="toc-text">为什么弃用Docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#containerd%E6%93%8D%E4%BD%9C"><span class="toc-number">1.3.</span> <span class="toc-text">containerd操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker-%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">docker 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">2.1.</span> <span class="toc-text">实用技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text">docker总结</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -430,7 +473,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"centos8 升级 python 版本　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"containerd 介绍 与 docker 总结　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -450,15 +493,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/sphinx-python-documentation-generator/" title="上一篇: sphinx - python文档生成器">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/docker-file/" title="下一篇: docker file">
+            <a href="/docker-network/" title="下一篇: Docker 网络">
                 <i class="fa fa-angle-right"></i>
             </a>
         

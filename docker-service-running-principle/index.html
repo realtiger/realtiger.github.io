@@ -17,7 +17,7 @@
 
 <meta name="description" content="实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker service running  principle">
+<meta property="og:title" content="docker 运行原理">
 <meta property="og:url" content="http://realtiger.github.io/docker-service-running-principle/index.html">
 <meta property="og:site_name" content="一雾银的博客">
 <meta property="og:description" content="实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://realtiger.github.io/post/docker/sharing-layers.jpg">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/aufs.png">
 <meta property="article:published_time" content="2023-06-19T04:57:42.000Z">
-<meta property="article:modified_time" content="2023-07-06T11:45:02.547Z">
+<meta property="article:modified_time" content="2023-07-07T12:05:34.582Z">
 <meta property="article:author" content="aaron">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="k8s">
@@ -66,7 +66,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>docker service running  principle | 一雾银的博客</title>
+<title>docker 运行原理 | 一雾银的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -206,7 +206,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
                     </div>
                 </section>
                 
@@ -306,7 +306,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      docker service running  principle
+      docker 运行原理
     </h1>
   
 
@@ -420,7 +420,7 @@
 <p>如何确定进程是否属于同一个namespace：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ ./ns_pid</span><br><span class="line">Parent [ 8061] - start a container!</span><br><span class="line">$ pstree -p 8061</span><br><span class="line">pid1(8061)───bash(8062)───pstree(8816)</span><br><span class="line">$ <span class="built_in">ls</span> -l /proc/8061/ns</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 ipc -&gt; ipc:[4026531839]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 mnt -&gt; mnt:[4026531840]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 net -&gt; net:[4026531968]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 pid -&gt; pid:[4026531836]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 user -&gt; user:[4026531837]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 uts -&gt; uts:[4026531838]</span><br><span class="line">$ <span class="built_in">ls</span> -l /proc/8062/ns</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 ipc -&gt; ipc:[4026531839]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 mnt -&gt; mnt:[4026531840]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 net -&gt; net:[4026531968]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 pid -&gt; pid:[4026534845]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 user -&gt; user:[4026531837]</span><br><span class="line">lrwxrwxrwx 1 root root 0 Jun 24 12:51 uts -&gt; uts:[4026534844]</span><br><span class="line"></span><br><span class="line"><span class="comment">## 发现pid和uts是和父进程使用了不同的ns，其他的则是继承了父进程的命名空间</span></span><br></pre></td></tr></table></figure>
 
-<p>综上：通俗来讲，docker在启动一个容器的时候，会调用Linux Kernel Namespace的接口，来创建一块虚拟空间，创建的时候，可以支持设置下面这几种（可以随意选择）,docker默认都设置。</p>
+<p>综上：通俗来讲，docker在启动一个容器的时候，会调用Linux Kernel<br>Namespace的接口，来创建一块虚拟空间，创建的时候，可以支持设置下面这几种（可以随意选择）,docker默认都设置。</p>
 <ul>
 <li>pid：用于进程隔离（PID：进程ID）</li>
 <li>net：管理网络接口（NET：网络）</li>
@@ -432,13 +432,13 @@
 <blockquote>
 <p>linux namespace 可以支持创建进程的时候，通过参数传递（CLONE_NEW*）来确定这个新启动的进程以及进程衍生的子进程是否拥有独立的进程空间，网络空间，文件系统空间，用户空间等等。<br>docker容器对于宿主机来说，其实就是一个进程，创建容器时，给这个容器进程指定了独立的进程空间，网络空间，文件系统空间，用户空间等等，这样就实现了容器的资源隔离。</p>
 </blockquote>
-<h2 id="CGroup-资源限制"><a href="#CGroup-资源限制" class="headerlink" title="CGroup 资源限制"></a>CGroup 资源限制</h2><p>通过namespace可以保证容器之间的隔离，但是无法控制每个容器可以占用多少资源， 如果其中的某一个容器正在执行 CPU 密集型的任务，那么就会影响其他容器中任务的性能与执行效率，导致多个容器相互影响并且抢占资源。如何对多个容器的资源使用进行限制就成了解决进程虚拟资源隔离之后的主要问题。</p>
+<h2 id="CGroup-资源限制"><a href="#CGroup-资源限制" class="headerlink" title="CGroup 资源限制"></a>CGroup 资源限制</h2><p>通过namespace可以保证容器之间的隔离，但是无法控制每个容器可以占用多少资源， 如果其中的某一个容器正在执行 CPU<br>密集型的任务，那么就会影响其他容器中任务的性能与执行效率，导致多个容器相互影响并且抢占资源。如何对多个容器的资源使用进行限制就成了解决进程虚拟资源隔离之后的主要问题。</p>
 <p><img src="/post/docker/cgroup.png" alt="cgroup"></p>
 <p>Control Groups（简称 CGroups）</p>
 <blockquote>
-<p>cgroups是Linux内核提供的一种机制，这种机制可以根据需求吧一系列系统任务及其子任务整合(或分隔)到按资源划分等级的不同组中，从而为系统资源管理提供一个统一的框架。</p>
+<p>cgroups是Linux内核提供的一种机制，这种机制可以根据需求吧一系列系统任务及其子任务整合(或分隔)<br>到按资源划分等级的不同组中，从而为系统资源管理提供一个统一的框架。</p>
 </blockquote>
-<p>CGroups能够隔离宿主机器上的物理资源，例如 CPU、内存、磁盘 I&#x2F;O 。每一个 CGroup 都是一组被相同的标准和参数限制的进程。而我们需要做的，其实就是把容器这个进程加入到指定的Cgroup中。</p>
+<p>CGroups能够隔离宿主机器上的物理资源，例如 CPU、内存、磁盘 I&#x2F;O 。每一个 CGroup<br>都是一组被相同的标准和参数限制的进程。而我们需要做的，其实就是把容器这个进程加入到指定的Cgroup中。</p>
 <p>验证cgroup的内存限制：</p>
 <ul>
 <li><p>准备一个程序，每秒钟申请1MB的内存, <code>mem-allocate.c</code></p>
@@ -453,7 +453,7 @@
 <li><p>用cgroup限制进程</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动程序</span></span><br><span class="line">./cgroup-test.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看程序进程</span></span><br><span class="line">ps aux|grep cgroup-test</span><br><span class="line"><span class="built_in">echo</span> 16079 &gt; /sys/fs/cgroup/memory/memory-process/cgroup.procs</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="UnionFS-联合文件系统"><a href="#UnionFS-联合文件系统" class="headerlink" title="UnionFS 联合文件系统"></a>UnionFS 联合文件系统</h2><p>Linux namespace和cgroup分别解决了容器的资源隔离与资源限制，那么容器是很轻量的，通常每台机器中可以运行几十上百个容器， 这些个容器是共用一个image，还是各自将这个image复制了一份，然后各自独立运行呢？</p>
+<h2 id="UnionFS-联合文件系统"><a href="#UnionFS-联合文件系统" class="headerlink" title="UnionFS 联合文件系统"></a>UnionFS 联合文件系统</h2><p>Linux namespace和cgroup分别解决了容器的资源隔离与资源限制，那么容器是很轻量的，通常每台机器中可以运行几十上百个容器，<br>这些个容器是共用一个image，还是各自将这个image复制了一份，然后各自独立运行呢？</p>
 <p>如果每个容器之间都是全量的文件系统拷贝，那么会导致至少如下问题：</p>
 <ul>
 <li>运行容器的速度会变慢</li>
@@ -470,13 +470,13 @@
 
 <p>这里的 Dockerfile 包含4条命令，其中每一行就创建了一层，下面显示了上述Dockerfile构建出来的镜像运行的容器层的结构。</p>
 <p><img src="/post/docker/container-layers.jpg" alt="container-layers"></p>
-<p>镜像就是由这些层一层一层堆叠起来的，镜像中的这些层都是只读的，当我们运行容器的时候，就可以在这些基础层至上添加新的可写层，也就是我们通常说的<code>容器层</code>，对于运行中的容器所做的所有更改（比如写入新文件、修改现有文件、删除文件）都将写入这个容器层。</p>
-<p>对容器层的操作，主要利用了写时复制（CoW）技术。CoW就是copy-on-write，表示只在需要写时才去复制，这个是针对已有文件的修改场景。 CoW技术可以让所有的容器共享image的文件系统，所有数据都从image中读取，只有当要对文件进行写操作时，才从image里把要写的文件复制到自己的文件系统进行修改。所以无论有多少个容器共享同一个image，所做的写操作都是对从image中复制到自己的文件系统中的复本上进行，并不会修改image的源文件，且多个容器操作同一个文件，会在每个容器的文件系统里生成一个复本，每个容器修改的都是自己的复本，相互隔离，相互不影响。使用CoW可以有效的提高磁盘的利用率。</p>
+<p>镜像就是由这些层一层一层堆叠起来的，镜像中的这些层都是只读的，当我们运行容器的时候，就可以在这些基础层至上添加新的可写层，也就是我们通常说的<code>容器层</code><br>，对于运行中的容器所做的所有更改（比如写入新文件、修改现有文件、删除文件）都将写入这个容器层。</p>
+<p>对容器层的操作，主要利用了写时复制（CoW）技术。CoW就是copy-on-write，表示只在需要写时才去复制，这个是针对已有文件的修改场景。<br>CoW技术可以让所有的容器共享image的文件系统，所有数据都从image中读取，只有当要对文件进行写操作时，才从image里把要写的文件复制到自己的文件系统进行修改。所以无论有多少个容器共享同一个image，所做的写操作都是对从image中复制到自己的文件系统中的复本上进行，并不会修改image的源文件，且多个容器操作同一个文件，会在每个容器的文件系统里生成一个复本，每个容器修改的都是自己的复本，相互隔离，相互不影响。使用CoW可以有效的提高磁盘的利用率。</p>
 <p><img src="/post/docker/sharing-layers.jpg" alt="sharing-layers"></p>
 <p><strong>镜像中每一层的文件都是分散在不同的目录中的，如何把这些不同目录的文件整合到一起呢？</strong></p>
-<p>UnionFS 其实是一种为 Linux 操作系统设计的用于把多个文件系统联合到同一个挂载点的文件系统服务。它能够将不同文件夹中的层联合（Union）到了同一个文件夹中，整个联合的过程被称为联合挂载（Union Mount）。</p>
+<p>UnionFS 其实是一种为 Linux 操作系统设计的用于把多个文件系统联合到同一个挂载点的文件系统服务。它能够将不同文件夹中的层联合（Union）到了同一个文件夹中，整个联合的过程被称为联合挂载（Union<br>Mount）。</p>
 <p><img src="/post/docker/aufs.png" alt="aufs"></p>
-<p>上图是AUFS的实现，AUFS是作为Docker存储驱动的一种实现，Docker 还支持了不同的存储驱动，包括 aufs、devicemapper、overlay2、zfs 和 Btrfs 等等，在最新的 Docker 中，overlay2 取代了 aufs 成为了推荐的存储驱动，但是在没有 overlay2 驱动的机器上仍然会使用 aufs 作为 Docker 的默认驱动。</p>
+<p>上图是AUFS的实现，AUFS是作为Docker存储驱动的一种实现，Docker 还支持了不同的存储驱动，包括 aufs、devicemapper、overlay2、zfs 和<br>Btrfs 等等，在最新的 Docker 中，overlay2 取代了 aufs 成为了推荐的存储驱动，但是在没有 overlay2 驱动的机器上仍然会使用 aufs<br>作为 Docker 的默认驱动。</p>
 
       
     </div>
@@ -485,12 +485,12 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/docker-service-running-principle/">docker service running  principle</a></p>
+        <p><span>本文标题:</span><a href="/docker-service-running-principle/">docker 运行原理</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
         <p><span>发布时间:</span>2023-06-19, 12:57:42</p>
-        <p><span>最后更新:</span>2023-07-06, 19:45:02</p>
+        <p><span>最后更新:</span>2023-07-07, 20:05:34</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/docker-service-running-principle/" title="docker service running  principle">http://realtiger.github.io/docker-service-running-principle/</a>
+            <span>原始链接:</span><a class="post-url" href="/docker-service-running-principle/" title="docker 运行原理">http://realtiger.github.io/docker-service-running-principle/</a>
             <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/docker-service-running-principle/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -503,10 +503,16 @@
 
     <nav id="article-nav">
         
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/docker-network/">
+                    Docker 网络
+                </a>
+            </div>
+        
         
             <div id="article-nav-older" class="article-nav-title">
                 <a href="/sphinx-python-documentation-generator/">
-                    sphinx python documentation generator
+                    sphinx - python文档生成器
                 </a>
             </div>
         
@@ -554,7 +560,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"docker service running  principle　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"docker 运行原理　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -574,19 +580,21 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/docker-network/" title="上一篇: Docker 网络">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/sphinx-python-documentation-generator/" title="下一篇: sphinx python documentation generator">
+            <a href="/sphinx-python-documentation-generator/" title="下一篇: sphinx - python文档生成器">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker service running  principle</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx python documentation generator</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml introduction</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python design patterns 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python design patterns 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python design patterns 01</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
 
 
 
