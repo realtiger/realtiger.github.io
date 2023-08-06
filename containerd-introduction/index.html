@@ -26,9 +26,11 @@
 <meta property="og:image" content="http://realtiger.github.io/post/docker/oci+cri.drawio.svg">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/kubelet-cri.drawio.svg">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/runcPerformance.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/containerd-client.drawio.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/nerdctl.png">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/Docker.png">
 <meta property="article:published_time" content="2023-08-04T16:17:01.000Z">
-<meta property="article:modified_time" content="2023-08-05T19:44:35.296Z">
+<meta property="article:modified_time" content="2023-08-06T15:14:13.658Z">
 <meta property="article:author" content="aaron">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="k8s">
@@ -318,7 +320,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">1.7k字</span>
+        <span class="post-count">6k字</span>
       </span>
     </span>
 
@@ -327,7 +329,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">6分</span>
+        <span class="post-count">27分</span>
       </span>
     </span>
 </div>
@@ -366,13 +368,339 @@
 <p>我们对 containerd 和 cri-o 进行了一组性能测试，包括创建、启动、停止和删除容器，以比较它们所耗的时间。containerd 在各个方面都表现良好，除了启动容器这项。从总用时来看，containerd 的用时还是要比 cri-o 要短的。</p>
 <p><img src="/post/docker/runcPerformance.webp" alt="runcPerformance"></p>
 <p>从功能性来讲，containerd 和 cri-o 都符合 CRI 和 OCI 的标准。从稳定性来说，单独使用 containerd 和 cri-o 都没有足够的生产环境经验。但庆幸的是，containerd 一直在 docker 里使用，而 docker 的生产环境经验可以说比较充足。可见在稳定性上 containerd 略胜一筹。所以我们最终选用了 containerd</p>
-<h2 id="containerd操作"><a href="#containerd操作" class="headerlink" title="containerd操作"></a>containerd操作</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/Michaelwubo/article/details/122745348">https://blog.csdn.net/Michaelwubo/article/details/122745348</a><br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/liugp/p/16633732.html">https://www.cnblogs.com/liugp/p/16633732.html</a></p>
+<h1 id="containerd操作"><a href="#containerd操作" class="headerlink" title="containerd操作"></a>containerd操作</h1><p>更换 containerd 后，常用的 docker 命令也不再有用，containerd 命令行客户端如下图所示：</p>
+<p><img src="/post/docker/containerd-client.drawio.svg" alt="containerd"></p>
+<ul>
+<li>ctr -v 输出的是 containerd 的版本，crictl -v 输出的是当前 k8s 的版本，从结果显而易见你可以认为 crictl 是用于 k8s 的。</li>
+<li>一般来说你某个主机安装了 k8s 后，命令行才会有 crictl 命令。而 ctr 是跟 k8s 无关的，你主机安装了 containerd 服务后就可以操作 ctr 命令。</li>
+</ul>
+<p>先提前放出docker&#x2F;ctr&#x2F;crictl之间命令的对比，后面会详细介绍。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>docker</th>
+<th>ctr（containerd）</th>
+<th>crictl（kubernetes）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查看运行的容器</td>
+<td>docker ps</td>
+<td>ctr task ls&#x2F;ctr container ls</td>
+<td>crictl ps</td>
+</tr>
+<tr>
+<td>查看镜像</td>
+<td>docker images</td>
+<td>ctr image ls</td>
+<td>crictl images</td>
+</tr>
+<tr>
+<td>查看容器日志</td>
+<td>docker logs</td>
+<td>无</td>
+<td>crictl logs</td>
+</tr>
+<tr>
+<td>查看容器数据信息</td>
+<td>docker inspect</td>
+<td>ctr container info</td>
+<td>crictl inspect</td>
+</tr>
+<tr>
+<td>查看容器资源</td>
+<td>docker stats</td>
+<td>无</td>
+<td>crictl stats</td>
+</tr>
+<tr>
+<td>启动&#x2F;关闭已有的容器</td>
+<td>docker start&#x2F;stop</td>
+<td>ctr task start&#x2F;kill</td>
+<td>crictl start&#x2F;stop</td>
+</tr>
+<tr>
+<td>运行一个新的容器</td>
+<td>docker run</td>
+<td>ctr run</td>
+<td>无（最小单元为pod）</td>
+</tr>
+<tr>
+<td>打标签</td>
+<td>docker tag</td>
+<td>ctr image tag</td>
+<td>无</td>
+</tr>
+<tr>
+<td>创建一个新的容器</td>
+<td>docker create</td>
+<td>ctr container create</td>
+<td>crictl create</td>
+</tr>
+<tr>
+<td>导入镜像</td>
+<td>docker load</td>
+<td>ctr image import</td>
+<td>无</td>
+</tr>
+<tr>
+<td>导出镜像</td>
+<td>docker save</td>
+<td>ctr image export</td>
+<td>无</td>
+</tr>
+<tr>
+<td>删除容器</td>
+<td>docker rm</td>
+<td>ctr container rm</td>
+<td>crictl rm</td>
+</tr>
+<tr>
+<td>删除镜像</td>
+<td>docker rmi</td>
+<td>ctr image rm</td>
+<td>crictl rmi</td>
+</tr>
+<tr>
+<td>拉取镜像</td>
+<td>docker pull</td>
+<td>ctr image pull</td>
+<td>ctictl pull</td>
+</tr>
+<tr>
+<td>推送镜像</td>
+<td>docker push</td>
+<td>ctr image push</td>
+<td>无</td>
+</tr>
+<tr>
+<td>登录或在容器内部执行命令</td>
+<td>docker exec</td>
+<td>无</td>
+<td>crictl exec</td>
+</tr>
+<tr>
+<td>清空不用的容器</td>
+<td>docker image prune</td>
+<td>无</td>
+<td>crictl rmi –prune</td>
+</tr>
+</tbody></table>
+<p>更多命令操作，可以直接在命令行输入命令查看帮助。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker --help</span><br><span class="line">ctr --help</span><br><span class="line">crictl --help</span><br></pre></td></tr></table></figure>
+
+<p>以下是各种客户端操作 containerd 的命令，因为之后会安装k8s，很多操作通过k8s直接就完成了，所以对应命令可以先做了解即可。</p>
+<h2 id="containerd-客户端-ctr"><a href="#containerd-客户端-ctr" class="headerlink" title="containerd 客户端 ctr"></a>containerd 客户端 ctr</h2><p>ctr 是 containerd 项目的一部分提供的命令行客户端。如果一台机器上运行了 containerd，那么ctr二进制文件也一般会进行安装。</p>
+<p>由于 containerd 也有namespaces的概念，对于上层编排系统的支持，ctr 客户端主要区分了3个命名空间分别是k8s.io、moby和default，以上我们用 crictl 操作的均在 k8s.io 命名空间，使用 ctr 看镜像列表就需要加上 -n 参数。crictl 是只有一个 k8s.io 命名空间，但是没有 -n 参数。</p>
+<blockquote>
+<p>【温馨提示】ctr images pull 拉取的镜像默认放在default，而 crictl pull 和 kubelet 默认拉取的镜像都在 k8s.io 命名空间下。所以通过 ctr 导入镜像的时候特别注意一点，最好指定命名空间。</p>
+</blockquote>
+<h3 id="命令示例"><a href="#命令示例" class="headerlink" title="命令示例"></a>命令示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 注意 -n 不能放在命令最后面，下面查看的镜像是一样的</span><br><span class="line">ctr -n=k8s.io image ls</span><br><span class="line">ctr -n k8s.io image ls</span><br><span class="line"></span><br><span class="line"># 使用ctr命令指定命名空间导入镜像</span><br><span class="line">ctr -n=k8s.io image import dashboard.tar</span><br></pre></td></tr></table></figure>
+
+<h3 id="ctr-命令"><a href="#ctr-命令" class="headerlink" title="ctr 命令"></a>ctr 命令</h3><p>ctr 命令的参数和全局参数如下。</p>
+<p>参数命令的格式为：<code>ctr [global options] command [command options] [arguments...]</code></p>
+<p>全局参数可以在任何命令后面使用，并且可以多个参数组合使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">COMMANDS:</span><br><span class="line">   plugins, plugin            provides information about containerd plugins</span><br><span class="line">   version                    print the client and server versions</span><br><span class="line">   containers, c, container   manage containers</span><br><span class="line">   content                    manage content</span><br><span class="line">   events, event              display containerd events</span><br><span class="line">   images, image, i           manage images</span><br><span class="line">   leases                     manage leases</span><br><span class="line">   namespaces, namespace, ns  manage namespaces</span><br><span class="line">   pprof                      provide golang pprof outputs for containerd</span><br><span class="line">   run                        run a container</span><br><span class="line">   snapshots, snapshot        manage snapshots</span><br><span class="line">   tasks, t, task             manage tasks</span><br><span class="line">   install                    install a new package</span><br><span class="line">   oci                        OCI tools</span><br><span class="line">   shim                       interact with a shim directly</span><br><span class="line">   help, h                    Shows a list of commands or help for one command</span><br><span class="line"></span><br><span class="line">GLOBAL OPTIONS:</span><br><span class="line">--debug                      enable debug output in logs</span><br><span class="line">--address value, -a value    address for containerd&#x27;s GRPC server (default: &quot;/run/containerd/containerd.sock&quot;) [$CONTAINERD_ADDRESS]</span><br><span class="line">--timeout value              total timeout for ctr commands (default: 0s)</span><br><span class="line">--connect-timeout value      timeout for connecting to containerd (default: 0s)</span><br><span class="line">--namespace value, -n value  namespace to use with commands (default: &quot;default&quot;) [$CONTAINERD_NAMESPACE]</span><br><span class="line">--help, -h                   show help</span><br><span class="line">--version, -v                print the version</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>查看版本</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr -v</span><br><span class="line">ctr --version</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>指定空间</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr -n k8s.io image ls</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="namespace-相关操作"><a href="#namespace-相关操作" class="headerlink" title="namespace 相关操作"></a>namespace 相关操作</h3><p>ctr 所有的命令都支持 -n 参数，用于指定命名空间，如果不指定命名空间，默认为default命名空间。命名空间的概念类似于 docker 的仓库，但是不同的是，docker 的仓库是一个集中的仓库，而 ctr 的命名空间是分布式的，每个命名空间都是一个独立的仓库。</p>
+<p>命令 <code>ctr namespace</code> 用于管理命名空间，包括查看、创建和删除命名空间。可以简化为 <code>ctr ns</code>。</p>
+<ol>
+<li><p>查看命名空间</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr namespace ls</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建命名空间</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr namespace create k8s.io</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除命名空间</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr namespace rm k8s.io</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="镜像相关操作"><a href="#镜像相关操作" class="headerlink" title="镜像相关操作"></a>镜像相关操作</h3><p>镜像相关命令如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># ctr image -h</span><br><span class="line">NAME:</span><br><span class="line">   ctr images - manage images</span><br><span class="line"></span><br><span class="line">USAGE:</span><br><span class="line">   ctr images command [command options] [arguments...]</span><br><span class="line"></span><br><span class="line">COMMANDS:</span><br><span class="line"></span><br><span class="line">   check       check existing images to ensure all content is available locally</span><br><span class="line">   export      export images</span><br><span class="line">   import      import images</span><br><span class="line">   list, ls    list images known to containerd</span><br><span class="line">   mount       mount an image to a target path</span><br><span class="line">   unmount     unmount the image from the target</span><br><span class="line">   pull        pull an image from a remote</span><br><span class="line">   push        push an image to a remote</span><br><span class="line">   remove, rm  remove one or more images by reference</span><br><span class="line">   tag         tag an image</span><br><span class="line">   label       set and clear labels for an image</span><br><span class="line">   convert     convert an image</span><br><span class="line"></span><br><span class="line">OPTIONS:</span><br><span class="line">   --help, -h  show help</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>检查镜像列表，确认镜像是否存在以及镜像的完整性</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr image check</span><br><span class="line">ctr i check</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>导入&#x2F;导出镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr i import dashboard.tar</span><br><span class="line">ctr i export dashboard.tar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看镜像列表</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr i ls</span><br><span class="line">ctr i list</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>挂载&#x2F;卸载镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># ctr 支持将镜像挂载到指定目录，这样就可以直接访问镜像中的文件了，而不需要启动容器，可以确认镜像中的文件是否正确</span><br><span class="line">ctr i mount dashboard.tar /tmp/dashboard</span><br><span class="line">ctr i unmount dashboard.tar /tmp/dashboard</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>拉取推送镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 拉取镜像</span><br><span class="line"># docker默认是docker.io官网去找镜像，所以docker拉去镜像可以这样写：docker pull nginx:alpine，而containerd没有默认仓库，所以必须写完整的镜像名字才能拉去镜像</span><br><span class="line">ctr i pull docker.io/library/nginx:alpine</span><br><span class="line">   </span><br><span class="line"># 推送镜像到harbor</span><br><span class="line">#</span><br><span class="line"># --namespace=k8s.io 指定命名空间，不是必须，根据环境而定</span><br><span class="line"># --skip-verify 跳过认证</span><br><span class="line"># --user 指定harbor用户名及密码</span><br><span class="line">ctr --namespace=k8s.io images push harbor.mydomain.com/k8s/pause:1.25.1 --skip-verify --user admin:Harbor12345</span><br><span class="line"></span><br><span class="line"># 不想-u user:password每次必须使用 ctr pull/ctr push，可以使用nerdctl，下面有介绍</span><br><span class="line">ctr images pull --user admin:Harbor12345  --tlscacert=/etc/containerd/harbor.mydomain.com/ca.crt harbor.mydomain.com/k8s/pause:1.25.1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr i rm nginx:alpine</span><br><span class="line">ctr i remove nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打标签</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># crictl 没有 tag 命令，只能使用 nerdctl 和 ctr，必须指定命名空间，要不然 kubelet 无法使用。</span><br><span class="line">ctr -n k8s.io i tag my-nginx:v1 harbor.mydomain.com/my-nginx:v1</span><br><span class="line"># nerdctl -n k8s.io tag my-nginx:v1 harbor.mydomain.com/my-nginx:v1</span><br><span class="line"></span><br><span class="line"># 查看镜像</span><br><span class="line">ctr -n k8s.io i ls</span><br><span class="line"># nerdctl -n k8s.io images myharbor-minio.com/bigdata/nginx:nerctl</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>镜像转换</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ctr 支持将镜像转换为 OCI 格式，这样就可以使用其他容器运行时运行镜像了，比如 runc</span><br><span class="line">ctr i convert --oci nginx:alpine nginx:alpine-oci</span><br><span class="line"># 也支持将 OCI 格式的镜像转换为 docker 格式</span><br><span class="line">ctr i convert nginx:alpine nginx:alpine-docker</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>镜像构建</p>
+<p>containerd 不提供开箱即用的镜像构建支持。一般使用更高级别的工具用来构建镜像，比如docker。</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; Dockerfile &lt;&lt;EOF</span><br><span class="line">FROM nginx:alpine</span><br><span class="line">RUN echo &#x27;Build Image From Containerd&#x27; &gt; /usr/share/nginx/html/index.html</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"># 可以使用docker构建镜像，然后导出到本地，再使用ctr导入到containerd</span><br><span class="line">docker build -t my-nginx:v1 .</span><br><span class="line">docker save -o my-nginx.tar my-nginx:v1</span><br><span class="line"> </span><br><span class="line">ctr images import my-nginx.tar</span><br><span class="line"></span><br><span class="line"># 或者使用nerdctl进行构建，与docker功能一样</span><br><span class="line"># 不加-n指定命名空间，crictl看不到，kubelet也不能使用它，默认在default命名空间下</span><br><span class="line">nerdctl -n k8s.io build -t nginx:nerctl -f ./Dockerfile .</span><br><span class="line"></span><br><span class="line"># 参数解释：(下一节会有 nerctl 介绍)</span><br><span class="line"># -t：指定镜像名称</span><br><span class="line"># . ：当前目录Dockerfile</span><br><span class="line"># -f：指定Dockerfile路径</span><br><span class="line">#  --no-cache：不缓存</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="容器相关操作"><a href="#容器相关操作" class="headerlink" title="容器相关操作"></a>容器相关操作</h3><p>容器相关操作，包括创建、启动、停止、删除等。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">:~# ctr container --help</span><br><span class="line">NAME:</span><br><span class="line">   ctr containers - manage containers</span><br><span class="line"></span><br><span class="line">USAGE:</span><br><span class="line">   ctr containers command [command options] [arguments...]</span><br><span class="line"></span><br><span class="line">COMMANDS:</span><br><span class="line">   create           create container</span><br><span class="line">   delete, del, rm  delete one or more existing containers</span><br><span class="line">   info             get info about a container</span><br><span class="line">   list, ls         list containers</span><br><span class="line">   label            set and clear labels for a container</span><br><span class="line">   checkpoint       checkpoint a container</span><br><span class="line">   restore          restore a container from checkpoint</span><br><span class="line"></span><br><span class="line">OPTIONS:</span><br><span class="line">   --help, -h  show help</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>创建容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># container 只是创建了静态容器，此时容器还未启动运行。如果要启动容器，需要使用 task start 命令。</span><br><span class="line">ctr c create harbor.mydomain.com/my-nginx:v1 my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ctr c rm my-nginx</span><br><span class="line">ctr c delete my-nginx</span><br><span class="line">ctr c del my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看指定容器的信息</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr c info my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看所有容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr c ls</span><br><span class="line">ctr c list</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器标签</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 容器标签可以用来标记容器，方便管理</span><br><span class="line">ctr c label my-nginx mylabel=nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器检查点</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 容器检查点可以用来备份容器，方便恢复</span><br><span class="line">ctr c checkpoint my-nginx mycheckpoint</span><br><span class="line">ctr c restore my-nginx mycheckpoint</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="管理任务"><a href="#管理任务" class="headerlink" title="管理任务"></a>管理任务</h3><p>管理任务，包括创建、启动、停止、删除等。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># ctr task --help</span><br><span class="line">NAME:</span><br><span class="line">   ctr tasks - manage tasks</span><br><span class="line"></span><br><span class="line">USAGE:</span><br><span class="line">   ctr tasks command [command options] [arguments...]</span><br><span class="line"></span><br><span class="line">COMMANDS:</span><br><span class="line">   attach           attach to the IO of a running container</span><br><span class="line">   checkpoint       checkpoint a container</span><br><span class="line">   delete, rm       delete one or more tasks</span><br><span class="line">   exec             execute additional processes in an existing container</span><br><span class="line">   list, ls         list tasks</span><br><span class="line">   kill             signal a container (default: SIGTERM)</span><br><span class="line">   pause            pause an existing container</span><br><span class="line">   ps               list processes for container</span><br><span class="line">   resume           resume a paused container</span><br><span class="line">   start            start a container that has been created</span><br><span class="line">   metrics, metric  get a single data point of metrics for a task with the built-in Linux runtime</span><br><span class="line"></span><br><span class="line">OPTIONS:</span><br><span class="line">   --help, -h  show help</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>启动已经创建的容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr t start my-nginx</span><br><span class="line">ctr t start -d my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr t ls</span><br><span class="line">ctr t list</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器中的进程</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr t ps my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器中执行命令</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr t exec my-nginx ls /</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>暂停&#x2F;回复容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ctr t pause my-nginx</span><br><span class="line">ctr t resume my-nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>杀死&#x2F;删除容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 只是给容器发送了 SIGTERM 信号，容器还是存在的，状态为 stopped</span><br><span class="line">ctr t kill my-nginx</span><br><span class="line"># 删除容器，容器必须是 stopped 状态</span><br><span class="line">ctr t rm my-nginx</span><br><span class="line">ctr t delete my-nginx</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h3><p>容器运行需要进行两步，第一步是创建容器，第二步是启动容器。</p>
+<p>使用 <code>ctr run</code> 命令可以一步到位，创建并启动容器。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"># ctr run --help</span><br><span class="line">NAME:</span><br><span class="line">   ctr run - run a container</span><br><span class="line"></span><br><span class="line">USAGE:</span><br><span class="line">   ctr run [command options] [flags] Image|RootFS ID [COMMAND] [ARG...]</span><br><span class="line"></span><br><span class="line">OPTIONS:</span><br><span class="line">   --rm                                    remove the container after running</span><br><span class="line">   --null-io                               send all IO to /dev/null</span><br><span class="line">   --log-uri value                         log uri</span><br><span class="line">   --detach, -d                            detach from the task after it has started execution</span><br><span class="line">   --fifo-dir value                        directory used for storing IO FIFOs</span><br><span class="line">   --cgroup value                          cgroup path (To disable use of cgroup, set to &quot;&quot; explicitly)</span><br><span class="line">   --platform value                        run image for specific platform</span><br><span class="line">   --runc-binary value                     specify runc-compatible binary</span><br><span class="line">   --runc-root value                       specify runc-compatible root</span><br><span class="line">   --runc-systemd-cgroup                   start runc with systemd cgroup manager</span><br><span class="line">   --uidmap container-uid:host-uid:length  run inside a user namespace with the specified UID mapping range; specified with the format container-uid:host-uid:length</span><br><span class="line">   --gidmap container-gid:host-gid:length  run inside a user namespace with the specified GID mapping range; specified with the format container-gid:host-gid:length</span><br><span class="line">   --remap-labels                          provide the user namespace ID remapping to the snapshotter via label options; requires snapshotter support</span><br><span class="line">   --cpus value                            set the CFS cpu quota (default: 0)</span><br><span class="line">   --cni                                   enable cni networking for the container</span><br><span class="line">   --snapshotter value                     snapshotter name. Empty value stands for the default value. [$CONTAINERD_SNAPSHOTTER]</span><br><span class="line">   --config value, -c value                path to the runtime-specific spec config file</span><br><span class="line">   --cwd value                             specify the working directory of the process</span><br><span class="line">   --env value                             specify additional container environment variables (e.g. FOO=bar)</span><br><span class="line">   --env-file value                        specify additional container environment variables in a file(e.g. FOO=bar, one per line)</span><br><span class="line">   --label value                           specify additional labels (e.g. foo=bar)</span><br><span class="line">   --mount value                           specify additional container mount (e.g. type=bind,src=/tmp,dst=/host,options=rbind:ro)</span><br><span class="line">   --net-host                              enable host networking for the container</span><br><span class="line">   --privileged                            run privileged container</span><br><span class="line">   --read-only                             set the containers filesystem as readonly</span><br><span class="line">   --runtime value                         runtime name (default: &quot;io.containerd.runc.v2&quot;)</span><br><span class="line">   --runtime-config-path value             optional runtime config path</span><br><span class="line">   --tty, -t                               allocate a TTY for the container</span><br><span class="line">   --with-ns value                         specify existing Linux namespaces to join at container runtime (format &#x27;&lt;nstype&gt;:&lt;path&gt;&#x27;)</span><br><span class="line">   --pid-file value                        file path to write the task&#x27;s pid</span><br><span class="line">   --gpus value                            add gpus to the container (default: 0)</span><br><span class="line">   --allow-new-privs                       turn off OCI spec&#x27;s NoNewPrivileges feature flag</span><br><span class="line">   --memory-limit value                    memory limit (in bytes) for the container (default: 0)</span><br><span class="line">   --device value                          file path to a device to add to the container; or a path to a directory tree of devices to add to the container</span><br><span class="line">   --seccomp                               enable the default seccomp profile</span><br><span class="line">   --seccomp-profile value                 file path to custom seccomp profile. seccomp must be set to true, before using seccomp-profile</span><br><span class="line">   --apparmor-default-profile value        enable AppArmor with the default profile with the specified name, e.g. &quot;cri-containerd.apparmor.d&quot;</span><br><span class="line">   --apparmor-profile value                enable AppArmor with an existing custom profile</span><br><span class="line">   --rootfs                                use custom rootfs that is not managed by containerd snapshotter</span><br><span class="line">   --no-pivot                              disable use of pivot-root (linux only)</span><br><span class="line">   --cpu-quota value                       Limit CPU CFS quota (default: -1)</span><br><span class="line">   --cpu-period value                      Limit CPU CFS period (default: 0)</span><br></pre></td></tr></table></figure>
+
+<p>创建并启动容器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctr run -d --tty --net-host --name my-nginx docker.io/library/nginx:latest</span><br></pre></td></tr></table></figure>
+
+<h2 id="containerd-客户端-nerdctl"><a href="#containerd-客户端-nerdctl" class="headerlink" title="containerd 客户端 nerdctl"></a>containerd 客户端 nerdctl</h2><p>推荐使用 nerdctl，使用效果与 docker 命令的语法一致<br>github下载链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/containerd/nerdctl/releases">https://github.com/containerd/nerdctl/releases</a></p>
+<ul>
+<li>精简 (nerdctl-{version}-linux-amd64.tar.gz): 只包含nerdctl</li>
+<li>完整 (nerdctl-full-{version}-linux-amd64.tar.gz): 包含 containerd, runc, and CNI等依赖</li>
+</ul>
+<p>nerdctl 的目标并不是单纯地复制 docker 的功能，它还实现了很多 docker 不具备的功能，例如延迟拉取镜像（lazy-pulling）、镜像加密（imgcrypt）等。</p>
+<p><img src="/post/docker/nerdctl.png" alt="nerdctl"></p>
+<h3 id="安装-nerdctl"><a href="#安装-nerdctl" class="headerlink" title="安装 nerdctl"></a>安装 nerdctl</h3><p>精简版只包含nerdctl，完整版包含nerdctl和CNI插件等依赖，k8s的网络插件会在&#x2F;opt&#x2F;cni&#x2F;bin&#x2F;下会生成cni插件目录，所以这里选择精简版。</p>
+<ol>
+<li><p>精简版 nerdctl 安装</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v0.22.2/nerdctl-0.22.2-linux-amd64.tar.gz</span><br><span class="line"># 解压</span><br><span class="line">tar -xf nerdctl-0.22.2-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">ln -s /opt/k8s/nerdctl/nerdctl /usr/local/bin/nerdctl</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>完整版 nerdctl 安装</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v0.22.2/nerdctl-full-0.22.2-linux-amd64.tar.gz</span><br><span class="line">tar -xf nerdctl-full-0.16.0-linux-amd64.tar.gz -C /usr/local/</span><br><span class="line">cp /usr/local/lib/systemd/system/*.service /etc/systemd/system/</span><br><span class="line"></span><br><span class="line"># 启动服务buildkit</span><br><span class="line">systemctl enable buildkit containerd --now</span><br><span class="line">systemctl status buildkit containerd</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装 buildkit 支持构建镜像</p>
+<p> buildkit GitHub地址： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/moby/buildkit">https://github.com/moby/buildkit</a></p>
+<p> 使用精简版 nerdctl 无法直接通过 containerd 构建镜像，需要与buildkit组全使用以实现镜像构建。当然你也可以安装上面的完整nerdctl。<br> buildkit项目是Docker公司开源出来的一个构建工具包，支持OCI标准的镜像构建。它主要包含以下部分:</p>
+<ul>
+<li>服务端buildkitd，当前支持runc和containerd作为worker，默认是runc；</li>
+<li>客户端buildctl，负责解析Dockerfile，并向服务端buildkitd发出构建请求。</li>
+<li>buildkit是典型的C&#x2F;S架构，client和server可以不在一台服务器上。而nerdctl在构建镜像方面也可以作为buildkitd的客户端。</li>
+</ul>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"># https://github.com/moby/buildkit/releases</span><br><span class="line">wget https://github.com/moby/buildkit/releases/download/v0.10.4/buildkit-v0.10.4.linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">tar -xf buildkit-v0.10.4.linux-amd64.tar.gz  -C /usr/local/</span><br><span class="line"></span><br><span class="line"># 配置buildkit的启动文件，可以从这里下载：https://github.com/moby/buildkit/tree/master/examples/systemd</span><br><span class="line"># buildkit需要配置两个文件:</span><br><span class="line"># 1. /usr/lib/systemd/system/buildkit.socket</span><br><span class="line"># 2. /usr/lib/systemd/system/buildkit.service</span><br><span class="line"></span><br><span class="line">cat &gt; /usr/lib/systemd/system/buildkit.socket &lt;&lt;EOF</span><br><span class="line">[Unit]</span><br><span class="line">Description=BuildKit</span><br><span class="line">Documentation=https://github.com/moby/buildkit</span><br><span class="line">[Socket]</span><br><span class="line">ListenStream=%t/buildkit/buildkitd.sock</span><br><span class="line">SocketMode=0660</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=sockets.target</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat &gt; /usr/lib/systemd/system/buildkit.service &lt;&lt; EOF</span><br><span class="line">[Unit]</span><br><span class="line">Description=BuildKit</span><br><span class="line">Requires=buildkit.socket</span><br><span class="line">After=buildkit.socket</span><br><span class="line">Documentation=https://github.com/moby/buildkit</span><br><span class="line">[Service]</span><br><span class="line"># Replace runc builds with containerd builds  </span><br><span class="line">ExecStart=/usr/local/bin/buildkitd --addr fd://</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"># 启动buildkit</span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl enable buildkit --now</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置nerdctl自动补全</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 编辑文件</span><br><span class="line">vim /etc/profile</span><br><span class="line">source &lt;(nerdctl completion bash)</span><br><span class="line"># 让其生效</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="namespace-相关操作-1"><a href="#namespace-相关操作-1" class="headerlink" title="namespace 相关操作"></a>namespace 相关操作</h3><ol>
+<li><p>创建 namespace</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl namespace create mynamespace</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出 namespace</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl namespace ls</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除 namespace</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl namespace rm mynamespace</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="镜像相关操作-1"><a href="#镜像相关操作-1" class="headerlink" title="镜像相关操作"></a>镜像相关操作</h3><ol>
+<li><p>拉取镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl pull nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl image ls</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl image rm nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>拉取推送镜像</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 拉取镜像</span><br><span class="line">nerdctl pull nginx:alpine</span><br><span class="line"># 重命名镜像</span><br><span class="line">nerdctl image tag nginx:alpine harbor.mydomain.com/library/nginx:alpine</span><br><span class="line"># 推送镜像</span><br><span class="line">nerdctl push harbor.mydomain.com/library/nginx:alpine</span><br></pre></td></tr></table></figure>
+<p> 更详细的镜像拉取操作请参考下面的内容：</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># http方式，配置如下：</span><br><span class="line">mkdir -p /etc/containerd/harbor.mydomain.com</span><br><span class="line">cat &gt; /etc/containerd/certs.d/harbor.mydomain.com/hosts.toml &lt;&lt;EOF</span><br><span class="line">server = &quot;https://docker.io&quot;</span><br><span class="line"></span><br><span class="line">[host.&quot;http://myharbor-minio.com&quot;]</span><br><span class="line">capabilities = [&quot;pull&quot;, &quot;resolve&quot;,&quot;push&quot;]</span><br><span class="line"># skip_verify = true</span><br><span class="line"># ca = &quot;ca.crt&quot;   #相对路径</span><br><span class="line"># ca = &quot;/opt/auth/ca.crt&quot;  #绝对路径</span><br><span class="line"># ca = [&quot;/opt/auth/ca.crt&quot;]</span><br><span class="line"># ca = [&quot;ca.crt&quot;]</span><br><span class="line"># client = [[&quot;/opt/auth/nginx.cclinux.cn.crt&quot;, &quot;/opt/auth/nginx.cclinux.cn.key&quot;]]</span><br><span class="line">EOF</span><br><span class="line">   </span><br><span class="line"># https方式，配置如下：</span><br><span class="line">mkdir -p /etc/containerd/certs.d/harbor.secure.mydomain.com:443</span><br><span class="line"></span><br><span class="line">cat &gt; /etc/containerd/certs.d/harbor.secure.mydomain.com\:443/hosts.toml &lt;&lt;EOF</span><br><span class="line">server = &quot;https://docker.io&quot;</span><br><span class="line"></span><br><span class="line">[host.&quot;https://harbor.secure.mydomain.com:443&quot;]</span><br><span class="line">capabilities = [&quot;pull&quot;, &quot;resolve&quot;,&quot;push&quot;]</span><br><span class="line">skip_verify = true</span><br><span class="line"># ca = &quot;ca.crt&quot;   #相对路径</span><br><span class="line"># ca = &quot;/opt/auth/ca.crt&quot;  #绝对路径</span><br><span class="line"># ca = [&quot;/opt/auth/ca.crt&quot;]</span><br><span class="line">ca = [&quot;/etc/containerd/harbor.secure.mydomain.com/ca.crt&quot;]</span><br><span class="line"># client = [[&quot;/opt/auth/nginx.cclinux.cn.crt&quot;, &quot;/opt/auth/nginx.cclinux.cn.key&quot;]]</span><br><span class="line">EOF</span><br><span class="line">   </span><br><span class="line"># 可以通过 nerdctl 登录</span><br><span class="line">echo Harbor12345 | nerdctl login --username &quot;admin&quot; --password-stdin harbor.secure.mydomain.com:443</span><br><span class="line">   </span><br><span class="line"># 登出命令</span><br><span class="line"># nerdctl logout harbor.secure.mydomain.com:443</span><br><span class="line">   </span><br><span class="line"># 推送到私有仓库</span><br><span class="line">nerdctl --insecure-registry --namespace=k8s.io push harbor.secure.mydomain.com:443/k8s/pause:1.25.1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>镜像构建</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 从Dockerfile构建镜像</span><br><span class="line">nerdctl build -t nginx:alpine -f Dockerfile .</span><br><span class="line"># 从Dockerfile构建镜像并推送到私有仓库</span><br><span class="line">nerdctl build -t harbor.secure.mydomain.com:443/k8s/nginx:alpine -f Dockerfile .</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="容器相关操作-1"><a href="#容器相关操作-1" class="headerlink" title="容器相关操作"></a>容器相关操作</h3><ol>
+<li><p>创建容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl run -d --name mynginx -p 80:80 nginx:alpine</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl ps -a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl rm mynginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入容器</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl exec -it mynginx sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器日志</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl logs mynginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器详细信息</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl inspect mynginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看容器内进程</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nerdctl top mynginx</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="k8s-操作-containerd-的客户端-crictl"><a href="#k8s-操作-containerd-的客户端-crictl" class="headerlink" title="k8s 操作 containerd 的客户端 crictl"></a>k8s 操作 containerd 的客户端 crictl</h2><h3 id="命令示例-1"><a href="#命令示例-1" class="headerlink" title="命令示例"></a>命令示例</h3><p>使用 crictl 命令之前，需要先配置 <code>/etc/crictl.yaml</code> 如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/crictl.yaml</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">runtime-endpoint: unix:///run/containerd/containerd.sock</span><br><span class="line">image-endpoint: unix:///run/containerd/containerd.sock</span><br><span class="line">timeout: 10</span><br><span class="line">debug: false</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"># 也可以通过命令进行设置</span><br><span class="line">crictl config runtime-endpoint unix:///run/containerd/containerd.sock</span><br><span class="line">crictl config image-endpoint unix:///run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
+
+<p>命令行示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># crictl 没有 -n 参数，操作都在 k8s.io 命名空间下。</span><br><span class="line">crictl image ls</span><br><span class="line">crictl images</span><br><span class="line"># crictl image list = ctr -n k8s.io image list</span><br><span class="line"># crictl image ls = ctr -n k8s.io image ls</span><br><span class="line"># crictl images = ctr -n k8s.io image list</span><br><span class="line"># crictl images = ctr -n k8s.io image ls</span><br></pre></td></tr></table></figure>
+
+<h3 id="namespace-相关操作-2"><a href="#namespace-相关操作-2" class="headerlink" title="namespace 相关操作"></a>namespace 相关操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 查看所有的 namespace</span><br><span class="line">crictl namespace list</span><br><span class="line"># 创建 namespace</span><br><span class="line">crictl namespace create k8s.io</span><br><span class="line"># 删除 namespace</span><br><span class="line">crictl namespace remove k8s.io</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h3 id="image-相关操作"><a href="#image-相关操作" class="headerlink" title="image 相关操作"></a>image 相关操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 查看所有的 image</span><br><span class="line">crictl image list</span><br><span class="line"># 拉取 image</span><br><span class="line">crictl pull nginx:alpine</span><br><span class="line"># 删除 image</span><br><span class="line">crictl rmi nginx:alpine</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h3 id="container-相关操作"><a href="#container-相关操作" class="headerlink" title="container 相关操作"></a>container 相关操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 查看所有的 container</span><br><span class="line">crictl ps -a</span><br><span class="line"># 创建 container</span><br><span class="line">crictl run -d --name mynginx -p 80:80 nginx:alpine</span><br><span class="line"># 删除 container</span><br><span class="line">crictl rm mynginx</span><br><span class="line"># 进入 container</span><br><span class="line">crictl exec -it mynginx sh</span><br><span class="line"># 查看 container 日志</span><br><span class="line">crictl logs mynginx</span><br><span class="line"># 查看 container 详细信息</span><br><span class="line">crictl inspect mynginx</span><br><span class="line"># 查看 container 内进程</span><br><span class="line">crictl top mynginx</span><br></pre></td></tr></table></figure>
+</code></pre>
 <h1 id="docker-总结"><a href="#docker-总结" class="headerlink" title="docker 总结"></a>docker 总结</h1><h2 id="实用技巧"><a href="#实用技巧" class="headerlink" title="实用技巧"></a>实用技巧</h2><ol>
 <li><p>清理主机上所有退出的容器</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">rm</span>  $(docker ps -aq)</span><br></pre></td></tr></table></figure>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker <span class="built_in">rm</span>  $(docker ps -aq)</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>调试或者排查容器启动错误</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 若有时遇到容器启动失败的情况，可以先使用相同的镜像启动一个临时容器，先进入容器</span></span><br><span class="line">$ docker run --<span class="built_in">rm</span> -ti &lt;image_id&gt; sh</span><br><span class="line"><span class="comment">## 进入容器后，手动执行该容器对应的ENTRYPOINT或者CMD命令，这样即使出错，容器也不会退出，因为bash作为1号进程，我们只要不退出容器，该容器就不会自动退出</span></span><br></pre></td></tr></table></figure></li>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 若有时遇到容器启动失败的情况，可以先使用相同的镜像启动一个临时容器，先进入容器</span></span><br><span class="line">$ docker run --<span class="built_in">rm</span> -ti &lt;image_id&gt; sh</span><br><span class="line"><span class="comment">## 进入容器后，手动执行该容器对应的ENTRYPOINT或者CMD命令，这样即使出错，容器也不会退出，因为bash作为1号进程，我们只要不退出容器，该容器就不会自动退出</span></span><br></pre></td></tr></table></figure></li>
 </ol>
 <h2 id="docker总结"><a href="#docker总结" class="headerlink" title="docker总结"></a>docker总结</h2><p><img src="/post/docker/Docker.png" alt="Docker"></p>
 <ol>
@@ -407,7 +735,7 @@
         <p><span>本文标题:</span><a href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
         <p><span>发布时间:</span>2023-08-05, 00:17:01</p>
-        <p><span>最后更新:</span>2023-08-06, 03:44:35</p>
+        <p><span>最后更新:</span>2023-08-06, 23:14:13</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/containerd-introduction/" title="containerd 介绍 与 docker 总结">http://realtiger.github.io/containerd-introduction/</a>
             <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/containerd-introduction/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -437,7 +765,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#containerd"><span class="toc-number">1.</span> <span class="toc-text">containerd</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI-amp-OCI"><span class="toc-number">1.1.</span> <span class="toc-text">CRI &amp; OCI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%83%E7%94%A8Docker"><span class="toc-number">1.2.</span> <span class="toc-text">为什么弃用Docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#containerd%E6%93%8D%E4%BD%9C"><span class="toc-number">1.3.</span> <span class="toc-text">containerd操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker-%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">docker 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">2.1.</span> <span class="toc-text">实用技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text">docker总结</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#containerd"><span class="toc-number">1.</span> <span class="toc-text">containerd</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CRI-amp-OCI"><span class="toc-number">1.1.</span> <span class="toc-text">CRI &amp; OCI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%83%E7%94%A8Docker"><span class="toc-number">1.2.</span> <span class="toc-text">为什么弃用Docker</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#containerd%E6%93%8D%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">containerd操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#containerd-%E5%AE%A2%E6%88%B7%E7%AB%AF-ctr"><span class="toc-number">2.1.</span> <span class="toc-text">containerd 客户端 ctr</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.1.1.</span> <span class="toc-text">命令示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ctr-%E5%91%BD%E4%BB%A4"><span class="toc-number">2.1.2.</span> <span class="toc-text">ctr 命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#namespace-%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="toc-number">2.1.3.</span> <span class="toc-text">namespace 相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="toc-number">2.1.4.</span> <span class="toc-text">镜像相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="toc-number">2.1.5.</span> <span class="toc-text">容器相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%A1%E7%90%86%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.1.6.</span> <span class="toc-text">管理任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="toc-number">2.1.7.</span> <span class="toc-text">运行容器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#containerd-%E5%AE%A2%E6%88%B7%E7%AB%AF-nerdctl"><span class="toc-number">2.2.</span> <span class="toc-text">containerd 客户端 nerdctl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-nerdctl"><span class="toc-number">2.2.1.</span> <span class="toc-text">安装 nerdctl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#namespace-%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C-1"><span class="toc-number">2.2.2.</span> <span class="toc-text">namespace 相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C-1"><span class="toc-number">2.2.3.</span> <span class="toc-text">镜像相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C-1"><span class="toc-number">2.2.4.</span> <span class="toc-text">容器相关操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#k8s-%E6%93%8D%E4%BD%9C-containerd-%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF-crictl"><span class="toc-number">2.3.</span> <span class="toc-text">k8s 操作 containerd 的客户端 crictl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">2.3.1.</span> <span class="toc-text">命令示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#namespace-%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C-2"><span class="toc-number">2.3.2.</span> <span class="toc-text">namespace 相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#image-%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="toc-number">2.3.3.</span> <span class="toc-text">image 相关操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#container-%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="toc-number">2.3.4.</span> <span class="toc-text">container 相关操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#docker-%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">docker 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">3.1.</span> <span class="toc-text">实用技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker%E6%80%BB%E7%BB%93"><span class="toc-number">3.2.</span> <span class="toc-text">docker总结</span></a></li></ol></li></ol>
         
     </div>
     <style>
