@@ -283,6 +283,96 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-linux-systemd-service-file" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/linux-systemd-service-file/" class="article-date">
+      <time datetime="2023-08-18T13:20:33.000Z" itemprop="datePublished">2023-08-18</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/linux-systemd-service-file/">linux中systemd及其service文件</a>
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">15分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h1 id="什么是systemd-service"><a href="#什么是systemd-service" class="headerlink" title="什么是systemd service"></a>什么是systemd service</h1><p>systemd是一个Linux系统初始化的系统和服务管理器，它为系统的引导和服务管理提供了新的解决方案。systemd service是systemd管理下的服务，是一种与传统init.d脚本不同的服务管理方式。</p>
+<p>与init.d脚本相比，systemd service具有以下优势：</p>
+<ol>
+<li>支持并行启动服务，加快系统启动速度；</li>
+<li>支持前置和后置依赖关系，有利于服务的启动顺序管理；</li>
+<li>支持动态的服务控制，如启动、停止、重启和重载配置等；</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/linux-systemd-service-file/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-linux-signals" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -564,7 +654,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">6.3k字</span>
+        <span class="post-count">6.6k字</span>
       </span>
     </span>
 
@@ -573,7 +663,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-hourglass-half"></i>
         <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">28分</span>
+        <span class="post-count">29分</span>
       </span>
     </span>
 </div>
@@ -1034,91 +1124,6 @@
       
         <p class="article-more-link">
           <a href="/docker-file/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-yaml-introduction" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/yaml-introduction/" class="article-date">
-      <time datetime="2023-05-05T10:36:06.000Z" itemprop="datePublished">2023-05-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/yaml-introduction/">yaml 入门</a>
-    </h1>
-  
-
-          
-              <div style="margin-top:10px">
-    <span class="post-time">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-keyboard-o"></i>
-        <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">2.6k字</span>
-      </span>
-    </span>
-
-    <span class="post-time">
-      &nbsp; | &nbsp;
-      <span class="post-meta-item-icon">
-        <i class="fa fa-hourglass-half"></i>
-        <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">12分</span>
-      </span>
-    </span>
-</div>
-          
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h1 id="yaml介绍"><a href="#yaml介绍" class="headerlink" title="yaml介绍"></a>yaml介绍</h1><p>官网介绍如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">%YAML 1.2</span><br><span class="line">---</span><br><span class="line">YAML: YAML Ain&#x27;t Markup Language™</span><br><span class="line"></span><br><span class="line">What It Is:</span><br><span class="line">  YAML is a human-friendly data serialization</span><br><span class="line">  language for all programming languages.</span><br></pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/yaml-introduction/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
