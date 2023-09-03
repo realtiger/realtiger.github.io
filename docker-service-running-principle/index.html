@@ -15,19 +15,19 @@
 
 
 
-<meta name="description" content="实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="docker 运行原理">
 <meta property="og:url" content="http://realtiger.github.io/docker-service-running-principle/index.html">
 <meta property="og:site_name" content="一雾银的博客">
-<meta property="og:description" content="实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 实现原理docker优势主要是轻量级的虚拟化以及容器快速启停。 而虚拟化核心需要解决两个问题：资源隔离与资源限制  虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。 容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。">
 <meta property="og:locale">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/cgroup.png">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/container-layers.jpg">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/sharing-layers.jpg">
 <meta property="og:image" content="http://realtiger.github.io/post/docker/aufs.png">
 <meta property="article:published_time" content="2023-06-19T04:57:42.000Z">
-<meta property="article:modified_time" content="2023-07-07T12:05:34.582Z">
+<meta property="article:modified_time" content="2023-08-28T09:13:33.113Z">
 <meta property="article:author" content="aaron">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="k8s">
@@ -347,7 +347,8 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p>docker优势主要是轻量级的虚拟化以及容器快速启停。</p>
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p>docker优势主要是轻量级的虚拟化以及容器快速启停。</p>
 <p>而虚拟化核心需要解决两个问题：资源隔离与资源限制</p>
 <ul>
 <li>虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。</li>
@@ -488,7 +489,7 @@
         <p><span>本文标题:</span><a href="/docker-service-running-principle/">docker 运行原理</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
         <p><span>发布时间:</span>2023-06-19, 12:57:42</p>
-        <p><span>最后更新:</span>2023-07-07, 20:05:34</p>
+        <p><span>最后更新:</span>2023-08-28, 17:13:33</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/docker-service-running-principle/" title="docker 运行原理">http://realtiger.github.io/docker-service-running-principle/</a>
             <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/docker-service-running-principle/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -594,7 +595,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
 
 
 
