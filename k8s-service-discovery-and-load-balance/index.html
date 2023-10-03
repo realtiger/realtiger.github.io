@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 k8s 服务发现主要使用的是 CoreDNS，服务访问则需要借助于 Ingress，接下来我们来看看这两个组件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 服务发现和负载均衡">
+<meta property="og:url" content="http://realtiger.github.io/k8s-service-discovery-and-load-balance/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 k8s 服务发现主要使用的是 CoreDNS，服务访问则需要借助于 Ingress，接下来我们来看看这两个组件。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/ingress.webp">
+<meta property="article:published_time" content="2023-09-19T02:41:18.000Z">
+<meta property="article:modified_time" content="2023-10-02T15:21:36.256Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/ingress.webp">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s 服务发现和负载均衡 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-service-discovery-and-load-balance" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-service-discovery-and-load-balance/" class="article-date">
+      <time datetime="2023-09-19T02:41:18.000Z" itemprop="datePublished">2023-09-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s 服务发现和负载均衡
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">19分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>k8s 服务发现主要使用的是 <code>CoreDNS</code>，服务访问则需要借助于 <code>Ingress</code>，接下来我们来看看这两个组件。</p>
+<span id="more"></span>
+
+<h1 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h1><h2 id="服务发现测试"><a href="#服务发现测试" class="headerlink" title="服务发现测试"></a>服务发现测试</h2><p>在k8s集群中，组件之间可以通过定义的Service名称实现通信。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 service</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> get svc</span><br><span class="line">NAME        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE</span><br><span class="line">myblog      ClusterIP   10.104.58.9     &lt;none&gt;        80/TCP         12d</span><br><span class="line">myblog-np   NodePort    10.98.222.213   &lt;none&gt;        80:31174/TCP   11d</span><br><span class="line">mysql       ClusterIP   10.110.89.44    &lt;none&gt;        3306/TCP       11d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 新建一个测试pod，因为只是测试，设置保持hang住即可</span></span><br><span class="line"><span class="built_in">cat</span> &gt; testpod.yaml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: apps/v1</span></span><br><span class="line"><span class="string">kind: Deployment</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: testpod</span></span><br><span class="line"><span class="string">  namespace: test</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  replicas: 1</span></span><br><span class="line"><span class="string">  selector:</span></span><br><span class="line"><span class="string">    matchLabels:</span></span><br><span class="line"><span class="string">      app: testpod</span></span><br><span class="line"><span class="string">  template:</span></span><br><span class="line"><span class="string">    metadata:</span></span><br><span class="line"><span class="string">      labels:</span></span><br><span class="line"><span class="string">        app: testpod</span></span><br><span class="line"><span class="string">    spec:</span></span><br><span class="line"><span class="string">      containers:</span></span><br><span class="line"><span class="string">        - name: testpod</span></span><br><span class="line"><span class="string">          image: alpine:3.18.3</span></span><br><span class="line"><span class="string">          imagePullPolicy: IfNotPresent</span></span><br><span class="line"><span class="string">            command: [&quot;/bin/sh&quot;]</span></span><br><span class="line"><span class="string">            args: [&quot;-c&quot;, &quot;while true; do echo hello; sleep 100;done&quot;]</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建测试pod</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> create -f testpod.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入测试pod</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> -ti testpod-865855cfc5-m2f99 -- sh</span><br><span class="line">/ <span class="comment"># apk add curl</span></span><br><span class="line">/ <span class="comment"># curl http://myblog</span></span><br><span class="line">/ <span class="comment"># exit</span></span><br></pre></td></tr></table></figure>
+
+<p>可以发现，服务是可以直接通过service名称访问的。</p>
+<p>虽然pod ip和cluster ip都不固定，但是service name是固定的，而且具有完全的跨集群可移植性，因此组件之间调用的同时，完全可以通过service name去通信，这样避免了大量的ip维护成本，使得服务的yaml模板更加简单。因此可以对mysql和myblog的部署进行优化改造。</p>
+<h2 id="blog-优化改造"><a href="#blog-优化改造" class="headerlink" title="blog 优化改造"></a>blog 优化改造</h2><ol>
+<li>mysql可以去掉hostNetwork部署，使得服务只暴漏在k8s集群内部网络</li>
+<li>configMap中数据库地址可以换成Service名称，这样跨环境的时候，配置内容基本上可以保持不用变化</li>
+</ol>
+<p>修改deploy-mysql.yaml，去掉hostNetwork和hostPort</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">mysql</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="comment"># 指定Pod副本数</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="comment"># 指定Pod的选择器</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">mysql</span></span><br><span class="line">  <span class="comment"># 指定Pod的模板，与上一节定义的Pod模板类似</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">mysql</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="comment"># 去掉此行</span></span><br><span class="line">      <span class="comment"># hostNetwork: true</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">mysql-data</span></span><br><span class="line">          <span class="attr">hostPath:</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/opt/mysql/data</span></span><br><span class="line">      <span class="comment"># 使用节点选择器将Pod调度到指定label的节点</span></span><br><span class="line">      <span class="attr">nodeSelector:</span></span><br><span class="line">        <span class="attr">component:</span> <span class="string">mysql</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">mysql</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">mariadb:11.1</span></span><br><span class="line">          <span class="attr">args:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">--character-set-server=utf8mb4</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">--collation-server=utf8mb4_unicode_ci</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">3306</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MYSQL_USER</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">secretKeyRef:</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">myblog-secret</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">MYSQL_USER</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MYSQL_ROOT_PASSWORD</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">secretKeyRef:</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">myblog-secret</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">MYSQL_PASSWD</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MYSQL_DATABASE</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">configMapKeyRef:</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">MYSQL_DATABASE</span></span><br><span class="line">          <span class="attr">volumeMounts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">mysql-data</span></span><br><span class="line">              <span class="attr">mountPath:</span> <span class="string">/var/lib/mysql</span></span><br></pre></td></tr></table></figure>
+
+<p>修改configmap.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="comment"># 此处替换为mysal</span></span><br><span class="line">  <span class="attr">MYSQL_HOST:</span> <span class="string">&quot;mysql&quot;</span></span><br><span class="line">  <span class="attr">MYSQL_DATABASE:</span> <span class="string">&quot;myblog&quot;</span></span><br><span class="line">  <span class="attr">MYSQL_PORT:</span> <span class="string">&quot;3306&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>应用修改：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 更新configmap</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> delete -f configmap.yaml</span><br><span class="line">$ kubectl -n <span class="built_in">test</span> create -f configmap.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新mysql</span></span><br><span class="line">$ kubeclt -n <span class="built_in">test</span> delete -f deploy-mysql.yaml</span><br><span class="line">$ kubeclt -n <span class="built_in">test</span> create -f deploy-mysql.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="服务发现组件"><a href="#服务发现组件" class="headerlink" title="服务发现组件"></a>服务发现组件</h2><p>在k8s中，服务发现组件使用的是 <code>CoreDNS</code>，组件之间可以通过定义的Service名称实现通信。组件效率非常高，可以达到每秒几万次的解析速度，并且对应用没有任何侵入性，对应用来说，只需要通过service name就可以实现服务发现。</p>
+<p><code>CoreDNS</code>是一个<code>Go</code>语言实现的链式插件<code>DNS服务端</code>，是CNCF成员，是一个高性能、易扩展的<code>DNS服务端</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入 test pod</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> -it  testpod-865855cfc5-m2f99 -- sh</span><br><span class="line">/ <span class="comment"># cat /etc/resolv.conf</span></span><br><span class="line">search test.svc.cluster.local svc.cluster.local cluster.local iluvatar.local</span><br><span class="line">nameserver 10.96.0.10</span><br><span class="line">options ndots:5</span><br><span class="line">/ <span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以看到域名解析的nameserver是10.96.0.10，这个地址是kube-dns的service地址，具体怎么找到对应的pod呢？</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有的service</span></span><br><span class="line">$ kubectl -n kube-system get svc -A</span><br><span class="line">NAMESPACE     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE</span><br><span class="line">default       kubernetes   ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP                  24d</span><br><span class="line">kube-system   kube-dns     ClusterIP   10.96.0.10      &lt;none&gt;        53/UDP,53/TCP,9153/TCP   24d</span><br><span class="line"><span class="built_in">test</span>          myblog       ClusterIP   10.104.58.9     &lt;none&gt;        80/TCP                   12d</span><br><span class="line"><span class="built_in">test</span>          myblog-np    NodePort    10.98.222.213   &lt;none&gt;        80:31174/TCP             11d</span><br><span class="line"><span class="built_in">test</span>          mysql        ClusterIP   10.110.89.44    &lt;none&gt;        3306/TCP                 11d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以看到10.96.0.10这个ip出现在了kube-system这个命名空间，而且是kube-dns这个service的cluster-ip地址，这个地址是固定的，不会变化，因此可以在pod中直接写死这个地址，而不用担心变化的问题。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看对应svc的selector信息</span></span><br><span class="line">$ kubectl -n kube-system get svc -o wide</span><br><span class="line">NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE   SELECTOR</span><br><span class="line">kube-dns   ClusterIP   10.96.0.10   &lt;none&gt;        53/UDP,53/TCP,9153/TCP   24d   k8s-app=kube-dns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据selector信息，查看对应的pod</span></span><br><span class="line">$ kubectl -n kube-system get po -o wide -l k8s-app=kube-dns</span><br><span class="line">NAME                       READY   STATUS    RESTARTS   AGE   IP           NODE        NOMINATED NODE   READINESS GATES</span><br><span class="line">coredns-66f779496c-cx2zv   1/1     Running   0          24d   10.244.1.2   k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">coredns-66f779496c-t5zs2   1/1     Running   0          24d   10.244.1.3   k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以看到coredns是通过deployment部署的，而且有两个pod，这样可以保证高可用，同时也可以提高解析效率。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 启动pod的时候，会把kube-dns服务的cluster-ip地址注入到pod的resolve解析配置中，同时添加对应的namespace的search域。 因此跨namespace通过service name访问的话，需要添加对应的namespace名称，</span></span><br><span class="line">service_name.namespace</span><br><span class="line">$ kubectl get svc</span><br><span class="line">NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE</span><br><span class="line">kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   26h</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="扩展：怎么访问其他集群的服务？"><a href="#扩展：怎么访问其他集群的服务？" class="headerlink" title="扩展：怎么访问其他集群的服务？"></a>扩展：怎么访问其他集群的服务？</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在default命名空间下创建一个pod作为测试pod</span></span><br><span class="line">$ <span class="built_in">cat</span> &gt; deploy-mynginx.yaml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: apps/v1</span></span><br><span class="line"><span class="string">kind: Deployment</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: nginx</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  replicas: 1</span></span><br><span class="line"><span class="string">  selector:</span></span><br><span class="line"><span class="string">    matchLabels:</span></span><br><span class="line"><span class="string">      app: nginx</span></span><br><span class="line"><span class="string">  template:</span></span><br><span class="line"><span class="string">    metadata:</span></span><br><span class="line"><span class="string">      labels:</span></span><br><span class="line"><span class="string">        app: nginx</span></span><br><span class="line"><span class="string">    spec:</span></span><br><span class="line"><span class="string">      containers:</span></span><br><span class="line"><span class="string">        - name: nginx</span></span><br><span class="line"><span class="string">          image: nginx:1.25</span></span><br><span class="line"><span class="string">          imagePullPolicy: IfNotPresent</span></span><br><span class="line"><span class="string">          ports:</span></span><br><span class="line"><span class="string">            - containerPort: 80</span></span><br><span class="line"><span class="string">---</span></span><br><span class="line"><span class="string">apiVersion: v1</span></span><br><span class="line"><span class="string">kind: Service</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: nginx</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  ports:</span></span><br><span class="line"><span class="string">  - port: 80</span></span><br><span class="line"><span class="string">    protocol: TCP</span></span><br><span class="line"><span class="string">    targetPort: 80</span></span><br><span class="line"><span class="string">  selector:</span></span><br><span class="line"><span class="string">    app: nginx</span></span><br><span class="line"><span class="string">  type: ClusterIP</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"></span><br><span class="line">$ kubectl create -f deploy-mynginx.yaml</span><br><span class="line">$ kubectl get po</span><br><span class="line">NAME                    READY   STATUS    RESTARTS   AGE</span><br><span class="line">nginx-cd5968d5b-66mns   1/1     Running   0          25s</span><br><span class="line">$ kubectl get svc</span><br><span class="line">NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE</span><br><span class="line">kubernetes   ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP   24d</span><br><span class="line">nginx        ClusterIP   10.105.117.66   &lt;none&gt;        80/TCP    30s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接在主机访问可以访问到</span></span><br><span class="line">$  curl http://10.105.117.66</span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;<span class="built_in">head</span>&gt;</span><br><span class="line">&lt;title&gt;Welcome to nginx!&lt;/title&gt;</span><br><span class="line">&lt;style&gt;</span><br><span class="line">html &#123; color-scheme: light dark; &#125;</span><br><span class="line">body &#123; width: 35em; margin: 0 auto;</span><br><span class="line">font-family: Tahoma, Verdana, Arial, sans-serif; &#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;If you see this page, the nginx web server is successfully installed and</span><br><span class="line">working. Further configuration is required.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;For online documentation and support please refer to</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.org/&quot;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;</span><br><span class="line">Commercial support is available at</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.com/&quot;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;&lt;em&gt;Thank you <span class="keyword">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line">进入<span class="built_in">test</span> po进行访问</span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> -it  testpod-865855cfc5-m2f99 -- sh</span><br><span class="line">/ <span class="comment"># curl http://nginx</span></span><br><span class="line">curl: (6) Could not resolve host: nginx</span><br></pre></td></tr></table></figure>
+
+<p>进入容器中访问会发现不行了，这是为什么呢？</p>
+<p>这是因为这两个pod不在同一个命名空间，因此需要添加对应的命名空间名称，才能访问到。</p>
+<p>之前查看test pod的resolve配置，可以看到有一个search域，这个域名就是test这个命名空间，因此可以直接访问test命名空间下的服务。</p>
+<p>test pod中的resolve配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">search test.svc.cluster.local svc.cluster.local cluster.local iluvatar.local</span><br><span class="line">nameserver 10.96.0.10</span><br><span class="line">options ndots:5</span><br></pre></td></tr></table></figure>
+
+<p>pod访问的时候会根据search域名进行解析，比如我们访问nginx</p>
+<ol>
+<li>首先会尝试访问nginx.test.svc.cluster.local</li>
+<li>如果访问不到，会尝试访问nginx.svc.cluster.local</li>
+<li>如果访问不到，会尝试访问nginx.cluster.local</li>
+<li>如果访问不到，会尝试访问nginx.iluvatar.local</li>
+<li>如果访问不到，会尝试访问nginx</li>
+<li>如果访问不到，会报错</li>
+</ol>
+<p>这是pod访问的时候的解析流程。</p>
+<p>为什么能访问到test命名空间下的服务呢？就是因为第一个域名解析成功了，因此后面的域名就不会再解析了。第一个域名包含着命名空间信息。</p>
+<p>那我们直接使用全域名能访问吗？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接使用全域名访问</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> -it  testpod-865855cfc5-m2f99 -- sh</span><br><span class="line">/ <span class="comment"># curl http://nginx.default.svc.cluster.local</span></span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;<span class="built_in">head</span>&gt;</span><br><span class="line">&lt;title&gt;Welcome to nginx!&lt;/title&gt;</span><br><span class="line">&lt;style&gt;</span><br><span class="line">html &#123; color-scheme: light dark; &#125;</span><br><span class="line">body &#123; width: 35em; margin: 0 auto;</span><br><span class="line">font-family: Tahoma, Verdana, Arial, sans-serif; &#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;If you see this page, the nginx web server is successfully installed and</span><br><span class="line">working. Further configuration is required.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;For online documentation and support please refer to</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.org/&quot;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;</span><br><span class="line">Commercial support is available at</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.com/&quot;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;&lt;em&gt;Thank you <span class="keyword">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>所以使用全域名也是可以访问的。</p>
+<p>那么有没有简便方法直接访问呢？有，就是添加一个namespace就行了，不需要全域名。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> -it  testpod-865855cfc5-m2f99 -- sh</span><br><span class="line">/ <span class="comment"># curl http://nginx.default</span></span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;<span class="built_in">head</span>&gt;</span><br><span class="line">&lt;title&gt;Welcome to nginx!&lt;/title&gt;</span><br><span class="line">&lt;style&gt;</span><br><span class="line">html &#123; color-scheme: light dark; &#125;</span><br><span class="line">body &#123; width: 35em; margin: 0 auto;</span><br><span class="line">font-family: Tahoma, Verdana, Arial, sans-serif; &#125;</span><br><span class="line">&lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;If you see this page, the nginx web server is successfully installed and</span><br><span class="line">working. Further configuration is required.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;For online documentation and support please refer to</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.org/&quot;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;</span><br><span class="line">Commercial support is available at</span><br><span class="line">&lt;a href=<span class="string">&quot;http://nginx.com/&quot;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;&lt;em&gt;Thank you <span class="keyword">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>为什么这样也能访问呢？我们来撸一撸search的过程。</p>
+<ol>
+<li>首先会尝试访问nginx.default.test.svc.cluster.local，此时会发现访问不到</li>
+<li>然后会尝试访问nginx.default.svc.cluster.local，此时会发现这不就是全域名么，于是就访问成功了。</li>
+</ol>
+<h1 id="服务访问之Ingress"><a href="#服务访问之Ingress" class="headerlink" title="服务访问之Ingress"></a>服务访问之Ingress</h1><h2 id="ingress-介绍"><a href="#ingress-介绍" class="headerlink" title="ingress 介绍"></a>ingress 介绍</h2><p>对于Kubernetes的Service，无论是Cluster-Ip还是NodePort均是四层的负载，集群内的服务如何实现七层的负载均衡，这就需要借助于Ingress，Ingress控制器的实现方式有很多，比如nginx, Contour, Haproxy, trafik, Istio。几种常用的ingress功能对比和选型可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.kubernetes.org.cn/5948.html">这里</a></p>
+<p>Ingress-nginx是7层的负载均衡器 ，负责统一管理外部对k8s cluster中Service的请求。主要包含：</p>
+<ul>
+<li>ingress-nginx-controller：根据用户编写的ingress规则（创建的ingress的yaml文件），动态的去更改nginx服务的配置文件，并且reload重载使其生效（是自动化的，通过lua脚本来实现）；</li>
+<li>Ingress资源对象：将Nginx的配置抽象成一个Ingress对象</li>
+</ul>
+<p>比如下面这种配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">ingress-wildcard-host</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">host:</span> <span class="string">&quot;foo.bar.com&quot;</span></span><br><span class="line">  <span class="attr">http:</span></span><br><span class="line">    <span class="attr">paths:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">&quot;/bar&quot;</span></span><br><span class="line">      <span class="attr">backend:</span></span><br><span class="line">        <span class="attr">service:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">service1</span></span><br><span class="line">          <span class="attr">port:</span></span><br><span class="line">          <span class="attr">number:</span> <span class="number">80</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">host:</span> <span class="string">&quot;bar.foo.com&quot;</span></span><br><span class="line">  <span class="attr">http:</span></span><br><span class="line">    <span class="attr">paths:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">&quot;/foo&quot;</span></span><br><span class="line">      <span class="attr">backend:</span></span><br><span class="line">        <span class="attr">service:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">service2</span></span><br><span class="line">          <span class="attr">port:</span></span><br><span class="line">            <span class="attr">number:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>对应示意图如下：</p>
+<p><img src="/post/docker/ingress.webp" alt="ingress"></p>
+<h2 id="实现逻辑"><a href="#实现逻辑" class="headerlink" title="实现逻辑"></a>实现逻辑</h2><ol>
+<li>ingress controller通过和kubernetes api交互，动态的去感知集群中ingress规则变化</li>
+<li>然后读取ingress规则(规则就是写明了哪个域名对应哪个service)，按照自定义的规则，生成一段nginx配置</li>
+<li>再写到nginx-ingress-controller的pod里，这个Ingress controller的pod里运行着一个Nginx服务，控制器把生成的nginx配置写入&#x2F;etc&#x2F;nginx&#x2F;nginx.conf文件中</li>
+<li>然后reload一下使配置生效。以此达到域名分别配置和动态更新的问题。</li>
+</ol>
+<h2 id="ingress安装-以下未验证，目前仅作参考"><a href="#ingress安装-以下未验证，目前仅作参考" class="headerlink" title="ingress安装(以下未验证，目前仅作参考)"></a>ingress安装(以下未验证，目前仅作参考)</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md">官方文档</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment">## 修改部署节点</span></span><br><span class="line">$ grep -n5 nodeSelector mandatory.yaml</span><br><span class="line">212-    spec:</span><br><span class="line">213-      hostNetwork: <span class="literal">true</span> <span class="comment">#添加为host模式</span></span><br><span class="line">214-      <span class="comment"># wait up to five minutes for the drain of connections</span></span><br><span class="line">215-      terminationGracePeriodSeconds: 300</span><br><span class="line">216-      serviceAccountName: nginx-ingress-serviceaccount</span><br><span class="line">217:      nodeSelector:</span><br><span class="line">218-        ingress: <span class="string">&quot;true&quot;</span>		<span class="comment">#替换此处，来决定将ingress部署在哪些机器</span></span><br><span class="line">219-      containers:</span><br><span class="line">220-        - name: nginx-ingress-controller</span><br><span class="line">221-          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.30.0</span><br><span class="line">222-          args:</span><br></pre></td></tr></table></figure>
+
+<p>创建ingress</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为k8s-master节点添加label</span></span><br><span class="line">$ kubectl label node k8s-master ingress=<span class="literal">true</span></span><br><span class="line">$ kubectl apply -f mandatory.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="ingress使用"><a href="#ingress使用" class="headerlink" title="ingress使用"></a>ingress使用</h2><h3 id="创建资源"><a href="#创建资源" class="headerlink" title="创建资源"></a>创建资源</h3><p>编写文件 <code>myblog/deployment/ingress.yaml</code>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">myblog.test.com</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span> </span><br><span class="line">            <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>ingress-nginx动态生成upstream配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">$</span> <span class="string">kubectl</span> <span class="string">-n</span> <span class="string">ingress-nginx</span> <span class="string">exec</span> <span class="string">-ti</span> <span class="string">nginx-ingress-xxxxxxx</span> <span class="string">bash</span></span><br><span class="line"><span class="comment"># ps aux</span></span><br><span class="line"><span class="comment"># cat /etc/nginx/nginx.conf|grep myblog -A10 -B1</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line">        <span class="comment">## start server myblog.test.com</span></span><br><span class="line">        <span class="string">server</span> &#123;</span><br><span class="line">                <span class="string">server_name</span> <span class="string">myblog.test.com</span> <span class="string">;</span></span><br><span class="line"></span><br><span class="line">                <span class="string">listen</span> <span class="number">80</span>  <span class="string">;</span></span><br><span class="line">                <span class="string">listen</span> [<span class="string">::</span>]<span class="string">:80</span>  <span class="string">;</span></span><br><span class="line">                <span class="string">listen</span> <span class="number">443</span>  <span class="string">ssl</span> <span class="string">http2</span> <span class="string">;</span></span><br><span class="line">                <span class="string">listen</span> [<span class="string">::</span>]<span class="string">:443</span>  <span class="string">ssl</span> <span class="string">http2</span> <span class="string">;</span></span><br><span class="line"></span><br><span class="line">                <span class="string">set</span> <span class="string">$proxy_upstream_name</span> <span class="string">&quot;-&quot;</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line">                <span class="string">ssl_certificate_by_lua_block</span> &#123;</span><br><span class="line">                        <span class="string">certificate.call()</span></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="string">location</span> <span class="string">/</span> &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="string">set</span> <span class="string">$namespace</span>      <span class="string">&quot;test&quot;</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$ingress_name</span>   <span class="string">&quot;myblog&quot;</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$service_name</span>   <span class="string">&quot;myblog&quot;</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$service_port</span>   <span class="string">&quot;80&quot;</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$location_path</span>  <span class="string">&quot;/&quot;</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">rewrite_by_lua_block</span> &#123;</span><br><span class="line">                                <span class="string">lua_ingress.rewrite(</span>&#123;</span><br><span class="line">                                        <span class="string">force_ssl_redirect</span> <span class="string">=</span> <span class="literal">false</span>,</span><br><span class="line">                                        <span class="string">ssl_redirect</span> <span class="string">=</span> <span class="literal">true</span>,</span><br><span class="line">                                        <span class="string">force_no_ssl_redirect</span> <span class="string">=</span> <span class="literal">false</span>,</span><br><span class="line">                                        <span class="string">use_port_in_redirects</span> <span class="string">=</span> <span class="literal">false</span>,</span><br><span class="line">                                &#125;<span class="string">)</span></span><br><span class="line"><span class="string">--</span></span><br><span class="line">                                <span class="string">balancer.log()</span></span><br><span class="line"></span><br><span class="line">                                <span class="string">monitor.call()</span></span><br><span class="line"></span><br><span class="line">                                <span class="string">plugins.run()</span></span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="string">port_in_redirect</span> <span class="string">off;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">set</span> <span class="string">$balancer_ewma_score</span> <span class="number">-1</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$proxy_upstream_name</span> <span class="string">&quot;test-myblog-80&quot;</span><span class="string">;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$proxy_host</span>          <span class="string">$proxy_upstream_name;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$pass_access_scheme</span>  <span class="string">$scheme;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">set</span> <span class="string">$pass_server_port</span>    <span class="string">$server_port;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">set</span> <span class="string">$best_http_host</span>      <span class="string">$http_host;</span></span><br><span class="line">                        <span class="string">set</span> <span class="string">$pass_port</span>           <span class="string">$pass_server_port;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">set</span> <span class="string">$proxy_alternative_upstream_name</span> <span class="string">&quot;&quot;</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line"><span class="string">--</span></span><br><span class="line">                        <span class="string">proxy_next_upstream_timeout</span>             <span class="number">0</span><span class="string">;</span></span><br><span class="line">                        <span class="string">proxy_next_upstream_tries</span>               <span class="number">3</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">proxy_pass</span> <span class="string">http://upstream_balancer;</span></span><br><span class="line"></span><br><span class="line">                        <span class="string">proxy_redirect</span>                          <span class="string">off;</span></span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">## end server myblog.test.com</span></span><br><span class="line"> <span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><p>域名解析服务，将 <code>myblog.test.com</code>解析到ingress的地址上。ingress是支持多副本的，高可用的情况下，生产的配置是使用lb服务（内网F5设备，公网elb、slb、clb，解析到各ingress的机器，如何域名指向lb地址）</p>
+<p>本机，添加如下hosts记录来演示效果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.100.2 myblog.test.com</span><br></pre></td></tr></table></figure>
+
+<p>然后，访问 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://myblog.test.com/">http://myblog.test.com/</a></p>
+<p>HTTPS访问：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#自签名证书</span></span><br><span class="line">$ openssl req -x509 -nodes -days 2920 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj <span class="string">&quot;/CN=*.test.com/O=ingress-nginx&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 证书信息保存到secret对象中，ingress-nginx会读取secret对象解析出证书加载到nginx配置中</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> create secret tls tls-myblog --key tls.key --cert tls.crt</span><br></pre></td></tr></table></figure>
+
+<p>修改yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">myblog.test.com</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span> </span><br><span class="line">            <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">80</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">hosts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">myblog.test.com</span></span><br><span class="line">    <span class="attr">secretName:</span> <span class="string">tls-myblog</span></span><br></pre></td></tr></table></figure>
+
+<p>然后，访问 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://myblog.test.com/">https://myblog.test.com/</a></p>
+<h3 id="常用注解说明"><a href="#常用注解说明" class="headerlink" title="常用注解说明"></a>常用注解说明</h3><p>nginx端存在很多可配置的参数，通常这些参数在ingress的定义中被放在annotations中实现，如下为常用的一些：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/force-ssl-redirect:</span> <span class="string">&quot;false&quot;</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/proxy-body-size:</span> <span class="string">1000m</span></span><br><span class="line">    <span class="attr">nginx.ingress.kubernetes.io/ssl-redirect:</span> <span class="string">&quot;false&quot;</span></span><br><span class="line">    <span class="attr">nginx.org/client-max-body-size:</span> <span class="string">1000m</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">myblog.test.com</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span> </span><br><span class="line">            <span class="attr">name:</span> <span class="string">myblog</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">80</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">hosts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">myblog.test.com</span></span><br><span class="line">    <span class="attr">secretName:</span> <span class="string">tls-myblog</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>nginx.ingress.kubernetes.io&#x2F;force-ssl-redirect: “false”：是否强制重定向到https</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-body-size: 1000m：设置请求体的最大值</li>
+<li>nginx.ingress.kubernetes.io&#x2F;ssl-redirect: “false”：是否重定向到https</li>
+<li>nginx.org&#x2F;client-max-body-size: 1000m：设置请求体的最大值</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-buffering: “on”：是否开启缓冲区</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-buffer-size: 1000m：设置缓冲区大小</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-buffers-number: 1000m：设置缓冲区数量</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-connect-timeout: 1000m：设置连接超时时间</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-read-timeout: 1000m：设置读取超时时间</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-send-timeout: 1000m：设置发送超时时间</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-max-temp-file-size: 1000m：设置临时文件大小</li>
+<li>nginx.ingress.kubernetes.io&#x2F;proxy-request-buffering: “on”：是否开启请求缓冲区</li>
+<li>nginx.ingress.kubernetes.io&#x2F;rewrite-target: &#x2F;$1：重写url</li>
+<li>nginx.ingress.kubernetes.io&#x2F;use-regex: “true”：是否使用正则表达式</li>
+</ul>
+<h3 id="多路径转发及重写的实现"><a href="#多路径转发及重写的实现" class="headerlink" title="多路径转发及重写的实现"></a>多路径转发及重写的实现</h3><h4 id="多path转发示例"><a href="#多path转发示例" class="headerlink" title="多path转发示例"></a>多path转发示例</h4><p>目标：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bookstore.test.com -&gt; 192.168.100.3 -&gt; /reviews   -&gt; reviews service</span><br><span class="line">                                       /details   -&gt; details service</span><br></pre></td></tr></table></figure>
+
+<p>实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> detail.dpl.yaml</span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: details</span><br><span class="line">  labels:</span><br><span class="line">    app: details</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: details</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: details</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">        - name: details</span><br><span class="line">          image: docker.io/istio/examples-bookinfo-details-v1:1.16.2</span><br><span class="line">          imagePullPolicy: IfNotPresent</span><br><span class="line">          ports:</span><br><span class="line">            - containerPort: 9080</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cat</span> detail.svc.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: details</span><br><span class="line">  labels:</span><br><span class="line">    app: details</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">    - port: 9080</span><br><span class="line">      name: http</span><br><span class="line">  selector:</span><br><span class="line">    app: details</span><br><span class="line"></span><br><span class="line"><span class="comment"># reviews.dpl.yaml</span></span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: reviews</span><br><span class="line">  labels:</span><br><span class="line">    app: reviews</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: reviews</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: reviews</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: reviews</span><br><span class="line">        image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.2</span><br><span class="line">        imagePullPolicy: IfNotPresent</span><br><span class="line">        <span class="built_in">env</span>:</span><br><span class="line">        - name: LOG_DIR</span><br><span class="line">          value: <span class="string">&quot;/tmp/logs&quot;</span></span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 9080</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cat</span> reviews.svc.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: reviews</span><br><span class="line">  labels:</span><br><span class="line">    app: reviews</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">  - port: 9080</span><br><span class="line">    name: http</span><br><span class="line">  selector:</span><br><span class="line">    app: reviews</span><br></pre></td></tr></table></figure>
+
+<p>准备Ingress文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># bookstore.ingress.yaml</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">bookstore</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">bookstore.test.com</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/reviews</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span> </span><br><span class="line">            <span class="attr">name:</span> <span class="string">reviews</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">9080</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/details</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span> </span><br><span class="line">            <span class="attr">name:</span> <span class="string">details</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">9080</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="URL重写"><a href="#URL重写" class="headerlink" title="URL重写"></a>URL重写</h4><p>目标：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bookstore.test.com -&gt; 192.168.100.3 -&gt; /api/reviews -&gt; /reviews -&gt; reviews service</span><br><span class="line">                                       /details     -&gt; /details -&gt; details service</span><br></pre></td></tr></table></figure>
+
+<p>实现：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> bookstore.reviews.ingress.yaml</span><br><span class="line">apiVersion: networking.k8s.io/v1</span><br><span class="line">kind: Ingress</span><br><span class="line">metadata:</span><br><span class="line">  name: bookstore<span class="literal">-reviews</span></span><br><span class="line">  namespace: default</span><br><span class="line">  annotations:</span><br><span class="line">    nginx.ingress.kubernetes.io/re<span class="built_in">write-target</span>: /reviews/<span class="variable">$1</span></span><br><span class="line">spec:</span><br><span class="line">  rules:</span><br><span class="line">  - host: bookstore.test.com</span><br><span class="line">    http:</span><br><span class="line">      paths:</span><br><span class="line">      - path: /api/reviews/(.*)</span><br><span class="line">        pathType: Prefix</span><br><span class="line">        backend:</span><br><span class="line">          service: </span><br><span class="line">            name: reviews</span><br><span class="line">            port:</span><br><span class="line">              number: <span class="number">9080</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$</span> <span class="built_in">cat</span> bookstore.details.ingress.yaml</span><br><span class="line">apiVersion: networking.k8s.io/v1</span><br><span class="line">kind: Ingress</span><br><span class="line">metadata:</span><br><span class="line">  name: bookstore<span class="literal">-details</span></span><br><span class="line">  namespace: default</span><br><span class="line">spec:</span><br><span class="line">  rules:</span><br><span class="line">  - host: bookstore.test.com</span><br><span class="line">    http:</span><br><span class="line">      paths:</span><br><span class="line">      - path: /details</span><br><span class="line">        pathType: Prefix</span><br><span class="line">        backend:</span><br><span class="line">          service: </span><br><span class="line">            name: details</span><br><span class="line">            port:</span><br><span class="line">              number: <span class="number">9080</span> </span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-09-19, 10:41:18</p>
+        <p><span>最后更新:</span>2023-10-02, 23:21:36</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-service-discovery-and-load-balance/" title="k8s 服务发现和负载均衡">http://realtiger.github.io/k8s-service-discovery-and-load-balance/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-service-discovery-and-load-balance/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-service/">
+                    k8s service
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">服务发现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.</span> <span class="toc-text">服务发现测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blog-%E4%BC%98%E5%8C%96%E6%94%B9%E9%80%A0"><span class="toc-number">1.2.</span> <span class="toc-text">blog 优化改造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6"><span class="toc-number">1.3.</span> <span class="toc-text">服务发现组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%EF%BC%9A%E6%80%8E%E4%B9%88%E8%AE%BF%E9%97%AE%E5%85%B6%E4%BB%96%E9%9B%86%E7%BE%A4%E7%9A%84%E6%9C%8D%E5%8A%A1%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">扩展：怎么访问其他集群的服务？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E8%AE%BF%E9%97%AE%E4%B9%8BIngress"><span class="toc-number">2.</span> <span class="toc-text">服务访问之Ingress</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ingress-%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">ingress 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E9%80%BB%E8%BE%91"><span class="toc-number">2.2.</span> <span class="toc-text">实现逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ingress%E5%AE%89%E8%A3%85-%E4%BB%A5%E4%B8%8B%E6%9C%AA%E9%AA%8C%E8%AF%81%EF%BC%8C%E7%9B%AE%E5%89%8D%E4%BB%85%E4%BD%9C%E5%8F%82%E8%80%83"><span class="toc-number">2.3.</span> <span class="toc-text">ingress安装(以下未验证，目前仅作参考)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ingress%E4%BD%BF%E7%94%A8"><span class="toc-number">2.4.</span> <span class="toc-text">ingress使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%B5%84%E6%BA%90"><span class="toc-number">2.4.1.</span> <span class="toc-text">创建资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE"><span class="toc-number">2.4.2.</span> <span class="toc-text">访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E8%AF%B4%E6%98%8E"><span class="toc-number">2.4.3.</span> <span class="toc-text">常用注解说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%B7%AF%E5%BE%84%E8%BD%AC%E5%8F%91%E5%8F%8A%E9%87%8D%E5%86%99%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.4.4.</span> <span class="toc-text">多路径转发及重写的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9Apath%E8%BD%AC%E5%8F%91%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.4.4.1.</span> <span class="toc-text">多path转发示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#URL%E9%87%8D%E5%86%99"><span class="toc-number">2.4.4.2.</span> <span class="toc-text">URL重写</span></a></li></ol></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s 服务发现和负载均衡　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-service/" title="下一篇: k8s service">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
