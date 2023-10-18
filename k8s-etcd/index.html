@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 etcd是k8s的核心组件之一，主要用于存储k8s集群的所有数据，包括集群的配置信息、集群状态、集群资源等。etcd是一个分布式的、高可用的、一致性的、高性能的键值存储系统，是k8s集群的数据存储中心。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s etcd">
+<meta property="og:url" content="http://realtiger.github.io/k8s-etcd/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 etcd是k8s的核心组件之一，主要用于存储k8s集群的所有数据，包括集群的配置信息、集群状态、集群资源等。etcd是一个分布式的、高可用的、一致性的、高性能的键值存储系统，是k8s集群的数据存储中心。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-10-03T02:42:12.000Z">
+<meta property="article:modified_time" content="2023-10-03T10:53:35.050Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s etcd | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-etcd" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-etcd/" class="article-date">
+      <time datetime="2023-10-03T02:42:12.000Z" itemprop="datePublished">2023-10-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s etcd
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">1.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>etcd是k8s的核心组件之一，主要用于存储k8s集群的所有数据，包括集群的配置信息、集群状态、集群资源等。etcd是一个分布式的、高可用的、一致性的、高性能的键值存储系统，是k8s集群的数据存储中心。</p>
+<span id="more"></span>
+
+<h1 id="ETCD命令行工具"><a href="#ETCD命令行工具" class="headerlink" title="ETCD命令行工具"></a>ETCD命令行工具</h1><p>拷贝etcdctl命令行工具(附加启动etcd命令)：</p>
+<h2 id="二进制方式"><a href="#二进制方式" class="headerlink" title="二进制方式"></a>二进制方式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ETCD_VER=v3.4.27</span><br><span class="line"></span><br><span class="line"><span class="comment"># choose either URL</span></span><br><span class="line">GOOGLE_URL=https://storage.googleapis.com/etcd</span><br><span class="line">GITHUB_URL=https://github.com/etcd-io/etcd/releases/download</span><br><span class="line">DOWNLOAD_URL=<span class="variable">$&#123;GOOGLE_URL&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">rm</span> -f /tmp/etcd-<span class="variable">$&#123;ETCD_VER&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">rm</span> -rf /tmp/etcd-download-test &amp;&amp; <span class="built_in">mkdir</span> -p /tmp/etcd-download-test</span><br><span class="line"></span><br><span class="line">curl -L <span class="variable">$&#123;DOWNLOAD_URL&#125;</span>/<span class="variable">$&#123;ETCD_VER&#125;</span>/etcd-<span class="variable">$&#123;ETCD_VER&#125;</span>-linux-amd64.tar.gz -o /tmp/etcd-<span class="variable">$&#123;ETCD_VER&#125;</span>-linux-amd64.tar.gz</span><br><span class="line">tar xzvf /tmp/etcd-<span class="variable">$&#123;ETCD_VER&#125;</span>-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components=1</span><br><span class="line"><span class="built_in">rm</span> -f /tmp/etcd-<span class="variable">$&#123;ETCD_VER&#125;</span>-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">/tmp/etcd-download-test/etcd --version</span><br><span class="line">/tmp/etcd-download-test/etcdctl version</span><br><span class="line"></span><br><span class="line"><span class="built_in">ln</span> -s /tmp/etcd-download-test/etcdctl /usr/local/bin/</span><br></pre></td></tr></table></figure>
+
+<p>启动etcd命令（对之后的说明没有影响）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># start a local etcd server</span></span><br><span class="line">/tmp/etcd-download-test/etcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># write,read to etcd</span></span><br><span class="line">/tmp/etcd-download-test/etcdctl --endpoints=localhost:2379 put foo bar</span><br><span class="line">/tmp/etcd-download-test/etcdctl --endpoints=localhost:2379 get foo</span><br></pre></td></tr></table></figure>
+
+<h2 id="docker-方式"><a href="#docker-方式" class="headerlink" title="docker 方式"></a>docker 方式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull gcr.io/etcd-development/etcd:v3.4.27</span><br><span class="line">docker run --<span class="built_in">rm</span> --name etcd -d gcr.io/etcd-development/etcd:v3.4.27 /usr/local/bin/etcd</span><br><span class="line">docker <span class="built_in">cp</span> etcd:/usr/local/bin/etcdctl /usr/local/bin/</span><br></pre></td></tr></table></figure>
+
+<p>启动etcd命令(对之后的说明没有影响):   </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /tmp/etcd-data.tmp &amp;&amp; <span class="built_in">mkdir</span> -p /tmp/etcd-data.tmp &amp;&amp; \</span><br><span class="line">  docker rmi gcr.io/etcd-development/etcd:v3.4.27 || <span class="literal">true</span> &amp;&amp; \</span><br><span class="line">  docker run \</span><br><span class="line">  -p 2379:2379 \</span><br><span class="line">  -p 2380:2380 \</span><br><span class="line">  --mount <span class="built_in">type</span>=<span class="built_in">bind</span>,<span class="built_in">source</span>=/tmp/etcd-data.tmp,destination=/etcd-data \</span><br><span class="line">  --name etcd-gcr-v3.4.27 \</span><br><span class="line">  gcr.io/etcd-development/etcd:v3.4.27 \</span><br><span class="line">  /usr/local/bin/etcd \</span><br><span class="line">  --name s1 \</span><br><span class="line">  --data-dir /etcd-data \</span><br><span class="line">  --listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">  --advertise-client-urls http://0.0.0.0:2379 \</span><br><span class="line">  --listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">  --initial-advertise-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">  --initial-cluster s1=http://0.0.0.0:2380 \</span><br><span class="line">  --initial-cluster-token tkn \</span><br><span class="line">  --initial-cluster-state new \</span><br><span class="line">  --log-level info \</span><br><span class="line">  --logger zap \</span><br><span class="line">  --log-outputs stderr</span><br><span class="line"></span><br><span class="line">docker <span class="built_in">exec</span> etcd-gcr-v3.4.27  /usr/local/bin/etcd --version</span><br><span class="line">docker <span class="built_in">exec</span> etcd-gcr-v3.4.27  /usr/local/bin/etcdctl version</span><br><span class="line">docker <span class="built_in">exec</span> etcd-gcr-v3.4.27  /usr/local/bin/etcdctl endpoint health</span><br><span class="line">docker <span class="built_in">exec</span> etcd-gcr-v3.4.27  /usr/local/bin/etcdctl put foo bar</span><br><span class="line">docker <span class="built_in">exec</span> etcd-gcr-v3.4.27  /usr/local/bin/etcdctl get foo</span><br></pre></td></tr></table></figure>
+
+<h1 id="ETCD常用操作"><a href="#ETCD常用操作" class="headerlink" title="ETCD常用操作"></a>ETCD常用操作</h1><h2 id="查看etcd集群的成员节点"><a href="#查看etcd集群的成员节点" class="headerlink" title="查看etcd集群的成员节点"></a>查看etcd集群的成员节点</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> ETCDCTL_API=3</span><br><span class="line">$ etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key member list -w table</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">alias</span> etcdctl=<span class="string">&#x27;etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key&#x27;</span></span><br><span class="line"></span><br><span class="line">$ etcdctl member list -w table</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看etcd集群节点状态"><a href="#查看etcd集群节点状态" class="headerlink" title="查看etcd集群节点状态"></a>查看etcd集群节点状态</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl endpoint status -w table</span><br><span class="line"></span><br><span class="line">$ etcdctl endpoint health -w table</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置key值"><a href="#设置key值" class="headerlink" title="设置key值"></a>设置key值</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl put <span class="built_in">test</span> 1</span><br><span class="line">$ etcdctl get <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="查看所有key值"><a href="#查看所有key值" class="headerlink" title="查看所有key值"></a>查看所有key值</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl get / --prefix --keys-only</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看具体的key对应的数据"><a href="#查看具体的key对应的数据" class="headerlink" title="查看具体的key对应的数据"></a>查看具体的key对应的数据</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl get /registry/pods/test/myblog-84985b5b66-jp9gg</span><br></pre></td></tr></table></figure>
+
+<h2 id="list-watch"><a href="#list-watch" class="headerlink" title="list-watch"></a>list-watch</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl watch /test/ --prefix</span><br><span class="line"></span><br><span class="line"><span class="comment"># 另一个终端输入，之前的终端会有输出</span></span><br><span class="line">$ etcdctl put /test/key1 val1</span><br></pre></td></tr></table></figure>
+
+<h2 id="快照与恢复（重要！）"><a href="#快照与恢复（重要！）" class="headerlink" title="快照与恢复（重要！）"></a>快照与恢复（重要！）</h2><p>添加定时任务做数据快照</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl snapshot save `hostname`-etcd_`<span class="built_in">date</span> +%Y%m%d%H%M`.db</span><br></pre></td></tr></table></figure>
+
+<p>恢复快照：</p>
+<ol>
+<li><p>停止etcd和apiserver（防止新数据写入）</p>
+</li>
+<li><p>移走当前数据目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mv</span> /var/lib/etcd/ /tmp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>恢复快照</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl snapshot restore `hostname`-etcd_`<span class="built_in">date</span> +%Y%m%d%H%M`.db --data-dir=/var/lib/etcd/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>集群恢复</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/release-3.3/Documentation/op-guide/recovery.md">https://github.com/etcd-io/etcd/blob/release-3.3/Documentation/op-guide/recovery.md</a></p>
+</li>
+</ol>
+<h2 id="namespace删除问题"><a href="#namespace删除问题" class="headerlink" title="namespace删除问题"></a>namespace删除问题</h2><p>很多情况下，会出现namespace删除卡住的问题，此时可以通过操作etcd来删除数据：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看namespace相关的数据</span></span><br><span class="line">$ etcdctl get / --prefix --keys-only | grep namespace | grep delete-ns</span><br><span class="line">/registry/namespaces/delete-ns</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除namespace相关的数据</span></span><br><span class="line">$ etcdctl del /registry/namespaces/delete-ns</span><br></pre></td></tr></table></figure>
+
+<h1 id="故障恢复"><a href="#故障恢复" class="headerlink" title="故障恢复"></a>故障恢复</h1><h2 id="etcd集群故障恢复"><a href="#etcd集群故障恢复" class="headerlink" title="etcd集群故障恢复"></a>etcd集群故障恢复</h2><p>因为etcd中存储着最重要的数据，所以etcd集群的故障恢复是最重要的。如果节点故障，无法正常启动则需要添加新节点进行恢复。</p>
+<ol>
+<li><p>将etcd备份数据拷贝到新节点</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scp /backup/etcd-202109031100.db root@new-etcd:/tmp/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将数据恢复到新节点</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl snapshot restore /tmp/etcd-202109031100.db --data-dir=/var/lib/etcd/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新节点启动etcd</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ name=<span class="string">&quot;etcd-new&quot;</span></span><br><span class="line">$ host=<span class="string">&quot;etcd-new-ip&quot;</span></span><br><span class="line">$ cluster=<span class="string">&quot;etcd1=http://etcd-new-ip:2380&quot;</span></span><br><span class="line">   </span><br><span class="line">$ docker run -d --privileged=<span class="literal">true</span> \</span><br><span class="line">  -p 2379:2379 \</span><br><span class="line">  -p 2380:2380 \</span><br><span class="line">  -v /var/lib/etcd:/data/etcd \</span><br><span class="line">  --restart=always \</span><br><span class="line">  --name <span class="variable">$&#123;name&#125;</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /etc/kubernetes/pki/etcd:/etc/kubernetes/pki/etcd \</span><br><span class="line">  gcr.io/coreos/etcd:v3.5.0 \</span><br><span class="line">  /usr/local/bin/etcd \</span><br><span class="line">  --name <span class="variable">$&#123;name&#125;</span> \</span><br><span class="line">  --data-dir /data/etcd \</span><br><span class="line">  --listen-client-urls http://<span class="variable">$&#123;host&#125;</span>:2379 \</span><br><span class="line">  --advertise-client-urls http://<span class="variable">$&#123;host&#125;</span>:2379 \</span><br><span class="line">  --listen-peer-urls http://<span class="variable">$&#123;host&#125;</span>:2380 \</span><br><span class="line">  --initial-advertise-peer-urls http://<span class="variable">$&#123;host&#125;</span>:2380 \</span><br><span class="line">  --initial-cluster <span class="variable">$&#123;cluster&#125;</span> \</span><br><span class="line">  --initial-cluster-token tkn \</span><br><span class="line">  --initial-cluster-state new \</span><br><span class="line">  --force-new-cluster \</span><br><span class="line">  --log-level info \</span><br><span class="line">  --logger zap \</span><br><span class="line">  --log-outputs stderr</span><br></pre></td></tr></table></figure>
+
+<p> 虽然已经导入了数据，但是还是需要重新初始化集群，重新建立连接，所以需要加上<code>--force-new-cluster</code>参数。</p>
+</li>
+<li><p>验证集群状态</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> ETCDCTL_API=3</span><br><span class="line">$ <span class="built_in">export</span> ETCD_ENDPOINTS=<span class="string">&quot;http://etcd-new-ip:2379&quot;</span></span><br><span class="line">$ etcdctl --endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> -w table member list</span><br><span class="line">$ etcdctl --endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> -w table endpoint status</span><br><span class="line">$ etcdctl --endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> get / --prefix --keys-only</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="etcd集群增量恢复"><a href="#etcd集群增量恢复" class="headerlink" title="etcd集群增量恢复"></a>etcd集群增量恢复</h2><p>如果etcd集群中的数据丢失了一部分，可以通过增量恢复的方式来恢复数据。比如有备份数据<code>etcd-backup1.db</code>和备份数据<code>etc-backup2.db</code>，两次备份数据相差1天，我们丢失了数据，可以只恢复这1天的数据。</p>
+<ol>
+<li><p>etcdhelper源码下载</p>
+<p> etcdhelper不提供二进制文件，需要自己编译，所以需要下载源码：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/openshift/origin.git</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译etcdhelper</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --name go-builder golang:1.17 <span class="built_in">sleep</span> 3600</span><br><span class="line">$ docker <span class="built_in">cp</span> origin-master go-builder:/go</span><br><span class="line">$ docker <span class="built_in">exec</span> -ti go-builder bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># cd /go/orign-master</span></span><br><span class="line"><span class="comment"># go env -w GOPROXY=https://goproxy.cn,direct</span></span><br><span class="line"><span class="comment"># CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build tools/etcdhelper/etcdhelper.go</span></span><br><span class="line"><span class="comment"># exit</span></span><br><span class="line"></span><br><span class="line">$ docker <span class="built_in">cp</span> go-builder:/go/origin-master/etcdhelper .</span><br><span class="line">$ <span class="built_in">cp</span> etcdhelper /usr/local/bin/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>etcdhelper使用</p>
+<p> etcdhelper使用方式和etcdctl类似，只是etcdhelper是对etcdctl的封装，可以批量操作，比如批量删除等。获取到的数据是json格式，可以直接查看。</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> ETCDCTL_API=3</span><br><span class="line">$ <span class="built_in">export</span> ETCD_ENDPOINTS=<span class="string">&quot;http://etcd-new-ip:2379&quot;</span></span><br><span class="line">$ etcdhelper -endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> <span class="built_in">ls</span></span><br><span class="line">$ etcdhelper -endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> get /registry/pods/test/myblog-84985b5b66-jp9gg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>增量恢复</p>
+<p> 比如我们丢失了<code>etcd-backup1.db</code>和<code>etcd-backup2.db</code>之间的数据，我们可以通过etcdhelper获取到这段时间的数据，然后再导入到etcd集群中。这里我们举例误删除了namespace为test下的所有资源情况。</p>
+<p> 首先我们找一台新机器，恢复<code>etcd-backup1.db</code>的数据，因为<code>etcd-backup1.db</code>是完整的数据，包含被删除的数据。恢复方法参考上面的故障恢复。</p>
+</li>
+<li><p>批量操作获取yaml文件</p>
+<p> kubectl没有办法直接使用json格式的文件，因此需要将json格式的文件转换为yaml格式的文件，然后再使用kubectl apply命令。</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> ETCDCTL_API=3</span><br><span class="line">$ <span class="built_in">export</span> ETCD_ENDPOINTS=<span class="string">&quot;http://etcd-new-ip:2379&quot;</span></span><br><span class="line">$ etcdctl --endpoints=<span class="variable">$&#123;ETCD_ENDPOINTS&#125;</span> get / --prefix --keys-only | grep <span class="built_in">test</span> &gt; keys.txt</span><br><span class="line">   </span><br><span class="line"><span class="comment"># 使用脚本利用etcdhelper将key转换成为json文件</span></span><br><span class="line"><span class="built_in">cat</span> key_to_json.sh</span><br><span class="line">   </span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line"><span class="built_in">export</span> ETCDCTL_API=3</span><br><span class="line"><span class="built_in">export</span> ETCD_ENDPOINTS=etcd-new-ip:2379</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> `<span class="built_in">cat</span> keys.txt`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    etcdhelper -endpoint <span class="variable">$ETCD_ENDPOINTS</span> get <span class="variable">$line</span> &gt; <span class="variable">$i</span>.json</span><br><span class="line">    <span class="comment"># 第一行是资源类型和版本，不是json格式，需要删除</span></span><br><span class="line">    sed -i <span class="string">&#x27;1d&#x27;</span> <span class="variable">$i</span>.json</span><br><span class="line">    <span class="built_in">let</span> <span class="string">&#x27;i+=1&#x27;</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p> 运行脚本，将key转换成为json文件：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./key_to_json.sh</span><br></pre></td></tr></table></figure>
+
+<p> 将json文件转换成为yaml文件：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># json to yaml，具体方法就不写了，内容还比较简单</span></span><br><span class="line">$ python3 json_to_yaml.py</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>批量导入操作</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> apply.sh</span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line">   </span><br><span class="line">i=0</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> `<span class="built_in">cat</span> keys.txt`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    kubectl apply -f <span class="variable">$i</span>.yaml</span><br><span class="line">    <span class="built_in">let</span> <span class="string">&#x27;i+=1&#x27;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line">   </span><br><span class="line">$ ./apply.sh</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-etcd/">k8s etcd</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-10-03, 10:42:12</p>
+        <p><span>最后更新:</span>2023-10-03, 18:53:35</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-etcd/" title="k8s etcd">http://realtiger.github.io/k8s-etcd/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-etcd/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/k8s-scheduler/">
+                    k8s 调度
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-service-discovery-and-load-balance/">
+                    k8s 服务发现和负载均衡
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ETCD%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="toc-number">1.</span> <span class="toc-text">ETCD命令行工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">二进制方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.</span> <span class="toc-text">docker 方式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ETCD%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">ETCD常用操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Betcd%E9%9B%86%E7%BE%A4%E7%9A%84%E6%88%90%E5%91%98%E8%8A%82%E7%82%B9"><span class="toc-number">2.1.</span> <span class="toc-text">查看etcd集群的成员节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Betcd%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9%E7%8A%B6%E6%80%81"><span class="toc-number">2.2.</span> <span class="toc-text">查看etcd集群节点状态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AEkey%E5%80%BC"><span class="toc-number">2.3.</span> <span class="toc-text">设置key值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89key%E5%80%BC"><span class="toc-number">2.4.</span> <span class="toc-text">查看所有key值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%85%B7%E4%BD%93%E7%9A%84key%E5%AF%B9%E5%BA%94%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">2.5.</span> <span class="toc-text">查看具体的key对应的数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#list-watch"><span class="toc-number">2.6.</span> <span class="toc-text">list-watch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E7%85%A7%E4%B8%8E%E6%81%A2%E5%A4%8D%EF%BC%88%E9%87%8D%E8%A6%81%EF%BC%81%EF%BC%89"><span class="toc-number">2.7.</span> <span class="toc-text">快照与恢复（重要！）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#namespace%E5%88%A0%E9%99%A4%E9%97%AE%E9%A2%98"><span class="toc-number">2.8.</span> <span class="toc-text">namespace删除问题</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="toc-number">3.</span> <span class="toc-text">故障恢复</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#etcd%E9%9B%86%E7%BE%A4%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="toc-number">3.1.</span> <span class="toc-text">etcd集群故障恢复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#etcd%E9%9B%86%E7%BE%A4%E5%A2%9E%E9%87%8F%E6%81%A2%E5%A4%8D"><span class="toc-number">3.2.</span> <span class="toc-text">etcd集群增量恢复</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s etcd　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/k8s-scheduler/" title="上一篇: k8s 调度">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-service-discovery-and-load-balance/" title="下一篇: k8s 服务发现和负载均衡">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
