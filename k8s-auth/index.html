@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 Kubernetes 有一个内建的 Role-based access control (RBAC) 机制，它可以控制用户对 Kubernetes API 的访问权限。RBAC 机制可以让集群管理员控制用户、服务账户和组对 Kubernetes API 的访问权限。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 认证和授权">
+<meta property="og:url" content="http://realtiger.github.io/k8s-auth/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 Kubernetes 有一个内建的 Role-based access control (RBAC) 机制，它可以控制用户对 Kubernetes API 的访问权限。RBAC 机制可以让集群管理员控制用户、服务账户和组对 Kubernetes API 的访问权限。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-apiserver-access-control-overview.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/kubeadm-default-cluster-role-list.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/kubeadm-default-cluster-role-list-cn.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/how-kubectl-be-authorized.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-auth-rbac.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-auth-service-account.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-auth-auth.jpg">
+<meta property="article:published_time" content="2023-10-18T17:33:32.000Z">
+<meta property="article:modified_time" content="2023-10-23T13:56:10.166Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="auth">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/k8s-apiserver-access-control-overview.svg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s 认证和授权 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-auth" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-auth/" class="article-date">
+      <time datetime="2023-10-18T17:33:32.000Z" itemprop="datePublished">2023-10-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s 认证和授权
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4.9k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">24分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>Kubernetes 有一个内建的 Role-based access control (RBAC) 机制，它可以控制用户对 Kubernetes API 的访问权限。RBAC 机制可以让集群管理员控制用户、服务账户和组对 Kubernetes API 的访问权限。</p>
+<span id="more"></span>
+
+<h2 id="APIServer安全控制"><a href="#APIServer安全控制" class="headerlink" title="APIServer安全控制"></a>APIServer安全控制</h2><p><img src="/post/docker/k8s-apiserver-access-control-overview.svg" alt="k8s apiserver access control overview"></p>
+<h3 id="Authentication：身份认证"><a href="#Authentication：身份认证" class="headerlink" title="Authentication：身份认证"></a>Authentication：身份认证</h3><ol>
+<li><p>这个环节它面对的输入是整个<code>http request</code>，负责对来自client的请求进行身份校验，支持的方法包括:</p>
+<ul>
+<li><code>basic auth</code></li>
+<li>client证书验证（https双向验证）</li>
+<li><code>jwt token</code>(用于serviceaccount)</li>
+</ul>
+</li>
+<li><p>APIServer启动时，可以指定一种Authentication方法，也可以指定多种方法。如果指定了多种方法，那么APIServer将会逐个使用这些方法对客户端请求进行验证， 只要请求数据通过其中一种方法的验证，APIServer就会认为Authentication成功；</p>
+</li>
+<li><p>使用kubeadm引导启动的k8s集群，apiserver的初始配置中，默认支持<code>client证书</code>验证和<code>serviceaccount</code>两种身份验证方式。 证书认证通过设置<code>--client-ca-file</code>根证书以及<code>--tls-cert-file</code>和<code>--tls-private-key-file</code>来开启。</p>
+</li>
+<li><p>在这个环节，apiserver会通过client证书或 <code>http header</code>中的字段(比如serviceaccount的<code>jwt token</code>)来识别出请求的<code>用户身份</code>，包括”user”、”group”等，这些信息将在后面的<code>authorization</code>环节用到。</p>
+</li>
+</ol>
+<h3 id="Authorization：鉴权，你可以访问哪些资源"><a href="#Authorization：鉴权，你可以访问哪些资源" class="headerlink" title="Authorization：鉴权，你可以访问哪些资源"></a>Authorization：鉴权，你可以访问哪些资源</h3><ol>
+<li>这个环节面对的输入是<code>http request context</code>中的各种属性，包括：<code>user</code>、<code>group</code>、<code>request path</code>（比如：<code>/api/v1</code>、<code>/healthz</code>、<code>/version</code>等）、 <code>request verb</code>(比如：<code>get</code>、<code>list</code>、<code>create</code>等)。</li>
+<li>APIServer会将这些属性值与事先配置好的访问策略(<code>access policy</code>）相比较。APIServer支持多种<code>authorization mode</code>，包括<code>Node、RBAC、Webhook</code>等。</li>
+<li>APIServer启动时，可以指定一种<code>authorization mode</code>，也可以指定多种<code>authorization mode</code>，如果是后者，只要Request通过了其中一种mode的授权， 那么该环节的最终结果就是授权成功。在较新版本kubeadm引导启动的k8s集群的apiserver初始配置中，<code>authorization-mode</code>的默认配置是<code>”Node,RBAC”</code>。</li>
+</ol>
+<h3 id="Admission-Control：准入控制，一个控制链-层层关卡-，用于拦截请求的一种方式。偏集群安全控制、管理方面。"><a href="#Admission-Control：准入控制，一个控制链-层层关卡-，用于拦截请求的一种方式。偏集群安全控制、管理方面。" class="headerlink" title="Admission Control：准入控制，一个控制链(层层关卡)，用于拦截请求的一种方式。偏集群安全控制、管理方面。"></a>Admission Control：<a target="_blank" rel="external nofollow noopener noreferrer" href="http://docs.kubernetes.org.cn/144.html">准入控制</a>，一个控制链(层层关卡)，用于拦截请求的一种方式。偏集群安全控制、管理方面。</h3><h4 id="为什么需要？"><a href="#为什么需要？" class="headerlink" title="为什么需要？"></a>为什么需要？</h4><p>认证与授权获取 http 请求 header 以及证书，无法通过body内容做校验。</p>
+<p>Admission 运行在 API Server 的增删改查 handler 中，可以自然地操作 API resource</p>
+<h4 id="举个栗子"><a href="#举个栗子" class="headerlink" title="举个栗子"></a>举个栗子</h4><h5 id="LimitRanger"><a href="#LimitRanger" class="headerlink" title="LimitRanger"></a>LimitRanger</h5><p>修改LimitRanger大小，若集群的命名空间设置了LimitRange对象，且Pod声明时未设置资源值，则按照LimitRange的定义来为Pod添加默认值</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">LimitRange</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">mem-limit-range</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">limits:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">default:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">512Mi</span></span><br><span class="line">    <span class="attr">defaultRequest:</span></span><br><span class="line">      <span class="attr">memory:</span> <span class="string">256Mi</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">Container</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">default-mem-demo</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">default-mem-demo</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:alpine</span></span><br></pre></td></tr></table></figure>
+
+<p>查看认证情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 namespace</span></span><br><span class="line">$ kubectl -v=7 create namespace demo</span><br><span class="line">I1023 11:45:34.937311 1367593 loader.go:395] Config loaded from file:  /home/aaron/.kube/config</span><br><span class="line">I1023 11:45:34.940024 1367593 round_trippers.go:463] POST https://192.168.100.1:6443/api/v1/namespaces?fieldManager=kubectl-create&amp;fieldValidation=Strict</span><br><span class="line">I1023 11:45:34.940086 1367593 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:45:34.940121 1367593 round_trippers.go:473]     Accept: application/json, */*</span><br><span class="line">I1023 11:45:34.940154 1367593 round_trippers.go:473]     Content-Type: application/json</span><br><span class="line">I1023 11:45:34.940200 1367593 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:45:34.971203 1367593 round_trippers.go:574] Response Status: 201 Created <span class="keyword">in</span> 30 milliseconds</span><br><span class="line">namespace/demo created</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 limit range</span></span><br><span class="line">$ kubectl -v=7 apply -f mem-limit-range.yaml</span><br><span class="line">I1023 11:46:54.566053 1368262 loader.go:395] Config loaded from file:  /home/aaron/.kube/config</span><br><span class="line">I1023 11:46:54.568879 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/openapi/v2?<span class="built_in">timeout</span>=32s</span><br><span class="line">I1023 11:46:54.568933 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:54.568987 1368262 round_trippers.go:473]     Accept: application/com.github.proto-openapi.spec.v2@v1.0+protobuf</span><br><span class="line">I1023 11:46:54.569036 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:54.608556 1368262 round_trippers.go:574] Response Status: 200 OK <span class="keyword">in</span> 39 milliseconds</span><br><span class="line">I1023 11:46:54.835559 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/openapi/v3?<span class="built_in">timeout</span>=32s</span><br><span class="line">I1023 11:46:54.835626 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:54.835663 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:54.835713 1368262 round_trippers.go:473]     Accept: application/json, */*</span><br><span class="line">I1023 11:46:54.839142 1368262 round_trippers.go:574] Response Status: 200 OK <span class="keyword">in</span> 3 milliseconds</span><br><span class="line">I1023 11:46:54.842249 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/openapi/v3/api/v1?<span class="built_in">hash</span>=64470CFAF8CA1AC72CDF17D98F7AB1B4FA6357371209C6FBEAA1B607D1B09E70C979B0BA231366442A884E6888CF86F0205FF562FCA388657C7250E472112154&amp;<span class="built_in">timeout</span>=32s</span><br><span class="line">I1023 11:46:54.842307 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:54.842340 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:54.842372 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:54.845368 1368262 round_trippers.go:574] Response Status: 200 OK <span class="keyword">in</span> 2 milliseconds</span><br><span class="line">I1023 11:46:55.190015 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/api/v1/namespaces/demo/limitranges/mem-limit-range</span><br><span class="line">I1023 11:46:55.190086 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.190179 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.190253 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.195521 1368262 round_trippers.go:574] Response Status: 404 Not Found <span class="keyword">in</span> 5 milliseconds</span><br><span class="line">I1023 11:46:55.196192 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/api/v1/namespaces/demo</span><br><span class="line">I1023 11:46:55.196256 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.196290 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.196319 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.200893 1368262 round_trippers.go:574] Response Status: 200 OK <span class="keyword">in</span> 4 milliseconds</span><br><span class="line">I1023 11:46:55.201301 1368262 round_trippers.go:463] POST https://192.168.100.1:6443/api/v1/namespaces/demo/limitranges?fieldManager=kubectl-client-side-apply&amp;fieldValidation=Strict</span><br><span class="line">I1023 11:46:55.201365 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.201398 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.201444 1368262 round_trippers.go:473]     Content-Type: application/json</span><br><span class="line">I1023 11:46:55.201485 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.212289 1368262 round_trippers.go:574] Response Status: 201 Created <span class="keyword">in</span> 10 milliseconds</span><br><span class="line">limitrange/mem-limit-range created</span><br><span class="line">I1023 11:46:55.212851 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/api/v1/namespaces/demo/pods/default-mem-demo</span><br><span class="line">I1023 11:46:55.212931 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.213019 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.213077 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.217515 1368262 round_trippers.go:574] Response Status: 404 Not Found <span class="keyword">in</span> 4 milliseconds</span><br><span class="line">I1023 11:46:55.217783 1368262 round_trippers.go:463] GET https://192.168.100.1:6443/api/v1/namespaces/demo</span><br><span class="line">I1023 11:46:55.217866 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.217903 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.217958 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.222263 1368262 round_trippers.go:574] Response Status: 200 OK <span class="keyword">in</span> 4 milliseconds</span><br><span class="line">I1023 11:46:55.222547 1368262 round_trippers.go:463] POST https://192.168.100.1:6443/api/v1/namespaces/demo/pods?fieldManager=kubectl-client-side-apply&amp;fieldValidation=Strict</span><br><span class="line">I1023 11:46:55.222608 1368262 round_trippers.go:469] Request Headers:</span><br><span class="line">I1023 11:46:55.222657 1368262 round_trippers.go:473]     Content-Type: application/json</span><br><span class="line">I1023 11:46:55.222694 1368262 round_trippers.go:473]     User-Agent: kubectl/v1.28.0 (linux/amd64) kubernetes/855e7c4</span><br><span class="line">I1023 11:46:55.222727 1368262 round_trippers.go:473]     Accept: application/json</span><br><span class="line">I1023 11:46:55.230761 1368262 round_trippers.go:574] Response Status: 201 Created <span class="keyword">in</span> 7 milliseconds</span><br><span class="line">pod/default-mem-demo created</span><br><span class="line">I1023 11:46:55.231543 1368262 apply.go:535] Running apply post-processor <span class="keyword">function</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="NodeRestriction"><a href="#NodeRestriction" class="headerlink" title="NodeRestriction"></a>NodeRestriction</h5><p>此插件限制kubelet修改Node和Pod对象，这样的kubelets只允许修改绑定到Node的Pod API对象，以后版本可能会增加额外的限制 。开启Node授权策略后，默认会打开该项</p>
+<p>怎么使用？</p>
+<p>APIServer启动时通过 <code>--enable-admission-plugins --disable-admission-plugins</code> 指定需要打开或者关闭的 Admission Controller</p>
+<p>主要使用场景是以下几种：</p>
+<ul>
+<li>自动注入sidecar容器或者initContainer容器</li>
+<li>webhook admission，实现业务自定义的控制需求</li>
+</ul>
+<h2 id="kubectl的认证授权"><a href="#kubectl的认证授权" class="headerlink" title="kubectl的认证授权"></a>kubectl的认证授权</h2><p>kubectl的日志调试级别：</p>
+<table>
+<thead>
+<tr>
+<th align="left">信息</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">v&#x3D;0</td>
+<td align="left">通常，这对操作者来说总是可见的。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;1</td>
+<td align="left">当您不想要很详细的输出时，这个是一个合理的默认日志级别。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;2</td>
+<td align="left">有关服务和重要日志消息的有用稳定状态信息，这些信息可能与系统中的重大更改相关。这是大多数系统推荐的默认日志级别。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;3</td>
+<td align="left">关于更改的扩展信息。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;4</td>
+<td align="left">调试级别信息。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;6</td>
+<td align="left">显示请求资源。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;7</td>
+<td align="left">显示 HTTP 请求头。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;8</td>
+<td align="left">显示 HTTP 请求内容。</td>
+</tr>
+<tr>
+<td align="left">v&#x3D;9</td>
+<td align="left">显示 HTTP 请求内容，并且不截断内容。</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get nodes -v=7</span><br><span class="line">I0329 20:20:08.633065    3979 loader.go:359] Config loaded from file /root/.kube/config</span><br><span class="line">I0329 20:20:08.633797    3979 round_trippers.go:416] GET https://10.209.0.13:6443/api/v1/nodes?<span class="built_in">limit</span>=500</span><br></pre></td></tr></table></figure>
+
+<p><code>kubeadm init</code>启动完master节点后，会默认输出类似下面的提示内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">... ...</span><br><span class="line">Your Kubernetes master has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line">  <span class="built_in">mkdir</span> -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">  sudo <span class="built_in">cp</span> -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">  sudo <span class="built_in">chown</span> $(<span class="built_in">id</span> -u):$(<span class="built_in">id</span> -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">... ...</span><br></pre></td></tr></table></figure>
+
+<p>这些信息是在告知我们如何配置<code>kubeconfig</code>文件。按照上述命令配置后，master节点上的<code>kubectl</code>就可以直接使用<code>$HOME/.kube/config</code>的信息访问<code>k8s cluster</code>了。 并且，通过这种配置方式，<code>kubectl</code>也拥有了整个集群的管理员(root)权限。</p>
+<p>很多K8s初学者在这里都会有疑问：</p>
+<ul>
+<li>当<code>kubectl</code>使用这种<code>kubeconfig</code>方式访问集群时，<code>Kubernetes</code>的<code>kube-apiserver</code>是如何对来自<code>kubectl</code>的访问进行身份验证(<code>authentication</code>)和授权(<code>authorization</code>)的呢？</li>
+<li>为什么来自<code>kubectl</code>的请求拥有最高的管理员权限呢？</li>
+</ul>
+<p>查看<code>$HOME/.kube/config</code>文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> ~/.kube/config</span><br></pre></td></tr></table></figure>
+
+<p>前面提到过apiserver的authentication支持通过<code>tls client certificate、basic auth、token</code>等方式对客户端发起的请求进行身份校验， 从kubeconfig信息来看，kubectl显然在请求中使用了<code>tls client certificate</code>的方式，即客户端的证书。</p>
+<p>证书base64解码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> xxxxxxxxxxxxxx |<span class="built_in">base64</span> -d &gt; kubectl.crt</span><br></pre></td></tr></table></figure>
+
+<p>说明在认证阶段，<code>apiserver</code>会首先使用<code>--client-ca-file</code>配置的CA证书去验证kubectl提供的证书的有效性,基本的方式 ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$  openssl verify -CAfile /etc/kubernetes/pki/ca.crt kubectl.crt</span><br><span class="line">kubectl.crt: OK</span><br></pre></td></tr></table></figure>
+
+<p>除了认证身份，还会取出必要的信息供授权阶段使用，文本形式查看证书内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -<span class="keyword">in</span> kubectl.crt -text</span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number: 753391350411361453 (0xa7495710a1efcad)</span><br><span class="line">        Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: CN = kubernetes</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Aug 25 07:12:13 2023 GMT</span><br><span class="line">            Not After : Aug 24 07:17:20 2024 GMT</span><br><span class="line">        Subject: O = system:masters, CN = kubernetes-admin</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+
+<p>认证通过后，提取出签发证书时指定的CN(Common Name),<code>kubernetes-admin</code>，作为请求的用户名 (User Name), 从证书中提取O(Organization)字段作为请求用户所属的组 (Group)，<code>group = system:masters</code>，然后传递给后面的授权模块。</p>
+<p>kubeadm在init初始引导集群启动过程中，创建了许多默认的RBAC规则， 在k8s有关RBAC的官方文档中，我们看到下面一些<code>default clusterrole</code>列表:</p>
+<p><img src="/post/docker/kubeadm-default-cluster-role-list.png" alt="kubeadm default cluster role list"></p>
+<p><img src="/post/docker/kubeadm-default-cluster-role-list-cn.png" alt="kubeadm default cluster role list cn"></p>
+<p>其中第一个cluster-admin这个cluster role binding绑定了system:masters group，这和authentication环节传递过来的身份信息不谋而合。 沿着system:masters group对应的cluster-admin clusterrolebinding“追查”下去，真相就会浮出水面。</p>
+<p>我们查看一下这一binding：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl describe clusterrolebinding cluster-admin</span><br><span class="line">Name:         cluster-admin</span><br><span class="line">Labels:       kubernetes.io/bootstrapping=rbac-defaults</span><br><span class="line">Annotations:  rbac.authorization.kubernetes.io/autoupdate: <span class="literal">true</span></span><br><span class="line">Role:</span><br><span class="line">  Kind:  ClusterRole</span><br><span class="line">  Name:  cluster-admin</span><br><span class="line">Subjects:</span><br><span class="line">  Kind   Name            Namespace</span><br><span class="line">  ----   ----            ---------</span><br><span class="line">  Group  system:masters</span><br></pre></td></tr></table></figure>
+
+<p>我们看到在kube-system名字空间中，一个名为cluster-admin的clusterrolebinding将cluster-admin cluster role与system:masters Group绑定到了一起， 赋予了所有归属于system:masters Group中用户cluster-admin角色所拥有的权限。</p>
+<p>我们再来查看一下cluster-admin这个role的具体权限信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl describe clusterrole cluster-admin</span><br><span class="line">Name:         cluster-admin</span><br><span class="line">Labels:       kubernetes.io/bootstrapping=rbac-defaults</span><br><span class="line">Annotations:  rbac.authorization.kubernetes.io/autoupdate: <span class="literal">true</span></span><br><span class="line">PolicyRule:</span><br><span class="line">  Resources  Non-Resource URLs  Resource Names  Verbs</span><br><span class="line">  ---------  -----------------  --------------  -----</span><br><span class="line">  *.*        []                 []              [*]</span><br><span class="line">             [*]                []              [*]</span><br></pre></td></tr></table></figure>
+
+<p>非资源类，如查看集群健康状态。</p>
+<p><img src="/post/docker/how-kubectl-be-authorized.png" alt="how kubectl be authorized"></p>
+<h2 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h2><p>Role-Based Access Control，基于角色的访问控制， apiserver启动参数添加–authorization-mode&#x3D;RBAC 来启用RBAC认证模式，kubeadm安装的集群默认已开启。<a target="_blank" rel="external nofollow noopener noreferrer" href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">官方介绍</a></p>
+<p>查看开启：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># master节点查看apiserver进程</span></span><br><span class="line">$ ps -ef | grep apiserver</span><br><span class="line">root        6119    5911  7 8月25 ?       4-12:07:50 kube-apiserver --advertise-address=192.168.100.1 --allow-privileged=<span class="literal">true</span> --authorization-mode=Node,RBAC --client-ca-file=/etc/kubernetes/pki/ca.crt --enable-admission-plugins=NodeRestriction --enable-bootstrap-token-auth=<span class="literal">true</span> --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key --etcd-servers=https://127.0.0.1:2379 --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=6443 --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=/etc/kubernetes/pki/sa.pub --service-account-signing-key-file=/etc/kubernetes/pki/sa.key --service-cluster-ip-range=10.96.0.0/12 --tls-cert-file=/etc/kubernetes/pki/apiserver.crt --tls-private-key-file=/etc/kubernetes/pki/apiserver.key</span><br><span class="line">aaron    1538613 1356648  0 17:55 pts/0    00:00:00 grep --color=auto apiserver</span><br></pre></td></tr></table></figure>
+
+<p>RBAC模式引入了4个资源类型：</p>
+<h3 id="Role，角色"><a href="#Role，角色" class="headerlink" title="Role，角色"></a>Role，角色</h3><p>一个Role只能授权访问单个namespace</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 示例定义一个名为pod-reader的角色，该角色具有读取demo这个命名空间下的pods的权限</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Role</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">pod-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>] <span class="comment"># &quot;&quot; indicates the core API group</span></span><br><span class="line">  <span class="attr">resources:</span> [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">  <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>, <span class="string">&quot;watch&quot;</span>, <span class="string">&quot;list&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">## apiGroups: &quot;&quot;,&quot;apps&quot;, &quot;autoscaling&quot;, &quot;batch&quot; =&gt; 通过命令 kubectl api-versions 查看</span></span><br><span class="line"><span class="comment">## resources: &quot;services&quot;, &quot;pods&quot;,&quot;deployments&quot;... =&gt; 通过命令 kubectl api-resources 查看</span></span><br><span class="line"><span class="comment">## verbs: &quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;update&quot;, &quot;patch&quot;, &quot;delete&quot;, &quot;exec&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="ClusterRole"><a href="#ClusterRole" class="headerlink" title="ClusterRole"></a>ClusterRole</h3><p>一个ClusterRole能够授予和Role一样的权限，但是它是集群范围内的。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 定义一个集群角色，名为secret-reader，该角色可以读取所有的namespace中的secret资源</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="comment"># &quot;namespace&quot; omitted since ClusterRoles are not namespaced</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">apiGroups:</span> [<span class="string">&quot;&quot;</span>]</span><br><span class="line">  <span class="attr">resources:</span> [<span class="string">&quot;secrets&quot;</span>]</span><br><span class="line">  <span class="attr">verbs:</span> [<span class="string">&quot;get&quot;</span>, <span class="string">&quot;watch&quot;</span>, <span class="string">&quot;list&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># User,Group,ServiceAccount</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Rolebinding"><a href="#Rolebinding" class="headerlink" title="Rolebinding"></a>Rolebinding</h3><p>将role中定义的权限分配给用户和用户组。RoleBinding包含主题（users,groups,或service accounts）和授予角色的引用。对于namespace内的授权使用RoleBinding，集群范围内使用ClusterRoleBinding。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 定义一个角色绑定，将pod-reader这个role的权限授予给jane这个User，使得jane可以在读取demo这个命名空间下的所有的pod数据</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">read-pods</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">User</span>   <span class="comment">#这里可以是User,Group,ServiceAccount</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jane</span> </span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span> <span class="comment">#这里可以是Role或者ClusterRole,若是ClusterRole，则权限也仅限于rolebinding的内部</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span> <span class="comment"># match the name of the Role or ClusterRole you wish to bind to</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<p><em>注意：rolebinding既可以绑定role，也可以绑定clusterrole，当绑定rolebinding的时候，subject的权限也会被限定于rolebinding定义的namespace内部，若想跨namespace，需要使用clusterrolebinding</em></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 定义一个角色绑定，将dave这个用户和secret-reader这个集群角色绑定，虽然secret-reader是集群角色，但是因为是使用rolebinding绑定的，因此dave的权限也会被限制在development这个命名空间内</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="comment"># This role binding allows &quot;dave&quot; to read secrets in the &quot;development&quot; namespace.</span></span><br><span class="line"><span class="comment"># You need to already have a ClusterRole named &quot;secret-reader&quot;.</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">read-secrets</span></span><br><span class="line">  <span class="comment">#</span></span><br><span class="line">  <span class="comment"># The namespace of the RoleBinding determines where the permissions are granted.</span></span><br><span class="line">  <span class="comment"># This only grants permissions within the &quot;development&quot; namespace.</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">development</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">User</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">dave</span> <span class="comment"># Name is case sensitive</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">dave</span> <span class="comment"># Name is case sensitive</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<p>考虑一个场景：如果集群中有多个namespace分配给不同的管理员，每个namespace的权限是一样的，就可以只定义一个clusterrole，然后通过rolebinding将不同的namespace绑定到管理员身上，否则就需要每个namespace定义一个Role，然后做一次rolebinding。</p>
+<h3 id="ClusterRolebingding"><a href="#ClusterRolebingding" class="headerlink" title="ClusterRolebingding"></a>ClusterRolebingding</h3><p>允许跨namespace进行授权</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="comment"># This cluster role binding allows anyone in the &quot;manager&quot; group to read secrets in any namespace.</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">read-secrets-global</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">Group</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">manager</span> <span class="comment"># Name is case sensitive</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">secret-reader</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/docker/k8s-auth-rbac.jpg" alt="k8s auth rbac"></p>
+<h2 id="kubelet的认证授权"><a href="#kubelet的认证授权" class="headerlink" title="kubelet的认证授权"></a>kubelet的认证授权</h2><p>查看kubelet进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ systemctl status kubelet</span><br><span class="line">● kubelet.service - kubelet: The Kubernetes Node Agent</span><br><span class="line">     Loaded: loaded (/usr/lib/systemd/system/kubelet.service; enabled; preset: disabled)</span><br><span class="line">    Drop-In: /usr/lib/systemd/system/kubelet.service.d</span><br><span class="line">             └─10-kubeadm.conf</span><br><span class="line">     Active: active (running) since Fri 2023-08-25 15:17:30 CST; 1 month 28 days ago</span><br><span class="line">       Docs: https://kubernetes.io/docs/</span><br><span class="line">   Main PID: 6229 (kubelet)</span><br><span class="line">      Tasks: 18 (<span class="built_in">limit</span>: 24810)</span><br><span class="line">     Memory: 57.4M</span><br><span class="line">        CPU: 2d 3h 57min 37.642s</span><br><span class="line">     CGroup: /system.slice/kubelet.service</span><br><span class="line">             └─6229 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --container-runtime-endpoint=unix:///var/ru&gt;</span><br></pre></td></tr></table></figure>
+
+<p>查看<code>/etc/kubernetes/kubelet.conf</code>，解析证书：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="built_in">cat</span> /etc/kubernetes/kubelet.conf</span><br><span class="line">$ <span class="built_in">echo</span> xxxxxx | <span class="built_in">base64</span> -d &gt; kubelet.crt</span><br><span class="line">$ openssl x509 -<span class="keyword">in</span> kubelet.crt -text</span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number: 560870041059564932 (0x7c89c54aa839d84)</span><br><span class="line">        Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: CN = kubernetes</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Aug 25 07:12:13 2023 GMT</span><br><span class="line">            Not After : Aug 22 07:17:13 2033 GMT</span><br><span class="line">        Subject: CN = kubernetes</span><br></pre></td></tr></table></figure>
+
+<h2 id="Service-Account及-K8S-Api-调用"><a href="#Service-Account及-K8S-Api-调用" class="headerlink" title="Service Account及 K8S Api 调用"></a>Service Account及 K8S Api 调用</h2><p>前面说，认证可以通过证书，也可以通过使用ServiceAccount（服务账户）的方式来做认证。大多数时候，我们在基于k8s做二次开发时都是选择通过ServiceAccount + RBAC 的方式。我们之前访问dashboard的时候，是如何做的？</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 新建一个名为admin的serviceaccount，并且把名为cluster-admin的这个集群角色的权限授予新建的</span></span><br><span class="line"><span class="comment">#serviceaccount</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">rbac.authorization.kubernetes.io/autoupdate:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line"><span class="attr">roleRef:</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">ClusterRole</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">cluster-admin</span></span><br><span class="line">  <span class="attr">apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></span><br><span class="line"><span class="attr">subjects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">kind:</span> <span class="string">ServiceAccount</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">admin</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">kubernetes-dashboard</span></span><br></pre></td></tr></table></figure>
+
+<p>我们查看一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kubernetes-dashboard get sa admin -o yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  creationTimestamp: <span class="string">&quot;2020-04-01T11:59:21Z&quot;</span></span><br><span class="line">  name: admin</span><br><span class="line">  namespace: kubernetes-dashboard</span><br><span class="line">  resourceVersion: <span class="string">&quot;1988878&quot;</span></span><br><span class="line">  selfLink: /api/v1/namespaces/kubernetes-dashboard/serviceaccounts/admin</span><br><span class="line">  uid: 639ecc3e-74d9-11ea-a59b-000c29dfd73f</span><br><span class="line">secrets:</span><br><span class="line">- name: admin-token-lfsrf</span><br></pre></td></tr></table></figure>
+
+<p>注意到serviceaccount上默认绑定了一个名为admin-token-lfsrf的secret，我们查看一下secret</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kubernetes-dashboard describe secret admin-token-lfsrf</span><br><span class="line">Name:         admin-token-lfsrf</span><br><span class="line">Namespace:    kubernetes-dashboard</span><br><span class="line">Labels:       &lt;none&gt;</span><br><span class="line">Annotations:  kubernetes.io/service-account.name: admin</span><br><span class="line">              kubernetes.io/service-account.uid: 639ecc3e-74d9-11ea-a59b-000c29dfd73f</span><br><span class="line"></span><br><span class="line">Type:  kubernetes.io/service-account-token</span><br><span class="line">Data</span><br><span class="line">====</span><br><span class="line">ca.crt:     1025 bytes</span><br><span class="line">namespace:  4 bytes</span><br><span class="line">token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImFkbWluLXRva2VuLWxmc3JmIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiNjM5ZWNjM2UtNzRkOS0xMWVhLWE1OWItMDAwYzI5ZGZkNzNmIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlbW86YWRtaW4ifQ.ffGCU4L5LxTsMx3NcNixpjT6nLBi-pmstb4I-W61nLOzNaMmYSEIwAaugKMzNR-2VwM14WbuG04dOeO67niJeP6n8-ALkl-vineoYCsUjrzJ09qpM3TNUPatHFqyjcqJ87h4VKZEqk2qCCmLxB6AGbEHpVFkoge40vHs56cIymFGZLe53JZkhu3pwYuS4jpXytV30Ad-HwmQDUu_Xqcifni6tDYPCfKz2CZlcOfwqHeGIHJjDGVBKqhEeo8PhStoofBU6Y4OjObP7HGuTY-Foo4QindNnpp0QU6vSb7kiOiQ4twpayybH8PTf73dtdFt46UF6mGjskWgevgolvmO8A</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/docker/k8s-auth-service-account.jpg" alt="k8s auth service account"></p>
+<p>只允许访问test命名空间的pod资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> test-admin-rbac.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: test-pods-admin</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">---</span><br><span class="line">kind: Role</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">  name: pods-reader-writer</span><br><span class="line">rules:</span><br><span class="line">- apiGroups: [<span class="string">&quot;&quot;</span>] <span class="comment"># &quot;&quot; indicates the core API group</span></span><br><span class="line">  resources: [<span class="string">&quot;pods&quot;</span>]</span><br><span class="line">  verbs: [<span class="string">&quot;*&quot;</span>]</span><br><span class="line">---</span><br><span class="line">kind: RoleBinding</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: pods-reader-writer</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount   <span class="comment">#这里可以是User,Group,ServiceAccount</span></span><br><span class="line">  name: test-pods-admin</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">roleRef:</span><br><span class="line">  kind: Role <span class="comment">#这里可以是Role或者ClusterRole,若是ClusterRole，则权限也仅限于rolebinding的内部</span></span><br><span class="line">  name: pods-reader-writer</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br></pre></td></tr></table></figure>
+
+<p>演示权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n <span class="built_in">test</span> describe secrets test-pods-admin-token-prr25</span><br><span class="line">...</span><br><span class="line">token:      eyJhbGciOiJSUzI1NiIsImtpZCI6InBtQUZfRl8ycC03TTBYaUUwTnJVZGpvQWU0cXZ5M2FFbjR2ZjkzZVcxOE0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJsdWZmeSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJsdWZmeS1hZG1pbi10b2tlbi1wcnIyNSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJsdWZmeS1hZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImFhZDA0MTU3LTliNzMtNDJhZC1hMGU4LWVmOTZlZDU3Yzg1ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1hZG1pbiJ9.YWckylE5wlKITKrVltXY4VPKvZP9ar5quIT5zq9N-0_FnDkLIBX7xOyFvZA5Wef0wSFSZe3e9FwrO1UbPsmK7cZn74bhH8cNdoH_YVbIVT3-6tIOlCA_Bc8YypGE1gl-ZvLOIPV7WnRQsWpWtZtqfKBSkwLAHgWoxcx_d1bOcyTOdPmsW224xcBxjYwi6iRUtjTJST0LzOcAOCPDZq6-lqYUwnxLO_afxwg71BGX4etE48Iny8TxSEIs1VJRahoabC7hVOs17ujEm5loTDSpfuhae51qSDg8xeYwRHdM42aLUmc-wOvBWauHa5EHbH9rWPAnpaGIwF8QvnLszqp4QQ</span><br><span class="line">...</span><br><span class="line">$ curl -k  -H <span class="string">&quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InBtQUZfRl8ycC03TTBYaUUwTnJVZGpvQWU0cXZ5M2FFbjR2ZjkzZVcxOE0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJsdWZmeSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJsdWZmeS1hZG1pbi10b2tlbi1wcnIyNSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJsdWZmeS1hZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImFhZDA0MTU3LTliNzMtNDJhZC1hMGU4LWVmOTZlZDU3Yzg1ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1hZG1pbiJ9.YWckylE5wlKITKrVltXY4VPKvZP9ar5quIT5zq9N-0_FnDkLIBX7xOyFvZA5Wef0wSFSZe3e9FwrO1UbPsmK7cZn74bhH8cNdoH_YVbIVT3-6tIOlCA_Bc8YypGE1gl-ZvLOIPV7WnRQsWpWtZtqfKBSkwLAHgWoxcx_d1bOcyTOdPmsW224xcBxjYwi6iRUtjTJST0LzOcAOCPDZq6-lqYUwnxLO_afxwg71BGX4etE48Iny8TxSEIs1VJRahoabC7hVOs17ujEm5loTDSpfuhae51qSDg8xeYwRHdM42aLUmc-wOvBWauHa5EHbH9rWPAnpaGIwF8QvnLszqp4QQ&quot;</span> https://10.209.0.13:6443/api/v1/namespaces/test/pods?<span class="built_in">limit</span>=500</span><br><span class="line"></span><br><span class="line"><span class="comment"># https://10.209.0.13:6443/api/v1/nodes</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="认证、鉴权图鉴"><a href="#认证、鉴权图鉴" class="headerlink" title="认证、鉴权图鉴"></a>认证、鉴权图鉴</h2><p><img src="/post/docker/k8s-auth-auth.jpg" alt="k8s auth auth"></p>
+<h2 id="创建用户认证授权的-kubeconfig-文件"><a href="#创建用户认证授权的-kubeconfig-文件" class="headerlink" title="创建用户认证授权的 kubeconfig 文件"></a>创建用户认证授权的 kubeconfig 文件</h2><p>签发证书对：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成私钥</span></span><br><span class="line">$ openssl genrsa -out test.key 2048</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成证书请求文件</span></span><br><span class="line">$ openssl req -new -key test.key -out test.csr -subj <span class="string">&quot;/O=admin:test/CN=test-admin&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 证书拓展属性</span></span><br><span class="line">$ <span class="built_in">cat</span> extfile.conf</span><br><span class="line">[ v3_ca ]</span><br><span class="line">keyUsage = critical, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = clientAuth</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成test.crt证书</span></span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> test.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -sha256 -out test.crt -extensions v3_ca -extfile extfile.conf -days 3650</span><br></pre></td></tr></table></figure>
+
+<p>配置kubeconfig文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建kubeconfig文件，指定集群名称和地址</span></span><br><span class="line">$ kubectl config set-cluster test-cluster --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=<span class="literal">true</span> --server=https://10.209.0.13:6443 --kubeconfig=test.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为kubeconfig文件添加认证信息</span></span><br><span class="line">$ kubectl config set-credentials test-admin --client-certificate=test.crt --client-key=test.key --embed-certs=<span class="literal">true</span> --kubeconfig=test.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为kubeconfig添加上下文配置</span></span><br><span class="line">$ kubectl config set-context test-context --cluster=test-cluster --user=test-admin --kubeconfig=test.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置默认的上下文</span></span><br><span class="line">$ kubectl config use-context test-context --kubeconfig=test.kubeconfig</span><br></pre></td></tr></table></figure>
+
+<p>验证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置当前kubectl使用的config文件</span></span><br><span class="line">$ <span class="built_in">export</span> KUBECONFIG=test.kubeconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当前不具有任何权限，因为没有为用户或者组设置RBAC规则</span></span><br><span class="line">$ kubectl get po</span><br><span class="line">Error from server (Forbidden): pods is forbidden: User <span class="string">&quot;test-admin&quot;</span> cannot list resource <span class="string">&quot;pods&quot;</span> <span class="keyword">in</span> API group <span class="string">&quot;&quot;</span> <span class="keyword">in</span> the namespace <span class="string">&quot;default&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>为test-admin用户添加test命名空间访问权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义role，具有test命名空间的所有权限</span></span><br><span class="line">$ <span class="built_in">cat</span> test-admin-role.yaml</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: Role</span><br><span class="line">metadata:</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">  name: test-admin</span><br><span class="line">rules:</span><br><span class="line">- apiGroups: [<span class="string">&quot;*&quot;</span>] <span class="comment"># &quot;&quot; 指定核心 API 组</span></span><br><span class="line">  resources: [<span class="string">&quot;*&quot;</span>]</span><br><span class="line">  verbs: [<span class="string">&quot;*&quot;</span>]</span><br><span class="line">  </span><br><span class="line"><span class="comment">#定义rolebinding，为test用户绑定test-admin这个role，这样test用户就有操作test命名空间的所有权限</span></span><br><span class="line">$ <span class="built_in">cat</span> test-admin-rolebinding.yaml</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: RoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: test-admin</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">subjects:</span><br><span class="line">- kind: User</span><br><span class="line">  name: test-admin <span class="comment"># Name is case sensitive</span></span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">roleRef:</span><br><span class="line">  kind: Role <span class="comment">#this must be Role or ClusterRole</span></span><br><span class="line">  name: test-admin <span class="comment"># 这里的名称必须与你想要绑定的 Role 或 ClusterRole 名称一致</span></span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-auth/">k8s 认证和授权</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-10-19, 01:33:32</p>
+        <p><span>最后更新:</span>2023-10-23, 21:56:10</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-auth/" title="k8s 认证和授权">http://realtiger.github.io/k8s-auth/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-auth/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/rabbitmq-for-python/">
+                    rabbitmq for python
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#APIServer%E5%AE%89%E5%85%A8%E6%8E%A7%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">APIServer安全控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Authentication%EF%BC%9A%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81"><span class="toc-number">1.1.</span> <span class="toc-text">Authentication：身份认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Authorization%EF%BC%9A%E9%89%B4%E6%9D%83%EF%BC%8C%E4%BD%A0%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E5%93%AA%E4%BA%9B%E8%B5%84%E6%BA%90"><span class="toc-number">1.2.</span> <span class="toc-text">Authorization：鉴权，你可以访问哪些资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Admission-Control%EF%BC%9A%E5%87%86%E5%85%A5%E6%8E%A7%E5%88%B6%EF%BC%8C%E4%B8%80%E4%B8%AA%E6%8E%A7%E5%88%B6%E9%93%BE-%E5%B1%82%E5%B1%82%E5%85%B3%E5%8D%A1-%EF%BC%8C%E7%94%A8%E4%BA%8E%E6%8B%A6%E6%88%AA%E8%AF%B7%E6%B1%82%E7%9A%84%E4%B8%80%E7%A7%8D%E6%96%B9%E5%BC%8F%E3%80%82%E5%81%8F%E9%9B%86%E7%BE%A4%E5%AE%89%E5%85%A8%E6%8E%A7%E5%88%B6%E3%80%81%E7%AE%A1%E7%90%86%E6%96%B9%E9%9D%A2%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">Admission Control：准入控制，一个控制链(层层关卡)，用于拦截请求的一种方式。偏集群安全控制、管理方面。</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%EF%BC%9F"><span class="toc-number">1.3.1.</span> <span class="toc-text">为什么需要？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BE%E4%B8%AA%E6%A0%97%E5%AD%90"><span class="toc-number">1.3.2.</span> <span class="toc-text">举个栗子</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#LimitRanger"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">LimitRanger</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#NodeRestriction"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">NodeRestriction</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kubectl%E7%9A%84%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83"><span class="toc-number">2.</span> <span class="toc-text">kubectl的认证授权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RBAC"><span class="toc-number">3.</span> <span class="toc-text">RBAC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Role%EF%BC%8C%E8%A7%92%E8%89%B2"><span class="toc-number">3.1.</span> <span class="toc-text">Role，角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClusterRole"><span class="toc-number">3.2.</span> <span class="toc-text">ClusterRole</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rolebinding"><span class="toc-number">3.3.</span> <span class="toc-text">Rolebinding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClusterRolebingding"><span class="toc-number">3.4.</span> <span class="toc-text">ClusterRolebingding</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kubelet%E7%9A%84%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">kubelet的认证授权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Service-Account%E5%8F%8A-K8S-Api-%E8%B0%83%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">Service Account及 K8S Api 调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E3%80%81%E9%89%B4%E6%9D%83%E5%9B%BE%E9%89%B4"><span class="toc-number">6.</span> <span class="toc-text">认证、鉴权图鉴</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E6%8E%88%E6%9D%83%E7%9A%84-kubeconfig-%E6%96%87%E4%BB%B6"><span class="toc-number">7.</span> <span class="toc-text">创建用户认证授权的 kubeconfig 文件</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s 认证和授权　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/rabbitmq-for-python/" title="下一篇: rabbitmq for python">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
