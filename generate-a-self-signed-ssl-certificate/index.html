@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="平常我们在开发的时候，经常需要使用到SSL证书，比如说使用https协议，或者使用双向认证等，这时候我们就需要生成SSL证书，这里介绍一下如何生成自签名的SSL证书。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="生成自签名SSL证书">
+<meta property="og:url" content="http://realtiger.github.io/generate-a-self-signed-ssl-certificate/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="平常我们在开发的时候，经常需要使用到SSL证书，比如说使用https协议，或者使用双向认证等，这时候我们就需要生成SSL证书，这里介绍一下如何生成自签名的SSL证书。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/ssl-cover.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/single-authentication.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/double-authentication.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid_go_on.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid_page.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid_warning.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid_cert.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/err_cert_authority_invalid_cert_struct.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_manage.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_select.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_load.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_list.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_operation.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_chrome_ca_info.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_common_name_invalid.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_success.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_valid.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_cert_info.png">
+<meta property="og:image" content="http://realtiger.github.io/post/ssl/cert_with_ca_cert_struct.png">
+<meta property="article:published_time" content="2023-10-24T07:02:21.000Z">
+<meta property="article:modified_time" content="2023-10-31T07:06:46.478Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="ssl">
+<meta property="article:tag" content="certificate">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/ssl/ssl-cover.jpg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>生成自签名SSL证书 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-generate-a-self-signed-ssl-certificate" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/generate-a-self-signed-ssl-certificate/" class="article-date">
+      <time datetime="2023-10-24T07:02:21.000Z" itemprop="datePublished">2023-10-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      生成自签名SSL证书
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">9.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">37分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <img src="/post/ssl/ssl-cover.jpg" height="700px" alt="cover">
+
+<p>平常我们在开发的时候，经常需要使用到SSL证书，比如说使用https协议，或者使用双向认证等，这时候我们就需要生成SSL证书，这里介绍一下如何生成自签名的SSL证书。</p>
+<span id="more"></span>
+
+<h1 id="证书的基本概念"><a href="#证书的基本概念" class="headerlink" title="证书的基本概念"></a>证书的基本概念</h1><h2 id="证书的基本格式"><a href="#证书的基本格式" class="headerlink" title="证书的基本格式"></a>证书的基本格式</h2><ul>
+<li>x509: 证书的格式，它是一种标准，定义了证书的格式</li>
+<li>pem和der: 两种编码格式，pem是base64编码，der是二进制编码</li>
+<li>crt和cer: 两种后缀名，crt一般是pem编码，cer一般是der编码</li>
+<li>csr: 证书签名请求，这个并不是证书，而是向证书颁发机构申请证书的文件，包含了申请者的信息和公钥</li>
+<li>key: 常见的私钥的后缀名</li>
+</ul>
+<h2 id="数字证书和公钥的关系"><a href="#数字证书和公钥的关系" class="headerlink" title="数字证书和公钥的关系"></a>数字证书和公钥的关系</h2><p>数字证书是由证书颁发机构（CA）签发的，证书颁发机构（CA）是一个可信任的第三方机构，它会对证书申请者的身份进行验证，然后签发证书。</p>
+<p>证书颁发机构（CA）会对证书申请者的身份进行验证，然后签发证书，证书中包含了申请者的公钥，证书颁发机构（CA）会对申请者的公钥进行签名，这样就形成了数字证书。</p>
+<p>当客户端需要验证服务端的身份时，客户端会向服务端请求证书，服务端会将证书发送给客户端，客户端会验证证书的合法性，验证的过程是这样的：</p>
+<ol>
+<li>客户端会从证书中获取证书颁发机构（CA）的公钥</li>
+<li>客户端会使用证书颁发机构（CA）的公钥对证书中的签名进行验证，如果验证通过，则证明证书是合法的</li>
+<li>客户端会从证书中获取服务端的公钥</li>
+<li>客户端会使用服务端的公钥对数据进行加密，然后发送给服务端</li>
+<li>服务端会使用自己的私钥对数据进行解密，然后进行处理</li>
+<li>服务端会使用客户端的公钥对数据进行加密，然后发送给客户端</li>
+<li>客户端会使用自己的私钥对数据进行解密，然后进行处理</li>
+<li>服务端和客户端就可以进行通信了</li>
+<li>服务端和客户端会使用对称加密算法对数据进行加密，然后进行通信</li>
+</ol>
+<h3 id="x509证书"><a href="#x509证书" class="headerlink" title="x509证书"></a>x509证书</h3><p>x.509 是一种证书格式，它是一种标准，定义了证书的格式。它其实是作为x.500标准的一部分而出现的，x.500标准定义了唯一标识一个实体的信息，该实体可以是机构、组织、个人或一台服务器。而x.509则把该实体与公钥绑定在一起，从而提供了通信实体的鉴别机制，也就是目前最流行的x.509数字证书。</p>
+<p>通常说的证书，就是指x.509数字证书，它是一种非常通用的证书格式，几乎所有的证书都是基于x.509的，如果不特别说明，都是指x.509 v3版本的证书。</p>
+<h1 id="https"><a href="#https" class="headerlink" title="https"></a>https</h1><h2 id="http"><a href="#http" class="headerlink" title="http"></a>http</h2><p>HyperText Transfer Protocol，超文本传输协议，是一个基于请求与响应模式的、无状态的、应用层的协议，常基于TCP的连接方式。HTTP传输的是明文，未加密的数据，因此不安全。</p>
+<p>TCP端口默认为80</p>
+<h2 id="https-1"><a href="#https-1" class="headerlink" title="https"></a>https</h2><p>HTTPS（全称：Hyper Text Transfer Protocol over Secure Socket Layer），是以安全为目标的HTTP通道，简单讲是HTTP的安全版。HTTPS的安全基础是SSL，因此加密的详细内容就需要SSL。HTTPS传输的数据是加密的，保证会话过程的安全性。</p>
+<p>TCP端口默认为443</p>
+<h2 id="SSL"><a href="#SSL" class="headerlink" title="SSL"></a>SSL</h2><p>SSL（Secure Sockets Layer），安全套接层，位于可靠的面向连接的网络层协议和应用层协议之间，为数据通讯提供安全支持。SSL协议可分为两层：SSL记录协议（SSL Record Protocol）和SSL握手协议（SSL Handshake Protocol）。</p>
+<p>SSL协议既用到了对称加密也用到了非对称加密(公钥加密)，在建立传输链路时，SSL首先对对称加密的密钥使用公钥进行非对称加密，链路建立好之后，SSL对传输内容使用对称加密。</p>
+<ul>
+<li>对称加密：速度高，可加密内容较大，用来加密会话过程中的消息</li>
+<li>公钥加密：加密速度较慢，但能提供更好的身份认证技术，用来加密对称加密的密钥</li>
+</ul>
+<h1 id="对称加密和非对称加密"><a href="#对称加密和非对称加密" class="headerlink" title="对称加密和非对称加密"></a>对称加密和非对称加密</h1><p>对称加密就是加密和解密使用的是同一个密钥，非对称加密就是加密和解密使用的是不同的密钥。</p>
+<h2 id="对称加密和非对称加密的优缺点"><a href="#对称加密和非对称加密的优缺点" class="headerlink" title="对称加密和非对称加密的优缺点"></a>对称加密和非对称加密的优缺点</h2><p>对称加密的优点是加密和解密速度快，缺点是密钥的传输比较麻烦，因为密钥的传输也需要加密，如果密钥也被泄露了，那么加密就没有意义了。</p>
+<p>非对称加密的优点是密钥的传输比较方便，因为加密和解密使用的是不同的密钥，缺点是加密和解密速度比较慢。</p>
+<h2 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h2><p>非对称加密的密钥分为公钥和私钥，公钥可以公开，私钥不能公开，公钥加密的数据只能使用私钥解密，私钥加密的数据只能使用公钥解密。</p>
+<p>因为公钥是公开的，因此私钥加密的数据就都会被知道了。所以一般情况下，私钥加密的数据被用来作身份验证使用，比如说数字签名。</p>
+<p>非对称加密已然存在安全隐患，比如此时也有一个中间人，他也生成了自己的公钥和私钥，并且先一步与客户端和服务器端建立了连接，获取了服务器端的公钥又把自己的公钥发送给了客户端，那么此时中间人已经可以获取甚至篡改客户端和服务器端的所有通信数据了。</p>
+<p>为了解决这个问题，就出现了另外一个办法，需要一个权威的第三方平台，这个平台叫做证书颁发机构（Certificate Authority，CA），这个方法有个前提，就是客户端需要知道CA的公钥。 CA会对申请者的身份进行验证，然后签发证书，证书中包含了申请者的公钥，证书颁发机构（CA）会对申请者的公钥进行签名，这样就形成了数字证书。</p>
+<p>CA工作流程如下：</p>
+<ol>
+<li>CA用自己的私钥对证书中的信息进行签名，生成自签名证书</li>
+<li>服务端给CA发送请求，CA用自己的私钥和证书，对服务端的私钥进行签名，生成证书，证书中包含了服务端的公钥信息</li>
+<li>服务端把自己的证书发送给客户端，客户端使用CA的公钥对证书中的签名进行验证，如果验证通过，则证明证书是合法的</li>
+<li>最后客户端就可以使用这个证书和服务端进行通信了</li>
+</ol>
+<h1 id="认证过程"><a href="#认证过程" class="headerlink" title="认证过程"></a>认证过程</h1><p>认证方式分为两种，一种是单向认证，一种是双向认证。具体使用哪种认证方式，是由服务端决定的。</p>
+<h2 id="单向认证"><a href="#单向认证" class="headerlink" title="单向认证"></a>单向认证</h2><p>单向认证就是服务端向客户端证明自己的身份，客户端不需要证明自己的身份。</p>
+<p><img src="/post/ssl/single-authentication.webp" alt="single-authentication"></p>
+<p>认证过程如下：</p>
+<ol>
+<li>客户端向服务端发送SSL协议版本号、加密算法种类、随机数等信息。</li>
+<li>服务端给客户端返回SSL协议版本号、加密算法种类、随机数等信息，同时也返回服务器端的证书，即公钥证书</li>
+<li>客户端使用服务端返回的信息验证服务器的合法性，包括：<ul>
+<li>证书是否过期</li>
+<li>发行服务器证书的CA是否可靠</li>
+<li>返回的公钥是否能正确解开返回证书中的数字签名</li>
+<li>服务器证书上的域名是否和服务器的实际域名相匹配</li>
+<li>验证通过后，将继续进行通信，否则，终止通信</li>
+</ul>
+</li>
+<li>客户端向服务端发送自己所能支持的对称加密方案，供服务器端进行选择</li>
+<li>服务器端在客户端提供的加密方案中选择加密程度最高的加密方式</li>
+<li>服务器将选择好的加密方案通过明文方式返回给客户端</li>
+<li>客户端接收到服务端返回的加密方式后，使用该加密方式生成产生随机码，用作通信过程中对称加密的密钥，使用服务端返回的公钥进行加密，将加密后的随机码发送至服务器</li>
+<li>服务器收到客户端返回的加密信息后，使用自己的私钥进行解密，获取对称加密密钥。 在接下来的会话中，服务器和客户端将会使用该密码进行对称加密，保证通信过程中信息的安全</li>
+</ol>
+<h2 id="双向认证"><a href="#双向认证" class="headerlink" title="双向认证"></a>双向认证</h2><p>双向认证就是服务端向客户端证明自己的身份，客户端也需要证明自己的身份。</p>
+<p><img src="/post/ssl/double-authentication.webp" alt="double-authentication"></p>
+<p>双向认证和单向认证原理基本差不多，只是除了客户端需要认证服务端以外，增加了服务端对客户端的认证，具体过程如下：</p>
+<ol>
+<li>客户端向服务端发送SSL协议版本号、加密算法种类、随机数等信息。</li>
+<li>服务端给客户端返回SSL协议版本号、加密算法种类、随机数等信息，同时也返回服务器端的证书，即公钥证书</li>
+<li>客户端使用服务端返回的信息验证服务器的合法性，包括：<ul>
+<li>证书是否过期</li>
+<li>发行服务器证书的CA是否可靠</li>
+<li>返回的公钥是否能正确解开返回证书中的数字签名</li>
+<li>服务器证书上的域名是否和服务器的实际域名相匹配</li>
+<li>验证通过后，将继续进行通信，否则，终止通信</li>
+</ul>
+</li>
+<li>服务端要求客户端发送客户端的证书，客户端会将自己的证书发送至服务端</li>
+<li>验证客户端的证书，通过验证后，会获得客户端的公钥</li>
+<li>客户端向服务端发送自己所能支持的对称加密方案，供服务器端进行选择</li>
+<li>服务器端在客户端提供的加密方案中选择加密程度最高的加密方式</li>
+<li>将加密方案通过使用之前获取到的公钥进行加密，返回给客户端</li>
+<li>客户端收到服务端返回的加密方案密文后，使用自己的私钥进行解密，获取具体加密方式，而后，产生该加密方式的随机码，用作加密过程中的密钥，使用之前从服务端证书中获取到的公钥进行加密后，发送给服务端</li>
+<li>服务端收到客户端发送的消息后，使用自己的私钥进行解密，获取对称加密的密钥，在接下来的会话中，服务器和客户端将会使用该密码进行对称加密，保证通信过程中信息的安全。</li>
+</ol>
+<h1 id="生成自签名SSL证书"><a href="#生成自签名SSL证书" class="headerlink" title="生成自签名SSL证书"></a>生成自签名SSL证书</h1><p>我们平常使用的SSL证书，一般都是通过证书颁发机构（CA）签发的。这些证书都是内装在操作系统或者浏览器中，CA机构要么会向操作系统或者浏览器厂商支付一定的费用，要么足够强大到物理消灭项目，因此这些证书都是内装的。</p>
+<p>既然机构能够将根证书内装了，那么他们就可以自己售卖签发的证书了，这些证书就会进行高昂的收费。如果我们安全性并没有那么高，我们可以自己生成自签名证书，这样就可以免费使用了。</p>
+<h2 id="生成证书过程"><a href="#生成证书过程" class="headerlink" title="生成证书过程"></a>生成证书过程</h2><p>生成证书的过程如下：</p>
+<ol>
+<li>生成私钥(.key)</li>
+<li>生成证书签名请求(.csr)</li>
+<li>将证书请求文件(.csr)提交给证书颁发机构（CA），CA会对提交的证书请求中的所有信息生成一个摘要，然后使用CA根证书对应的私钥对摘要进行加密，生成签名，然后将签名和证书请求文件(.csr)一起打包，生成证书(.crt或.cer)</li>
+<li>用户拿到签发后的证书，可能需要导入到自己的密钥库中，或根据需要再进行各种格式的转换（.pem、.pfx、.p12等）</li>
+</ol>
+<p>生成自签名SSL证书有两个工具可以使用，一个是<code>openssl</code>，另一个是<code>cfssl</code></p>
+<h2 id="openssl"><a href="#openssl" class="headerlink" title="openssl"></a>openssl</h2><h3 id="根证书私钥"><a href="#根证书私钥" class="headerlink" title="根证书私钥"></a>根证书私钥</h3><p>根证书就是自己的CA证书，它是自签名的，因此需要自己生成私钥，然后用私钥生成自签名证书。</p>
+<p>如果只是一个网站，那么直接生成一个证书就可以了，因为网站不验证用户的身份。但是，如果是一个需要双向认证的系统，比如物联网设备等，每个连接都单独生成证书的话就太多了，这时候通过CA生成证书就比较方便了。</p>
+<p>这里我们模仿的是需要认证机构的场景，因此需要生成CA证书。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成私钥</span></span><br><span class="line"><span class="comment"># genrsa: 生成RSA私有密钥，不会生成公钥，因为公钥是由私钥生成的。生成时可以指定私钥的长度，一般为1024位或2048位。如果需要查看公钥或者生成公钥，可以使用 openssl ras</span></span><br><span class="line"><span class="comment"># -out: 指定生成的私钥文件的路径</span></span><br><span class="line"><span class="comment"># -des|-des3|-idea: 指定私钥的加密算法，如果不指定，则不会对私钥进行加密。如果指定，则每次使用私钥时都需要输入密码，太麻烦所以一般不指定</span></span><br><span class="line"><span class="comment"># -passout: 指定私钥的密码，如果不指定，则提示输入密码。</span></span><br><span class="line"><span class="comment"># numbits: 指定私钥的长度，默认为1024，这里指定的是8192，一般4096就已经无法被太阳系总算力在几千年内破解了。这个参数必须为命令行参数的最后一个参数</span></span><br><span class="line">$ openssl genrsa -out ca-key.pem 8192</span><br><span class="line">Generating RSA private key, 8192 bit long modulus (2 primes)</span><br><span class="line">......................................+++</span><br><span class="line">..................................................+++</span><br><span class="line">e is 65537 (0x010001)</span><br></pre></td></tr></table></figure>
+
+<p>此时直接查看私钥内容，会发现一段ASCII码，具体的私钥内容需要使用以下命令查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl rsa -<span class="keyword">in</span> ca-key.pem -noout -text</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成根证书签发申请文件CSR"><a href="#生成根证书签发申请文件CSR" class="headerlink" title="生成根证书签发申请文件CSR"></a>生成根证书签发申请文件CSR</h3><p>在正式的证书申请时，需要向证书颁发机构（CA）提交证书签发申请文件CSR，这个文件中包含了申请者的信息和公钥。</p>
+<p>这里这个申请文件是用来生成自签名证书的，用来最后生成的证书作为整体认证使用。根证书信息可以不填，但是如果是为了演示的正常，可以填写一些信息。</p>
+<p>生成证书签发申请文件CSR的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># req: 生成证书签发申请文件CSR</span></span><br><span class="line"><span class="comment"># -new: 生成新的证书签发申请文件CSR</span></span><br><span class="line"><span class="comment"># -key: 指定私钥文件</span></span><br><span class="line"><span class="comment"># -out: 指定生成的证书签发申请文件CSR的路径</span></span><br><span class="line"><span class="comment"># -subj: 指定证书签发申请文件CSR中的信息，这里指定了国家、省份、城市、公司、部门、邮箱、域名等信息，如果不指定，则需要手动输入</span></span><br><span class="line"><span class="comment"># $ openssl req -new -key ca-key.pem -out ca.csr -subj &quot;/C=CN/ST=beijing/L=beijing/O=test-on/OU=test-ou/CN=test-fqdn/emailAddress=test@example.com&quot;</span></span><br><span class="line">$ openssl req -new -key ca-key.pem -out ca.csr</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter <span class="string">&#x27;.&#x27;</span>, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:beijing</span><br><span class="line">Locality Name (eg, city) []:beijing</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:test-on</span><br><span class="line">Organizational Unit Name (eg, section) []:test-ou</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:test-fqdn</span><br><span class="line">Email Address []:<span class="built_in">test</span>@example.com</span><br><span class="line"></span><br><span class="line">Please enter the following <span class="string">&#x27;extra&#x27;</span> attributes</span><br><span class="line">to be sent with your certificate request</span><br><span class="line">A challenge password []:</span><br><span class="line">An optional company name []:</span><br></pre></td></tr></table></figure>
+
+<p>如果报错 <code>Can&#39;t load /home/aaron/.rnd into RNG</code>，则需要执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home/aaron</span><br><span class="line">openssl rand -writerand .rnd</span><br></pre></td></tr></table></figure>
+
+<p>如果想查看证书签发申请文件CSR的内容，可以使用以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ openssl req -<span class="keyword">in</span> ca.csr -noout -text</span><br><span class="line">Certificate Request:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 1 (0x0)</span><br><span class="line">        Subject: C = CN, ST = beijing, L = beijing, O = test-on, OU = test-ou, CN = test-fqdn, emailAddress = <span class="built_in">test</span>@example.com</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">            Public Key Algorithm: rsaEncryption</span><br><span class="line">                RSA Public-Key: (8192 bit)</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成自签名证书-CER"><a href="#生成自签名证书-CER" class="headerlink" title="生成自签名证书 CER"></a>生成自签名证书 CER</h3><p>根证书的私钥、签发请求文件都有了，现在可以自己给自己办法一个证书了。这个生成的证书就是公钥，包含了证书持有组织的信息以及公钥、公钥的哈希校验。后面使用该根证书签发的证书都可以递归到该根证书，证明可信，从而实现信任链。</p>
+<p>根证书需要存储到所有设备中，而且必须是通过”可信的“方式。因为其他证书能靠它来验证，但是它自己没办法验证自己。</p>
+<p>生成自签名证书的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># x509: 生成x509证书</span></span><br><span class="line"><span class="comment"># -req: 指定证书签发申请文件CER</span></span><br><span class="line"><span class="comment"># -in: 指定证书签发申请文件CSR</span></span><br><span class="line"><span class="comment"># -signkey: 指定私钥文件</span></span><br><span class="line"><span class="comment"># -out: 指定生成的证书文件CER的路径</span></span><br><span class="line"><span class="comment"># -days: 指定证书的有效期，单位为天，默认为30天</span></span><br><span class="line"><span class="comment"># -sha256: 指定签名算法为sha256，默认为sha1，sha1已经找到暴力撞值的方法，因此不安全了</span></span><br><span class="line">$ openssl x509 -req -days 3650 -sha256 -signkey ca-key.pem -<span class="keyword">in</span> ca.csr -out ca.cer</span><br><span class="line">Signature ok</span><br><span class="line">subject=C = CN, ST = beijing, L = beijing, O = test-on, OU = test-ou, CN = test-fqdn, emailAddress = <span class="built_in">test</span>@example.com</span><br><span class="line">Getting Private key</span><br></pre></td></tr></table></figure>
+
+<p>此时直接查看证书内容，也会发现是一段ASCII码，具体的证书内容使用以下命令查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -<span class="keyword">in</span> ca.cer -noout -text</span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 1 (0x0)</span><br><span class="line">        Serial Number:</span><br><span class="line">            67:6b:09:ad:8e:e9:05:60:9d:d3:f5:c5:2a:27:20:14:b0:59:14:a3</span><br><span class="line">        Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: C = CN, ST = beijing, L = beijing, O = test-on, OU = test-ou, CN = test-fqdn, emailAddress = <span class="built_in">test</span>@example.com</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Oct 24 15:24:37 2023 GMT</span><br><span class="line">            Not After : Oct 21 15:24:37 2033 GMT</span><br><span class="line">        Subject: C = CN, ST = beijing, L = beijing, O = test-on, OU = test-ou, CN = test-fqdn, emailAddress = <span class="built_in">test</span>@example.com</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+
+<h3 id="一步生成自签名证书"><a href="#一步生成自签名证书" class="headerlink" title="一步生成自签名证书"></a>一步生成自签名证书</h3><p>上面的方法使用了三步，生成私钥、生成证书签发申请文件、生成自签名证书。其实可以一步生成私钥以及自签名证书，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># req: 生成证书文件</span></span><br><span class="line"><span class="comment"># -newkey: 生成新的私钥的命令，指定算法以及密钥长度，这里指定了rsa算法，长度为2048位</span></span><br><span class="line"><span class="comment"># -nodes: 表示私钥不加密，如果不带参数，则表示私钥加密，会提示输入密码</span></span><br><span class="line"><span class="comment"># -keyout: 指定生成的私钥文件的路径</span></span><br><span class="line"><span class="comment"># -x509: 指定生成的是x509证书，而不是证书签发申请文件</span></span><br><span class="line"><span class="comment"># -days: 指定证书的有效期，单位为天，默认为30天</span></span><br><span class="line"><span class="comment"># -out: 指定生成的证书文件的路径</span></span><br><span class="line"><span class="comment"># -subj: 指定证书中的信息，这里指定了国家、省份、城市、公司、部门、邮箱、域名等信息，如果不指定，则需要手动输入</span></span><br><span class="line">$ openssl req -newkey rsa:2048 -nodes -keyout ca-key.pem -x509 -days 3650 -out ca.cer -subj <span class="string">&quot;/C=CN/ST=beijing/L=beijing/O=test-on/OU=test-ou/CN=test-fqdn/emailAddress=test@example.com&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这一段只是一个扩展知识，因为命令太长了，我个人见用的人还是比较少的。</p>
+<h3 id="生成网站用私钥PEM"><a href="#生成网站用私钥PEM" class="headerlink" title="生成网站用私钥PEM"></a>生成网站用私钥PEM</h3><p>我们现在已经有了根证书，作为CA的存在。现在我们拿CA来给网站签发证书。这样网站就可以用CA来验证证书的合法性，进行https通信了。</p>
+<p>每个网站都有自己的子证书，证书可以层层嵌套，即使是子证书也可以再签发孙子证书，这样就形成了证书链。这里我们只需要二级就行了。</p>
+<p>实际中，越靠近权威根证书，则证书越可信，如果花钱买的话，也就越贵。</p>
+<p>生成业务用私钥PEM的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out server.key 2048</span><br><span class="line">Generating RSA private key, 2048 bit long modulus (2 primes)</span><br><span class="line">...........................................................+++++</span><br><span class="line">..................................................................+++++</span><br><span class="line">e is 65537 (0x010001)</span><br></pre></td></tr></table></figure>
+
+<p>一般来说，子证书的存续时间与加密强度都不如根证书。</p>
+<p>子证书事需要颁发出去的。根证书的私钥只有签发机构有，但是子证书的私钥需要给各个业务使用，因此需要将子证书的私钥导出来。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rsa: 生成RSA私钥。如果上一步使用的其他算法生成的私钥，这里需要执行。否则执行前后没有变化</span></span><br><span class="line">$ openssl rsa -<span class="keyword">in</span> server.key -out server.key</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成网站用证书签发申请文件CSR"><a href="#生成网站用证书签发申请文件CSR" class="headerlink" title="生成网站用证书签发申请文件CSR"></a>生成网站用证书签发申请文件CSR</h3><p>注意，由于这里测试的是给网站使用的，证书的请求文件中的CN必须是域名，否则浏览器会报错。这里我们假定测试的域名为<code>cert.galaxy.com</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ openssl req -new -key server.key -out server.csr</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter <span class="string">&#x27;.&#x27;</span>, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:BEIJING</span><br><span class="line">Locality Name (eg, city) []:BEIJING</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:server-on</span><br><span class="line">Organizational Unit Name (eg, section) []:server-ou</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:cert.galaxy.com</span><br><span class="line">Email Address []:cert@galaxy.com</span><br><span class="line"></span><br><span class="line">Please enter the following <span class="string">&#x27;extra&#x27;</span> attributes</span><br><span class="line">to be sent with your certificate request</span><br><span class="line">A challenge password []:</span><br><span class="line">An optional company name []:</span><br></pre></td></tr></table></figure>
+
+<h3 id="准备配置文件"><a href="#准备配置文件" class="headerlink" title="准备配置文件"></a>准备配置文件</h3><p>有时候，网站即使 <code>Common Name</code> 和域名是一样的，但是浏览器还是会报错 <code>NET::ERR_CERT_COMMON_NAME_INVALID</code>，这是因为证书中没有正确的嵌入域名信息，这时候就需要在配置文件中指定域名了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成配置文件，指定域名。</span></span><br><span class="line">$ <span class="built_in">cat</span> server.dns.ext</span><br><span class="line">keyUsage = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = serverAuth, clientAuth</span><br><span class="line">subjectAltName=@SubjectAlternativeName</span><br><span class="line"></span><br><span class="line">[ SubjectAlternativeName ]</span><br><span class="line">DNS.1=galaxy.com</span><br><span class="line">DNS.2=cert.galaxy.com</span><br></pre></td></tr></table></figure>
+
+<p>配置文件格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">keyUsage = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = serverAuth, clientAuth</span><br><span class="line">subjectAltName=@SubjectAlternativeName</span><br><span class="line"> </span><br><span class="line">[SubjectAlternativeName]</span><br><span class="line">DNS.1=your.domain.name</span><br><span class="line">DNS.2=此处填写你的网站的域名.cn</span><br><span class="line">DNS.3=如果有多个域名就这么增加.com</span><br><span class="line">DNS.4=*.当然支持泛解析域名.net</span><br></pre></td></tr></table></figure>
+
+<p>如果没有域名，而是有固定IP，可以使用以下格式文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">keyUsage = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line">extendedKeyUsage = serverAuth, clientAuth</span><br><span class="line">subjectAltName=@SubjectAlternativeName</span><br><span class="line"> </span><br><span class="line">[SubjectAlternativeName]</span><br><span class="line">IP.1=192.168.100.1</span><br><span class="line">IP.2=222.90.100.1</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成网站用证书-CER"><a href="#生成网站用证书-CER" class="headerlink" title="生成网站用证书 CER"></a>生成网站用证书 CER</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># x509: 生成x509证书</span></span><br><span class="line"><span class="comment"># -req: 指定证书签发申请文件CER</span></span><br><span class="line"><span class="comment"># -days: 指定证书的有效期，单位为天，默认为30天</span></span><br><span class="line"><span class="comment"># -CA: 指定CA证书</span></span><br><span class="line"><span class="comment"># -CAkey: 指定CA证书的私钥</span></span><br><span class="line"><span class="comment"># -CAcreateserial: 指定生成序列号文件。当签署证书时，CA需要为每个证书生成一个唯一的序列号，因此颁发者需要跟踪它以前使用过哪些序列号。这个选项会将一个随机数分配给签名证书，然后创建此序列号文件。</span></span><br><span class="line"><span class="comment"># -CAserial: 指定CA证书的序列号文件。将每个证书的唯一序列号都存储在文件中，以便在下次签署证书时使用。这样即使创建多个证书，也不会出现重复的序列号。</span></span><br><span class="line"><span class="comment"># -in: 指定证书签发申请文件CSR</span></span><br><span class="line"><span class="comment"># -out: 指定生成的证书文件CRT的路径</span></span><br><span class="line"><span class="comment"># -extfile: 指定配置文件</span></span><br><span class="line"><span class="comment"># -extensions: 指定配置文件中的扩展字段</span></span><br><span class="line">$ openssl x509 -req -days 730 -sha256 -CA ca.cer -CAkey ca-key.pem -CAserial ca.srl -CAcreateserial -<span class="keyword">in</span> server.csr -out server.cer -extfile server.dns.ext</span><br><span class="line">Signature ok</span><br><span class="line">subject=C = CN, ST = BEIJING, L = BEIJING, O = server-on, OU = server-ou, CN = cert.galaxy.com, emailAddress = cert@galaxy.com</span><br><span class="line">Getting CA Private Key</span><br></pre></td></tr></table></figure>
+
+<p>以上是生成的证书全过程，如果只有IP，则将最后的配置文件改为记录IP的文件即可。</p>
+<p>通过证书获取公钥的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -pubkey -<span class="keyword">in</span> server.cer -noout</span><br><span class="line">````</span><br><span class="line"></span><br><span class="line"><span class="comment">### 证书格式转换</span></span><br><span class="line"></span><br><span class="line">可能有时候需要将证书转换为其他格式，比如说pfx格式，这时候就需要进行转换了。这里实验并不需要进行格式转换，因此转换操作仅是记录。</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line"><span class="comment"># 将证书转换为pfx格式</span></span><br><span class="line">openssl pkcs12 -<span class="built_in">export</span> -<span class="keyword">in</span> server.cer -inkey server.key -out server.pfx</span><br><span class="line"><span class="comment"># 转换为pem格式，如果后缀名不标准的话还需要指定-inform der</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> server.cer -out server.pem -outform pem</span><br><span class="line"><span class="comment"># 转换为der格式，如果后缀名不标准的话还需要指定-outform pem</span></span><br><span class="line">openssl x509 -<span class="keyword">in</span> server.cer -out server.der -outform der</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端证书"><a href="#客户端证书" class="headerlink" title="客户端证书"></a>客户端证书</h3><p>如果需要客户端证书，那么就需要生成客户端证书了。客户端证书的生成方式和网站证书的生成方式是一样的，只是在生成证书签发申请文件CSR时，需要将<code>Common Name</code>改为客户端的名称，比如说<code>client.galaxy.com</code>。</p>
+<p>简单来说，就是客户端证书和服务端证书是同级的两套不同的证书。</p>
+<h2 id="使用证书"><a href="#使用证书" class="headerlink" title="使用证书"></a>使用证书</h2><p>经过上面的步骤，我们已经生成了根证书和网站证书，现在我们就可以使用这个证书了。</p>
+<p>这里我使用的docker方式启动了一个nginx，然后将证书挂载到容器中，这样就可以使用https协议了。其他的服务也是类似的。</p>
+<p>首先将所有的证书文件放到一个目录中，这里我放到了<code>/data/docker/nginx/conf/ssl</code>目录中。然后新建nginx配置文件，书写配置即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建证书目录，将证书文件放到该目录中</span></span><br><span class="line">$ <span class="built_in">mkdir</span> -p /data/docker/nginx/conf/ssl</span><br><span class="line"><span class="comment"># 将证书文件放到该目录中，根据自己情况进行复制即可。我之前的证书都下载到了家目录下的cert目录中，因此从这里进行复制</span></span><br><span class="line">$ <span class="built_in">cd</span> ~/cert</span><br><span class="line">$ <span class="built_in">cp</span> server.cer server.key /data/docker/nginx/conf/ssl</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建nginx配置文件</span></span><br><span class="line">$ vim /data/docker/nginx/conf/ssl-test.conf</span><br><span class="line">$ <span class="built_in">cat</span> /data/docker/nginx/conf/ssl-test.conf</span><br><span class="line">server &#123;</span><br><span class="line">    listen       443 ssl;</span><br><span class="line">    listen  [::]:443 ssl;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 网站域名</span></span><br><span class="line">    server_name cert.galaxy.com;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 证书文件</span></span><br><span class="line">    ssl_certificate conf.d/ssl/server.cer;</span><br><span class="line">    <span class="comment"># 证书私钥文件</span></span><br><span class="line">    ssl_certificate_key conf.d/ssl/server.key;</span><br><span class="line">    </span><br><span class="line">    ssl_session_cache    shared:SSL:1m;</span><br><span class="line">    ssl_session_timeout 5m;</span><br><span class="line">    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;</span><br><span class="line">    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;</span><br><span class="line">    ssl_prefer_server_ciphers on;</span><br><span class="line">    </span><br><span class="line">    root /usr/share/nginx/html;</span><br><span class="line">    </span><br><span class="line">    location / &#123;</span><br><span class="line">        index index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    error_page   500 502 503 504  /50x.html;</span><br><span class="line">    location = /50x.html &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>启动nginx</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --name nginx-ssl -p 443:443 -v /data/docker/nginx/conf/:/etc/nginx/conf.d -d nginx:1.23-alpine</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以使用https协议访问了。</p>
+<h3 id="访问截图"><a href="#访问截图" class="headerlink" title="访问截图"></a>访问截图</h3><p>直接访问会提示警告，因为证书是自签名的，不被浏览器信任。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid.png" alt="err cert authority invalid"></p>
+<p>点开高级，点击继续访问。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid_go_on.png" alt="err cert authority invalid go on"></p>
+<p>此时访问成功，但是浏览器地址栏前面会提示不安全。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid_page.png" alt="err cert authority invalid page"></p>
+<p>点击地址栏前面的提示信息，可以看到证书的警告信息，证书也提示是无效的。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid_warning.png" alt="err cert authority invalid warning"></p>
+<p>点击证书那个按钮，可以看到证书的详细信息。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid_cert.png" alt="err cert authority invalid cert"></p>
+<p>点击消息信息，可以看到证书的详细信息。可以看到证书层次结构中只有一个证书，就是自己这个证书。</p>
+<p><img src="/post/ssl/err_cert_authority_invalid_cert_struct.png" alt="err cert authority invalid cert struct"></p>
+<h3 id="证书链"><a href="#证书链" class="headerlink" title="证书链"></a>证书链</h3><p>如果是自签名的证书，那么证书链就只有一个证书，就是自己的证书。如果是CA签发的证书，那么证书链就有多个证书，这些证书都是CA签发的，最后一个证书就是自己的证书。</p>
+<p>对应我们之前的证书，现在地址栏会提示不安全，那怎么提示安全访问呢？这时候就需要将根证书导入到浏览器中，这样浏览器就会完成整个证书链的验证信任这个证书了。</p>
+<p>首先，我们要导入根证书，这里我们使用chrome浏览器进行导入。打开浏览器的设置，然后隐私和安全侧边栏，然后点击管理证书，选择授权机构，然后点击导入。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_manage.png" alt="cert with ca chrome manage"></p>
+<p>我们选择对应的ca证书文件，这里我们创建的是<code>ca.cer</code>，然后点击打开。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_select.png" alt="cert with ca chrome select"></p>
+<p>导入的时候会选择证书的身份，这里我们选择网站，然后点击确定。注意，这里会显示证书的FQDN信息，也就是创建的时候<code>Common Name</code>的信息。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_load.png" alt="cert with ca chrome load"></p>
+<p>导入证书之后。在列表中一直往下拉，名字组成是<code>org-&#123;Organizational Unit Name&#125;</code>，点开就可以看到<code>Organizational Unit Name</code>和<code>Common Name</code>信息。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_list.png" alt="cert with ca chrome list"></p>
+<p>点击证书后面的操作按钮。如果之后想要删除证书，可以点击删除按钮。这里我们要看根证书的详细信息，因此点击视图按钮。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_operation.png" alt="cert with ca chrome operation"></p>
+<p>可以看到这是一个自签名的证书，证书的层次结构中只有一个证书，就是自己的证书。</p>
+<p><img src="/post/ssl/cert_with_ca_chrome_ca_info.png" alt="cert with ca chrome ca info"></p>
+<p>此时再访问 <code>https://127.0.0.1</code> 就会提示错误信息 <code>NET::ERR_CERT_COMMON_NAME_INVALID</code>，因为证书中的域名和访问的域名不一致。</p>
+<p><img src="/post/ssl/cert_with_ca_common_name_invalid.png" alt="cert with ca common name invalid"></p>
+<p>现在我们在本地的host中加入域名映射，然后再访问 <code>https://cert.galaxy.com</code></p>
+<p>此时访问直接就会成功了，而且浏览器地址栏前面也不会提示不安全了，地址栏前面取而代之的是一个锁型图标。</p>
+<p><img src="/post/ssl/cert_with_ca_success.png" alt="cert with ca success"></p>
+<p>点击地址栏前面的锁型图标，可以看到证书的信息。此时信息提示是安全的，同时提示证书是有效的。</p>
+<p><img src="/post/ssl/cert_with_ca_valid.png" alt="cert with ca valid"></p>
+<p>点击证书按钮，查看证书信息。</p>
+<p><img src="/post/ssl/cert_with_ca_cert_info.png" alt="cert with ca cert info"></p>
+<p>点击详细信息，可以看到证书的详细信息。可以看到证书层次结构中有两个证书，第一个证书就是自己的证书，第二个证书就是根证书。这里的根证书就是我们之前导入的证书。</p>
+<p>因为证书链中的证书都是CA签发的，因此浏览器就会信任这个证书了。</p>
+<p><img src="/post/ssl/cert_with_ca_cert_struct.png" alt="cert with ca cert struct"></p>
+<h2 id="cfssl"><a href="#cfssl" class="headerlink" title="cfssl"></a>cfssl</h2><p>cfssl是一个云原生的证书管理工具，可以用来生成证书、签发证书、管理证书等。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>cfssl需要我们先下载二进制程序，然后才能进行使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载cfssl</span></span><br><span class="line">$ wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 -O /usr/bin/cfssl</span><br><span class="line"><span class="comment"># 下载cfssljson</span></span><br><span class="line">$ wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64 -O /usr/bin/cfssl-json</span><br><span class="line"><span class="comment"># 下载cfssl-certinfo</span></span><br><span class="line">$ wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64 -O /usr/bin/cfssl-certinfo</span><br><span class="line"><span class="comment"># 设置文件权限</span></span><br><span class="line">$ <span class="built_in">chmod</span> +x /usr/bin/cfssl*</span><br><span class="line"></span><br><span class="line"><span class="comment"># 新建证书目录</span></span><br><span class="line">$ <span class="built_in">mkdir</span> -p /opt/certs</span><br><span class="line">$ <span class="built_in">cd</span> /opt/certs</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成根证书"><a href="#生成根证书" class="headerlink" title="生成根证书"></a>生成根证书</h3><p>生成证书配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ vim /opt/certs/ca-csr.json</span><br><span class="line">$ <span class="built_in">cat</span> /opt/certs/ca-csr.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;CN&quot;</span>: <span class="string">&quot;ca.galaxy.com&quot;</span>,</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;algo&quot;</span>: <span class="string">&quot;rsa&quot;</span>,</span><br><span class="line">        <span class="string">&quot;size&quot;</span>: 2048</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;names&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;C&quot;</span>: <span class="string">&quot;CN&quot;</span>,</span><br><span class="line">            <span class="string">&quot;ST&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;L&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;O&quot;</span>: <span class="string">&quot;test-on&quot;</span>,</span><br><span class="line">            <span class="string">&quot;OU&quot;</span>: <span class="string">&quot;test-ou&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="string">&quot;ca&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;expiry&quot;</span>: <span class="string">&quot;87600h&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成根证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gencert: 生成证书</span></span><br><span class="line"><span class="comment"># -initca: 指定生成根证书</span></span><br><span class="line"><span class="comment"># 只使用cfssl命令会将证书输出到标准输出，因此需要重定向到文件中</span></span><br><span class="line">$ cfssl gencert -initca ca-csr.json</span><br><span class="line">2023/10/30 21:20:06 [INFO] generating a new CA key and certificate from CSR</span><br><span class="line">2023/10/30 21:20:06 [INFO] generate received request</span><br><span class="line">2023/10/30 21:20:06 [INFO] received CSR</span><br><span class="line">2023/10/30 21:20:06 [INFO] generating key: rsa-2048</span><br><span class="line">2023/10/30 21:20:07 [INFO] encoded CSR</span><br><span class="line">2023/10/30 21:20:07 [INFO] signed certificate with serial number 664542684350169622832034206885696124480833745240</span><br><span class="line">&#123;<span class="string">&quot;cert&quot;</span>:<span class="string">&quot;-----BEGIN CERTIFICATE-----\nMIIDzjCCAragAwIBAgIUdGcf5FWyqUAx3gID1+gF9KMAcVgwDQYJKoZIhvcNAQEL\nBQAwbTELMAkGA1UEBhMCQ04xEDAOBgNVBAgTB2JlaWppbmcxEDAOBgNVBAcTB2Jl\naWppbmcxEDAOBgNVBAoTB3Rlc3Qtb24xEDAOBgNVBAsTB3Rlc3Qtb3UxFjAUBgNV\nBAMTDWNhLmdhbGF4eS5jb20wHhcNMjMxMDMwMTMxNTAwWhcNMzMxMDI3MTMxNTAw\nWjBtMQswCQYDVQQGEwJDTjEQMA4GA1UECBMHYmVpamluZzEQMA4GA1UEBxMHYmVp\namluZzEQMA4GA1UEChMHdGVzdC1vbjEQMA4GA1UECxMHdGVzdC1vdTEWMBQGA1UE\nAxMNY2EuZ2FsYXh5LmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nAKvYTErhsIaKNuA7nzen4ttbDKNih1trigiFottMLkxot9Iv3cks04RTAYxb4bmT\nmPF1GuA2WyfCkvvq8oJY4E8DzR54GLmkpNaGsMUIOjkaltnSiEYn4UjFkQDKveg+\nOdYmNvYTbMwl8Bs7F+REKbjxBKR/khRYcWE2NdW2OThSlvtNhcmWntD3Bw2tQekb\nUMCesD3uc7h3D+V8wrYGi0aTxZDMaV8R0e8bQPBDaSOxa/ViMbom82mnGq9ma51O\nSjr1wJmh2GUMZwsTXaTM8lB9AyUdFsBKmyuM0CltEJ/mRpb/uDPWjiQe+gL57m/y\nlMBkcbsBbnuEccK80cYzsesCAwEAAaNmMGQwDgYDVR0PAQH/BAQDAgEGMBIGA1Ud\nEwEB/wQIMAYBAf8CAQIwHQYDVR0OBBYEFLz7Dt3Drg9gb1VCbeboC6gh6Nt6MB8G\nA1UdIwQYMBaAFLz7Dt3Drg9gb1VCbeboC6gh6Nt6MA0GCSqGSIb3DQEBCwUAA4IB\nAQATDZKrQyrf77Lkj3TZsnDoXY5S3X4APRZVeat+hV39cO2ez+e1IG4gDUi2uxNR\nkfUh108HVA/nRqODrLfunBDCBAWOdeGuyFa2pOtG0T3CSngWfHN4LxzLOotYiFz4\nlcTYPAAew3MM4KmaKqofwG1mBkRCiRWNy/4cFFznCDMrW+srdt3DSAdJbqVneeGV\nusNpvgRXQZgME5+Ib0//FVaX3mxoiySw4RTuazqRuAHvLN9KJGHHuKzKI7+8GqpW\nttAJn4OD/XwYljJ15u48SKbJyP66d/spPDWLEiA60CXKrxWtpdmL0+XDXV2rLLoK\nrCk7sinyyBDYrMhSA3cJyHkC\n-----END CERTIFICATE-----\n&quot;</span>,<span class="string">&quot;csr&quot;</span>:<span class="string">&quot;-----BEGIN CERTIFICATE REQUEST-----\nMIICsjCCAZoCAQAwbTELMAkGA1UEBhMCQ04xEDAOBgNVBAgTB2JlaWppbmcxEDAO\nBgNVBAcTB2JlaWppbmcxEDAOBgNVBAoTB3Rlc3Qtb24xEDAOBgNVBAsTB3Rlc3Qt\nb3UxFjAUBgNVBAMTDWNhLmdhbGF4eS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IB\nDwAwggEKAoIBAQCr2ExK4bCGijbgO583p+LbWwyjYodba4oIhaLbTC5MaLfSL93J\nLNOEUwGMW+G5k5jxdRrgNlsnwpL76vKCWOBPA80eeBi5pKTWhrDFCDo5GpbZ0ohG\nJ+FIxZEAyr3oPjnWJjb2E2zMJfAbOxfkRCm48QSkf5IUWHFhNjXVtjk4Upb7TYXJ\nlp7Q9wcNrUHpG1DAnrA97nO4dw/lfMK2BotGk8WQzGlfEdHvG0DwQ2kjsWv1YjG6\nJvNppxqvZmudTko69cCZodhlDGcLE12kzPJQfQMlHRbASpsrjNApbRCf5kaW/7gz\n1o4kHvoC+e5v8pTAZHG7AW57hHHCvNHGM7HrAgMBAAGgADANBgkqhkiG9w0BAQsF\nAAOCAQEAH8uavX8ZPlOfphmHTcXtz5u/uaDSdXSF/Ktamkgc9XHXZHu08QiuU0Ae\nhL4iW6M1jyBImD2Eu/FHFRusBTH/GVZCT3pVnf1ngmCeHRPStEHLnEqzLuA1JySD\nM+ahhldlmbM22eMYrj6U3y9KkD4okiXEfiLCrhZQyA5Om6Ux9k/GCUFhDJLcup3m\nGmZXv+0e9oFChJd7TJNj0WMuJUjikAwFqUHWqhrO6Tn0YUIOn382hi4mSvN50E6R\nGSM8JRgeSn46ERpKG1N6/z9a9vEyMAHYvGidYfz2aykUyB8Xs002ZCmk0BFx/93w\nmVC9NroN3CUDDcj2LWvpkwwnMEeApQ==\n-----END CERTIFICATE REQUEST-----\n&quot;</span>,<span class="string">&quot;key&quot;</span>:<span class="string">&quot;-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAq9hMSuGwhoo24DufN6fi21sMo2KHW2uKCIWi20wuTGi30i/d\nySzThFMBjFvhuZOY8XUa4DZbJ8KS++rygljgTwPNHngYuaSk1oawxQg6ORqW2dKI\nRifhSMWRAMq96D451iY29hNszCXwGzsX5EQpuPEEpH+SFFhxYTY11bY5OFKW+02F\nyZae0PcHDa1B6RtQwJ6wPe5zuHcP5XzCtgaLRpPFkMxpXxHR7xtA8ENpI7Fr9WIx\nuibzaacar2ZrnU5KOvXAmaHYZQxnCxNdpMzyUH0DJR0WwEqbK4zQKW0Qn+ZGlv+4\nM9aOJB76Avnub/KUwGRxuwFue4RxwrzRxjOx6wIDAQABAoIBAGGnBqO+4Mtzm3+N\nIgtEkjvI38Ow5+5hjA0Ps94eymiNUXhVzxjVKlWVvdl/FSSZ5V3BCEbFXMOZZGFX\nv/umecEtDdD0ukg0cZ+e5rDw3fU5UOPzKZGEdBcgfigPDh/9zGwPR0hK/ZZ9MJao\n3AjRW0xHWjYIcICzSarOXYVWiemgxtCwj4RXu4Ub83BAUupImtOzKfnQdStZ8wpk\nII13+J4RsB+l7ME6cC9moBJ4jt7G9i6OlZY8/JX2nmTHCyltLzg9QdxViRjyFETk\nvdfhj4YiYlcklTqlZ/WC9rOmQOrDwbx2SBqR5ahLaNFwTcgeFJ3i766GDd+3WkTv\nLAGvWFECgYEA1iwpuyPapPRd0lXJVXCKeLyplDxvLVd+JdqxSd79Gs6vqXX60g3Z\nzojjGQrwkRk0G0fI3hHohvrNaOaZr7MtNY8vfns7bFYXQ0dKD1MWJ9qF9zVjfhiy\nv4Y2HJRNt1HIazRlpSZh5IXWZDTQMM0cwIGDj8I/v+7lQwn9w0hKcPcCgYEAzWfp\nNdVuVCb6dHdN4njYE/DHd/H5CJHIkufP5HKeVCW3t2fjo6sw08AHaMrMrrgkAIfz\nrVfNAuW/cn48IkO8W+qq+1Hc2b/wsNbZB0sM5e5lvdn7sZlDdJJHGJybxwGsbuYZ\nv1lwwbCIj3KtOzFjbXdmMwFycyjtXfUhiky5va0CgYAk+hz+XXNbdYFZVkxbfwG5\nVMFmgYSkbG2wNXDUkzZZ0YOMm30BlTicqw+ifDwKoTJY32zzwl3GKDkcumugZSwS\nCjWl/brFuptrlzxXJv41RUpJ4yLZW4RJAvAGwSgl1W3n7HT8LYNLRDw+ssubEV68\ncd/4Cw6coa9dgrUYaTvJAwKBgQC1c4PaoI50HHLHi9TrqWEITH2JAeLCpTYQQGOw\nJWikYSVoCYhYvxPFGy/wbKZf+h8jsPWcPaHHW3nCBK3OfxPYBvfAR9LXMO3I6iKS\nhMQCIpUSH4xumTuzsLzJix85r8rJtM8t8C7hi7c3MVDCp6BzxTQs/qxB+velNrTI\nXXr/iQKBgQCNXdas7MwBxg5TUAbRbiMbQsJqeatLDc34ojckNxhT9896GLhXILHb\nTBRlOwd5mePRk9RxuCPzXWs3080QWDsMtEqCm2aTRcAtZpM0lAFGDInPVfjbvQ3n\nrr4Psi4TR0dcq2n6xwKDxHQHBw4mMwa+50lkE6l0foJ4LAgO0044ig==\n-----END RSA PRIVATE KEY-----\n&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看没有任何文件生成</span></span><br><span class="line">$ <span class="built_in">ls</span></span><br><span class="line">ca-csr.json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过cfssl-json命令将证书输出到文件中</span></span><br><span class="line"><span class="comment"># -bare: 指定输出文件的前缀</span></span><br><span class="line">$ cfssl gencert -initca ca-csr.json | cfssl-json -bare ca</span><br><span class="line">2023/10/30 21:20:31 [INFO] generating a new CA key and certificate from CSR</span><br><span class="line">2023/10/30 21:20:31 [INFO] generate received request</span><br><span class="line">2023/10/30 21:20:31 [INFO] received CSR</span><br><span class="line">2023/10/30 21:20:31 [INFO] generating key: rsa-2048</span><br><span class="line">2023/10/30 21:20:32 [INFO] encoded CSR</span><br><span class="line">2023/10/30 21:20:32 [INFO] signed certificate with serial number 623569630703280871026003415413519558412232890993</span><br><span class="line"></span><br><span class="line"><span class="comment"># 此时查看就有证书文件了</span></span><br><span class="line">$ <span class="built_in">ls</span></span><br><span class="line">ca.csr  ca-csr.json  ca-key.pem  ca.pem</span><br></pre></td></tr></table></figure>
+
+<p>接下来还要创建ca配置文件，这个配置文件用来指定证书的有效期、签名算法等信息。为了之后创建各种类型的证书做一个通用的配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ vim /opt/certs/ca-config.json</span><br><span class="line">$ <span class="built_in">cat</span> /opt/certs/ca-config.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;signing&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;default&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;expiry&quot;</span>: <span class="string">&quot;87600h&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">&quot;profiles&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;server&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;expiry&quot;</span>: <span class="string">&quot;87600h&quot;</span>,</span><br><span class="line">                <span class="string">&quot;usages&quot;</span>: [</span><br><span class="line">                    <span class="string">&quot;signing&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;key encipherment&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;server auth&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;client auth&quot;</span></span><br><span class="line">                ]</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;client&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;expiry&quot;</span>: <span class="string">&quot;87600h&quot;</span>,</span><br><span class="line">                <span class="string">&quot;usages&quot;</span>: [</span><br><span class="line">                    <span class="string">&quot;signing&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;key encipherment&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;client auth&quot;</span></span><br><span class="line">                ]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>各部分的含义如下：</p>
+<ul>
+<li>signing: 证书签名配置</li>
+<li>default: 默认配置</li>
+<li>expiry: 证书有效期</li>
+<li>profiles: 证书配置</li>
+<li>server&#x2F;client: 各配置的名称</li>
+<li>usages: 证书用途<ul>
+<li>signing: 证书签名</li>
+<li>key encipherment: 密钥加密</li>
+<li>server auth: 服务器端认证</li>
+<li>client auth: 客户端认证</li>
+</ul>
+</li>
+</ul>
+<h3 id="服务器端证书"><a href="#服务器端证书" class="headerlink" title="服务器端证书"></a>服务器端证书</h3><p>这里我们以生成k8s-apiserver的证书为例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成证书配置文件</span></span><br><span class="line">$ vim /opt/certs/apiserver-csr.json</span><br><span class="line">$ <span class="built_in">cat</span> /opt/certs/apiserver-csr.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;CN&quot;</span>: <span class="string">&quot;k8s-apiserver&quot;</span>,</span><br><span class="line">    <span class="string">&quot;hosts&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">        <span class="string">&quot;192.168.0.1&quot;</span>,</span><br><span class="line">        <span class="string">&quot;kubernetes.default&quot;</span>,</span><br><span class="line">        <span class="string">&quot;kubernetes.default.svc&quot;</span>,</span><br><span class="line">        <span class="string">&quot;kubernetes.default.svc.cluster&quot;</span>,</span><br><span class="line">        <span class="string">&quot;kubernetes.default.svc.cluster.local&quot;</span>,</span><br><span class="line">        <span class="string">&quot;10.4.7.10&quot;</span>,</span><br><span class="line">        <span class="string">&quot;10.4.7.21&quot;</span>,</span><br><span class="line">        <span class="string">&quot;10.4.7.22&quot;</span>,</span><br><span class="line">        <span class="string">&quot;10.4.7.23&quot;</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;algo&quot;</span>: <span class="string">&quot;rsa&quot;</span>,</span><br><span class="line">        <span class="string">&quot;size&quot;</span>: 2048</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;names&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;C&quot;</span>: <span class="string">&quot;CN&quot;</span>,</span><br><span class="line">            <span class="string">&quot;ST&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;L&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;O&quot;</span>: <span class="string">&quot;test-on&quot;</span>,</span><br><span class="line">            <span class="string">&quot;OU&quot;</span>: <span class="string">&quot;test-ou&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>各部分的含义如下：</p>
+<ul>
+<li>CN: 证书的名称</li>
+<li>hosts: 证书的域名或者IP地址。必须包含所有能访问的域名或者IP地址，否则会提示证书不安全。如果之后需要添加域名或者IP地址，那么就需要重新生成证书了。</li>
+<li>key: 密钥配置<ul>
+<li>algo: 密钥算法</li>
+<li>size: 密钥长度</li>
+</ul>
+</li>
+<li>names: 证书的其他信息<ul>
+<li>C: 国家</li>
+<li>ST: 省份</li>
+<li>L: 城市</li>
+<li>O: 组织</li>
+<li>OU: 组织单位</li>
+</ul>
+</li>
+</ul>
+<p>有了请求文件就可以生成证书了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成证书</span></span><br><span class="line"><span class="comment"># genceert: 生成证书</span></span><br><span class="line"><span class="comment"># -ca: 指定CA证书</span></span><br><span class="line"><span class="comment"># -ca-key: 指定CA证书的私钥</span></span><br><span class="line"><span class="comment"># -config: 指定配置文件</span></span><br><span class="line"><span class="comment"># -profile: 指定配置文件中的配置段</span></span><br><span class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=server apiserver-csr.json | cfssl-json -bare apiserver</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看生成的证书</span></span><br><span class="line">$ <span class="built_in">ls</span></span><br><span class="line">apiserver.csr  apiserver-csr.json  apiserver-key.pem  apiserver.pem  ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem</span><br></pre></td></tr></table></figure>
+
+<p>在K8S中，提取出签发证书时指定的CN(Common Name)，作为请求的用户名 (User Name), 从证书中提取O(Organization)字段作为请求用户所属的组 (Group)，然后传递给后面的授权模块。</p>
+<h3 id="客户端证书-1"><a href="#客户端证书-1" class="headerlink" title="客户端证书"></a>客户端证书</h3><p>以下是生成客户端证书的步骤。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成客户端证书配置文件</span></span><br><span class="line">$ vim /opt/certs/client-csr.json</span><br><span class="line">$ <span class="built_in">cat</span> /opt/certs/client-csr.json</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;CN&quot;</span>: <span class="string">&quot;k8s-node&quot;</span>,</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;algo&quot;</span>: <span class="string">&quot;rsa&quot;</span>,</span><br><span class="line">        <span class="string">&quot;size&quot;</span>: 2048</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;names&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;C&quot;</span>: <span class="string">&quot;CN&quot;</span>,</span><br><span class="line">            <span class="string">&quot;ST&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;L&quot;</span>: <span class="string">&quot;beijing&quot;</span>,</span><br><span class="line">            <span class="string">&quot;O&quot;</span>: <span class="string">&quot;test-on&quot;</span>,</span><br><span class="line">            <span class="string">&quot;OU&quot;</span>: <span class="string">&quot;test-ou&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，生成客户端证书。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成客户端证书</span></span><br><span class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=client client-csr.json | cfssl-json -bare client</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看生成的证书</span></span><br><span class="line">$ <span class="built_in">ls</span></span><br><span class="line">apiserver.csr  apiserver-csr.json  apiserver-key.pem  apiserver.pem  ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem  client.csr  client-csr.json  client-key.pem  client.pem</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用证书-1"><a href="#使用证书-1" class="headerlink" title="使用证书"></a>使用证书</h3><p>如果我们的apiserver是二进制方式进行部署的，那么我们可以通过以下命令启动apiserver（假定kube-apiserver命令在&#x2F;opt中）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">./kube-apiserver \</span><br><span class="line">  --apiserver-count 2 \</span><br><span class="line">  --audit-log-path /data/logs/kubernetes/kube-apiserver/audit-log \</span><br><span class="line">  --audit-policy-file ./conf/audit.yaml \</span><br><span class="line">  --authorization-mode RBAC \</span><br><span class="line">  --client-ca-file ./certs/ca.pem \</span><br><span class="line">  --requestheader-client-ca-file ./certs/ca.pem \</span><br><span class="line">  --enable-admission-plugins NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota \</span><br><span class="line">  --etcd-cafile ./certs/ca.pem \</span><br><span class="line">  --etcd-certfile ./certs/client.pem \</span><br><span class="line">  --etcd-keyfile ./certs/client-key.pem \</span><br><span class="line">  --etcd-servers https://10.4.7.12:2379,https://10.4.7.21:2379,https://10.4.7.22:2379 \</span><br><span class="line">  --service-account-key-file ./certs/ca-key.pem \</span><br><span class="line">  --service-cluster-ip-range 192.168.0.0/16 \</span><br><span class="line">  --service-node-port-range 3000-29999 \</span><br><span class="line">  --target-ram-mb=1024 \</span><br><span class="line">  --kubelet-client-certificate ./certs/client.pem \</span><br><span class="line">  --kubelet-client-key ./certs/client-key.pem \</span><br><span class="line">  --log-dir  /data/logs/kubernetes/kube-apiserver \</span><br><span class="line">  --tls-cert-file ./certs/apiserver.pem \</span><br><span class="line">  --tls-private-key-file ./certs/apiserver-key.pem \</span><br><span class="line">  --v 2</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-10-24, 15:02:21</p>
+        <p><span>最后更新:</span>2023-10-31, 15:06:46</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/generate-a-self-signed-ssl-certificate/" title="生成自签名SSL证书">http://realtiger.github.io/generate-a-self-signed-ssl-certificate/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/generate-a-self-signed-ssl-certificate/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-auth/">
+                    k8s 认证和授权
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">证书的基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">证书的基本格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E5%92%8C%E5%85%AC%E9%92%A5%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.2.</span> <span class="toc-text">数字证书和公钥的关系</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#x509%E8%AF%81%E4%B9%A6"><span class="toc-number">1.2.1.</span> <span class="toc-text">x509证书</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#https"><span class="toc-number">2.</span> <span class="toc-text">https</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#http"><span class="toc-number">2.1.</span> <span class="toc-text">http</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#https-1"><span class="toc-number">2.2.</span> <span class="toc-text">https</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSL"><span class="toc-number">2.3.</span> <span class="toc-text">SSL</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E5%92%8C%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="toc-number">3.</span> <span class="toc-text">对称加密和非对称加密</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E5%92%8C%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">对称加密和非对称加密的优缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="toc-number">3.2.</span> <span class="toc-text">非对称加密</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E8%BF%87%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">认证过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E5%90%91%E8%AE%A4%E8%AF%81"><span class="toc-number">4.1.</span> <span class="toc-text">单向认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E5%90%91%E8%AE%A4%E8%AF%81"><span class="toc-number">4.2.</span> <span class="toc-text">双向认证</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8DSSL%E8%AF%81%E4%B9%A6"><span class="toc-number">5.</span> <span class="toc-text">生成自签名SSL证书</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E8%BF%87%E7%A8%8B"><span class="toc-number">5.1.</span> <span class="toc-text">生成证书过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#openssl"><span class="toc-number">5.2.</span> <span class="toc-text">openssl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E8%AF%81%E4%B9%A6%E7%A7%81%E9%92%A5"><span class="toc-number">5.2.1.</span> <span class="toc-text">根证书私钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E6%A0%B9%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%8F%91%E7%94%B3%E8%AF%B7%E6%96%87%E4%BB%B6CSR"><span class="toc-number">5.2.2.</span> <span class="toc-text">生成根证书签发申请文件CSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6-CER"><span class="toc-number">5.2.3.</span> <span class="toc-text">生成自签名证书 CER</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AD%A5%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6"><span class="toc-number">5.2.4.</span> <span class="toc-text">一步生成自签名证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E7%BD%91%E7%AB%99%E7%94%A8%E7%A7%81%E9%92%A5PEM"><span class="toc-number">5.2.5.</span> <span class="toc-text">生成网站用私钥PEM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E7%BD%91%E7%AB%99%E7%94%A8%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%8F%91%E7%94%B3%E8%AF%B7%E6%96%87%E4%BB%B6CSR"><span class="toc-number">5.2.6.</span> <span class="toc-text">生成网站用证书签发申请文件CSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">5.2.7.</span> <span class="toc-text">准备配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E7%BD%91%E7%AB%99%E7%94%A8%E8%AF%81%E4%B9%A6-CER"><span class="toc-number">5.2.8.</span> <span class="toc-text">生成网站用证书 CER</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%81%E4%B9%A6"><span class="toc-number">5.2.9.</span> <span class="toc-text">客户端证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%81%E4%B9%A6"><span class="toc-number">5.3.</span> <span class="toc-text">使用证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%88%AA%E5%9B%BE"><span class="toc-number">5.3.1.</span> <span class="toc-text">访问截图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6%E9%93%BE"><span class="toc-number">5.3.2.</span> <span class="toc-text">证书链</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cfssl"><span class="toc-number">5.4.</span> <span class="toc-text">cfssl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">5.4.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="toc-number">5.4.2.</span> <span class="toc-text">生成根证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E8%AF%81%E4%B9%A6"><span class="toc-number">5.4.3.</span> <span class="toc-text">服务器端证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%81%E4%B9%A6-1"><span class="toc-number">5.4.4.</span> <span class="toc-text">客户端证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%81%E4%B9%A6-1"><span class="toc-number">5.4.5.</span> <span class="toc-text">使用证书</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"生成自签名SSL证书　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-auth/" title="下一篇: k8s 认证和授权">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
