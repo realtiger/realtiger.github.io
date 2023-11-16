@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 Kubernetes HPA (Horizontal Pod Autoscaler) 是 Kubernetes 提供的一个自动扩容的功能，它可以根据 CPU 利用率或者自定义的指标，自动的扩容或者缩容 Pod 的数量，从而保证应用程序的稳定性和高可用性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 动态扩缩容">
+<meta property="og:url" content="http://realtiger.github.io/k8s-hpa/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 Kubernetes HPA (Horizontal Pod Autoscaler) 是 Kubernetes 提供的一个自动扩容的功能，它可以根据 CPU 利用率或者自定义的指标，自动的扩容或者缩容 Pod 的数量，从而保证应用程序的稳定性和高可用性。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/hpa.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/autoscaling.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/custom-hpa.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/hpa-prometheus-custom.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-hpa-ms.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/hpa-flow.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/kube-aggregation.webp">
+<meta property="article:published_time" content="2023-10-23T16:05:19.000Z">
+<meta property="article:modified_time" content="2023-11-16T16:58:35.855Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="hpa">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/hpa.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s 动态扩缩容 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-hpa" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-hpa/" class="article-date">
+      <time datetime="2023-10-23T16:05:19.000Z" itemprop="datePublished">2023-10-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s 动态扩缩容
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">3.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">14分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>Kubernetes HPA (Horizontal Pod Autoscaler) 是 Kubernetes 提供的一个自动扩容的功能，它可以根据 CPU 利用率或者自定义的指标，自动的扩容或者缩容 Pod 的数量，从而保证应用程序的稳定性和高可用性。</p>
+<span id="more"></span>
+
+<h1 id="通过HPA实现业务应用的动态扩缩容"><a href="#通过HPA实现业务应用的动态扩缩容" class="headerlink" title="通过HPA实现业务应用的动态扩缩容"></a>通过HPA实现业务应用的动态扩缩容</h1><h2 id="HPA控制器介绍"><a href="#HPA控制器介绍" class="headerlink" title="HPA控制器介绍"></a>HPA控制器介绍</h2><p>当系统资源过高的时候，我们可以使用如下命令来实现 Pod 的扩缩容功能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n <span class="built_in">test</span> scale deployment myblog --replicas=2</span><br></pre></td></tr></table></figure>
+
+<p>但是这个过程是手动操作的。在实际项目中，我们需要做到是的是一个自动化感知并自动扩容的操作。Kubernetes 也为提供了这样的一个资源对象：Horizontal Pod Autoscaling（Pod 水平自动伸缩），简称<a target="_blank" rel="external nofollow noopener noreferrer" href="https://v1-14.docs.kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/">HPA</a></p>
+<p><img src="/post/docker/hpa.png" alt="hpa"></p>
+<p>基本原理：HPA 通过监控分析控制器控制的所有 Pod 的负载变化情况来确定是否需要调整 Pod 的副本数量</p>
+<h2 id="Metric-Server"><a href="#Metric-Server" class="headerlink" title="Metric Server"></a>Metric Server</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://v1-14.docs.kubernetes.io/docs/tasks/debug-application-cluster/resource-metrics-pipeline/#metrics-server">官方介绍</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Metric server collects metrics from the Summary API, exposed by Kubelet on each node.</span><br><span class="line"></span><br><span class="line">Metrics Server registered in the main API server through Kubernetes aggregator, which was introduced in Kubernetes 1.7</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>Metric Server 从每个节点的 Kubelet 暴露的 Summary API 中收集指标。</p>
+<p>Metric Server 通过 Kubernetes 聚合器注册到主 API 服务器中，该聚合器在 Kubernetes 1.7 中引入。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>官方代码仓库地址：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes-sigs/metrics-server">https://github.com/kubernetes-sigs/metrics-server</a></p>
+<blockquote>
+<p>Depending on your cluster setup, you may also need to change flags passed to the Metrics Server container. Most useful flags:</p>
+<ul>
+<li><code>--kubelet-preferred-address-types</code> - The priority of node address types used when determining an address for connecting to a particular node (default [Hostname,InternalDNS,InternalIP,ExternalDNS,ExternalIP])</li>
+<li><code>--kubelet-insecure-tls</code> - Do not verify the CA of serving certificates presented by Kubelets. For testing purposes only.</li>
+<li><code>--requestheader-client-ca-file</code> - Specify a root certificate bundle for verifying client certificates on incoming requests.</li>
+</ul>
+</blockquote>
+<p>上面的话翻译如下：</p>
+<p>根据你的集群设置，你可能需要修改Metrics Server容器的参数。最有用的参数：</p>
+<ul>
+<li><code>--kubelet-preferred-address-types</code> - 确定连接到特定节点的地址时使用的节点地址类型的优先级（默认值[Hostname,InternalDNS,InternalIP,ExternalDNS,ExternalIP]）</li>
+<li><code>--kubelet-insecure-tls</code> - 不要验证Kubelets提供的服务证书的CA。仅用于测试。</li>
+<li><code>--requestheader-client-ca-file</code> - 指定用于验证传入请求上的客户端证书的根证书包。</li>
+</ul>
+<h3 id="准备配置文件"><a href="#准备配置文件" class="headerlink" title="准备配置文件"></a>准备配置文件</h3><p>首先，我们需要下载配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果想使用最新版本，可以使用这个url下载最新的配置 https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml</span></span><br><span class="line">$ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.4/components.yaml</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文中args参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加- --kubelet-insecure-tls</span></span><br><span class="line">...</span><br><span class="line">133       containers:</span><br><span class="line">134       - args:</span><br><span class="line">135         - --cert-dir=/tmp</span><br><span class="line">136         - --secure-port=4443</span><br><span class="line">            <span class="comment"># 添加这一句</span></span><br><span class="line">            - --kubelet-insecure-tls</span><br><span class="line">137         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname</span><br><span class="line">138         - --kubelet-use-node-status-port</span><br><span class="line">139         - --metric-resolution=15s</span><br><span class="line">            <span class="comment"># 修改镜像地址，之前的地址是google的镜像源，国内有可能无法访问</span></span><br><span class="line">140         image: bitnami/metrics-server:0.6.4</span><br><span class="line">141         imagePullPolicy: IfNotPresent</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>我们添加了参数 –kubelet-insecure-tls，因为部署集群的时候，CA 证书并没有把各个节点的 IP 签上去，所以这里 metrics-server 通过 IP 去请求时，提示签的证书没有对应的 IP（错误：x509: cannot validate certificate for xxx.xxx.xxx.xxx because it doesn’t contain any IP SANs）。</p>
+<p>当然官方文档也说了，这个参数只用于测试，生产环境不建议使用，正常环境还是要把证书部署完全。</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>因为我们已经有了配置文件，所以直接使用 kubectl 部署即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署配置文件</span></span><br><span class="line">$ kubectl apply -f components.yaml</span><br><span class="line"><span class="comment"># 查看部署情况</span></span><br><span class="line">$ kubectl -n kube-system get pods</span><br><span class="line"><span class="comment"># 查看节点的监控数据</span></span><br><span class="line"><span class="comment"># 如果没有安装之前会报错，现在应该可以正常获取数据了。报错信息如下： Error from server (NotFound): the server could not find the requested resource (get services http:heapster:)</span></span><br><span class="line">$ kubectl top nodes</span><br><span class="line">NAME         CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%</span><br><span class="line">k8s-master   456m         5%     1829Mi          47%</span><br><span class="line">k8s-node1    170m         2%     1435Mi          37%</span><br><span class="line">k8s-node2    100m         1%     1649Mi          43%</span><br></pre></td></tr></table></figure>
+
+<h2 id="HPA实践"><a href="#HPA实践" class="headerlink" title="HPA实践"></a>HPA实践</h2><p>HPA的实现有两个版本：</p>
+<ul>
+<li>autoscaling&#x2F;v1，只包含了根据CPU指标的检测，稳定版本</li>
+<li>autoscaling&#x2F;v2，支持根据cpu、memory或者用户自定义指标进行伸缩</li>
+</ul>
+<h3 id="基于CPU和内存的动态伸缩"><a href="#基于CPU和内存的动态伸缩" class="headerlink" title="基于CPU和内存的动态伸缩"></a>基于CPU和内存的动态伸缩</h3><h4 id="创建hpa资源"><a href="#创建hpa资源" class="headerlink" title="创建hpa资源"></a>创建hpa资源</h4><p><img src="/post/docker/autoscaling.png" alt="autoscaling"></p>
+<p>要想使用HPA，必须要创建HPA资源对象，有两种方法进行创建：</p>
+<ul>
+<li>方式一：声明式创建，通过yaml文件创建</li>
+<li>方式二：命令式创建，通过kubectl命令创建</li>
+</ul>
+<p>以下是两种创建方式：</p>
+<p>方法一，声明式创建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> hpa-myblog.yaml</span><br><span class="line">apiVersion: autoscaling/v2</span><br><span class="line">kind: HorizontalPodAutoscaler</span><br><span class="line">metadata:</span><br><span class="line">  name: hpa-myblog</span><br><span class="line">  namespace: <span class="built_in">test</span></span><br><span class="line">spec:</span><br><span class="line">  maxReplicas: 3</span><br><span class="line">  minReplicas: 1</span><br><span class="line">  scaleTargetRef:</span><br><span class="line">    apiVersion: apps/v1</span><br><span class="line">    kind: Deployment</span><br><span class="line">    name: myblog</span><br><span class="line">  metrics:</span><br><span class="line">    - <span class="built_in">type</span>: Resource</span><br><span class="line">      resource:</span><br><span class="line">        name: memory</span><br><span class="line">        target:</span><br><span class="line">          <span class="built_in">type</span>: Utilization</span><br><span class="line">          averageUtilization: 80</span><br><span class="line">    - <span class="built_in">type</span>: Resource</span><br><span class="line">      resource:</span><br><span class="line">        name: cpu</span><br><span class="line">        target:</span><br><span class="line">          <span class="built_in">type</span>: Utilization</span><br><span class="line">          averageUtilization: 80</span><br><span class="line">          </span><br><span class="line">$ kubectl -n <span class="built_in">test</span> apply -f hpa-myblog.yaml</span><br></pre></td></tr></table></figure>
+
+<p>方法二，命令式创建</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n test autoscale deployment myblog --cpu-percent=80 --min=1 --max=3</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Deployment对象必须配置requests的参数，不然无法获取监控数据，也无法通过HPA进行动态伸缩</p>
+</blockquote>
+<h4 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h4><p>查看k8s创建hpa的资源对象：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl -n <span class="built_in">test</span> get hpa</span></span><br><span class="line">NAME         REFERENCE           TARGETS           MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">hpa-myblog   Deployment/myblog   27%/80%, 1%/80%   1         3         1          23s</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，名字叫做hpa-myblog的hpa资源已经存在了，它的目标对象是myblog的deployment，目标是80%的cpu利用率和80%的内存利用率，当前使用的是27%的cpu和1%的内存，当前副本数是1，最大副本数是3，最小副本数是1。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为了能将负载压力加大，我们安装一个压测工具来模拟大量的用户访问</span></span><br><span class="line">$ sudo yum install httpd-tools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为了更快看到效果，先调整副本数为1。这里我们已经是1个副本了，所以不需要再调整了</span></span><br><span class="line"><span class="comment"># $ kubectl -n test scale deploy myblog --replicas=1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意：压力测试的时候一定要使用ClusterIP的地址，不要使用Pod的IP地址，否则就会只有这一个Pod在承担压力，扩容的其他Pod没有压力</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> get po -o wide</span><br><span class="line">NAME                       READY   STATUS    RESTARTS   AGE   IP              NODE        NOMINATED NODE   READINESS GATES</span><br><span class="line">myblog-84985b5b66-smpwb    1/1     Running   0          70d   10.244.1.5      k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">mysql-7f97cb6cc9-vzxpd     1/1     Running   0          71d   192.168.100.2   k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">testpod-865855cfc5-m2f99   1/1     Running   0          58d   10.244.2.13     k8s-node2   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">$ kubectl -n <span class="built_in">test</span> get svc -o wide</span><br><span class="line">NAME        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR</span><br><span class="line">myblog      ClusterIP   10.104.58.9     &lt;none&gt;        80/TCP         70d   app=myblog</span><br><span class="line">myblog-np   NodePort    10.98.222.213   &lt;none&gt;        80:31174/TCP   70d   app=myblog</span><br><span class="line">mysql       ClusterIP   10.110.89.44    &lt;none&gt;        3306/TCP       70d   app=mysql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上面可以看到myblog的ClusterIP是10.104.58.9，端口是80，因此我们使用这个地址进行压力测试</span></span><br><span class="line"><span class="comment"># 使用压力测试程序模拟1000个用户并发访问页面10万次，注意，工具规定必须明确指定IP和PORT</span></span><br><span class="line">$ ab -n 100000 -c 1000 http://10.104.58.9:80/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看压力测试的结果，可以看到hpa的使用率有一段反应时间，然后快速上升，迅速将副本数扩展到了3个</span></span><br><span class="line">$ kubectl get hpa</span><br><span class="line"><span class="comment"># 查看pod的副本数，可以看到副本数已经扩展到了3个</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> get pods</span><br></pre></td></tr></table></figure>
+
+<p>压力降下来后，会有默认5分钟的<code>scaledown</code>的时间，也就是说k8s在等待5分钟后，没有压力的情况下，会缩容一个副本，之后再等待5分钟，如果还没有压力，再缩容一个副本，以此类推，直到副本数为1。</p>
+<p>所以与扩容立刻就扩不同，缩容是一个逐步的过程，比如本例从3个副本降低到1个副本，中间大概会等待2*5分钟 &#x3D; 10分钟</p>
+<p><code>scaledown</code>的时间可以通过<code>controller-manager</code>的如下参数设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--horizontal-pod-autoscaler-downscale-stabilization</span><br><span class="line"></span><br><span class="line">The value for this option is a duration that specifies how long the autoscaler has to wait before another downscale operation can be performed after the current one has completed. The default value is 5 minutes (5m0s).</span><br></pre></td></tr></table></figure>
+
+<p>也可以通过设置每个hpa的<code>behavior</code>来控制<code>scaleDown</code>和<code>scaleUp</code>的行为。</p>
+<h3 id="基于自定义指标的动态伸缩"><a href="#基于自定义指标的动态伸缩" class="headerlink" title="基于自定义指标的动态伸缩"></a>基于自定义指标的动态伸缩</h3><p>除了基于 CPU 和内存来进行自动扩缩容之外，我们还可以根据自定义的监控指标来进行。这个我们就需要使用 <code>Prometheus Adapter</code>，Prometheus 用于监控应用的负载和集群本身的各种指标，<code>Prometheus Adapter</code> 可以帮我们使用 Prometheus 收集的指标并使用它们来制定扩展策略，这些指标都是通过 APIServer 暴露的，而且 HPA 资源对象也可以很轻易的直接使用。</p>
+<p><img src="/post/docker/custom-hpa.png" alt="custom-hpa"></p>
+<p>架构图：</p>
+<p><img src="/post/docker/hpa-prometheus-custom.png" alt="hpa-prometheus-custom"></p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><h3 id="如何获取Pod的监控数据"><a href="#如何获取Pod的监控数据" class="headerlink" title="如何获取Pod的监控数据"></a>如何获取Pod的监控数据</h3><ul>
+<li>k8s 1.8以下：使用heapster，1.11版本完全废弃</li>
+<li>k8s 1.8以上：使用metric-server</li>
+</ul>
+<p>官方从 1.8 版本开始提出了 Metric api 的概念，而 metrics-server 就是这种概念下官方的一种实现，用于从 kubelet获取指标，替换掉之前的 heapster。</p>
+<p><code>Metrics Server</code> 可以通过标准的 Kubernetes API 把监控数据暴露出来，比如获取某一Pod的监控数据：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://192.168.100.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/&lt;namespace-name&gt;/pods/&lt;pod-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># https://192.168.100.1:6443/api/v1/namespaces/test/pods?limit=500</span></span><br></pre></td></tr></table></figure>
+
+<p>集群中安装了<code>metrics-server</code>就可以用上述接口获取Pod的基础监控数据了，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取myblog的pod的监控数据</span></span><br><span class="line">$ $ kubectl -n <span class="built_in">test</span> get po</span><br><span class="line">NAME                       READY   STATUS    RESTARTS   AGE</span><br><span class="line">myblog-84985b5b66-smpwb    1/1     Running   0          71d</span><br><span class="line">mysql-7f97cb6cc9-vzxpd     1/1     Running   0          71d</span><br><span class="line">testpod-865855cfc5-m2f99   1/1     Running   0          58d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 则请求的接口应该是 </span></span><br><span class="line">URL=<span class="string">&quot;https://192.168.100.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/test/pods/myblog-84985b5b66-smpwb&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 我们知道调用apiserver需要认证和鉴权流程，因此，前篇我们已经在test名称空间下创建了名为test-pods-admin的serviceaccount，并赋予了test名称空间的pods的操作权限，因此可以使用该serviceaccount的token来进行认证</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> create token test-pods-admin</span><br><span class="line">eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI4Mzg5LCJpYXQiOjE2NjgyMjQ3ODksImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJsdWZmeSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJsdWZmeS1wb2RzLWFkbWluIiwidWlkIjoiNjAzYWEzMDYtNDljZi00Y2UxLWI1OGYtMGNmMjUzYTI4YmY2In19LCJuYmYiOjE2NjgyMjQ3ODksInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1wb2RzLWFkbWluIn0.HywSHWpsq9yHraUsPwehpaJKWWZFIQY2xE3mZBcVbbXA6ZerEjBzy1q_7VwonNMyUDo_kgK_vM0CVWKDFbESXqG-tbYd6LLD_PNvL8WyEZsKfiK2LYBiTNOAXnUqReUNt9XD_oHVoaEfeEpIO1WPONnmdcOLl_OBa7sdWFH8iT42hVufOHjYELJrOF8PG741BvtMuAIohYwFgO76G8dTWEaOYCX9Rg8n9jJQTqhMvm1fvW6c0V558q63e3oi7OFFR_V90dg4PYbBMAVMrKrrGAogEPnBhHFiY8YKF9lECzTyoVIxOphyvS5M9noU6G_W3-0w7gsMYGrXQVw7xlywNg</span><br><span class="line"></span><br><span class="line">$ TOKEN=<span class="string">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI4Mzg5LCJpYXQiOjE2NjgyMjQ3ODksImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJsdWZmeSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJsdWZmeS1wb2RzLWFkbWluIiwidWlkIjoiNjAzYWEzMDYtNDljZi00Y2UxLWI1OGYtMGNmMjUzYTI4YmY2In19LCJuYmYiOjE2NjgyMjQ3ODksInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1wb2RzLWFkbWluIn0.HywSHWpsq9yHraUsPwehpaJKWWZFIQY2xE3mZBcVbbXA6ZerEjBzy1q_7VwonNMyUDo_kgK_vM0CVWKDFbESXqG-tbYd6LLD_PNvL8WyEZsKfiK2LYBiTNOAXnUqReUNt9XD_oHVoaEfeEpIO1WPONnmdcOLl_OBa7sdWFH8iT42hVufOHjYELJrOF8PG741BvtMuAIohYwFgO76G8dTWEaOYCX9Rg8n9jJQTqhMvm1fvW6c0V558q63e3oi7OFFR_V90dg4PYbBMAVMrKrrGAogEPnBhHFiY8YKF9lECzTyoVIxOphyvS5M9noU6G_W3-0w7gsMYGrXQVw7xlywNg&quot;</span></span><br><span class="line"></span><br><span class="line">$ curl -k -H <span class="string">&quot;Authorization: Bearer <span class="variable">$TOKEN</span>&quot;</span> <span class="variable">$URL</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;PodMetrics&quot;</span>,</span><br><span class="line">  <span class="string">&quot;apiVersion&quot;</span>: <span class="string">&quot;metrics.k8s.io/v1beta1&quot;</span>,</span><br><span class="line">  <span class="string">&quot;metadata&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;myblog-84985b5b66-smpwb&quot;</span>,</span><br><span class="line">    <span class="string">&quot;namespace&quot;</span>: <span class="string">&quot;test&quot;</span>,</span><br><span class="line">    <span class="string">&quot;creationTimestamp&quot;</span>: <span class="string">&quot;2023-10-24T03:46:47Z&quot;</span></span><br><span class="line">    <span class="string">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;app&quot;</span>: <span class="string">&quot;myblog&quot;</span>,</span><br><span class="line">      <span class="string">&quot;pod-template-hash&quot;</span>: <span class="string">&quot;6b5d9664d8&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;timestamp&quot;</span>: <span class="string">&quot;2023-10-24T03:46:00Z&quot;</span>,</span><br><span class="line">  <span class="string">&quot;window&quot;</span>: <span class="string">&quot;30s&quot;</span>,</span><br><span class="line">  <span class="string">&quot;containers&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;name&quot;</span>: <span class="string">&quot;myblog&quot;</span>,</span><br><span class="line">      <span class="string">&quot;usage&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;cpu&quot;</span>: <span class="string">&quot;2082398n&quot;</span>,</span><br><span class="line">        <span class="string">&quot;memory&quot;</span>: <span class="string">&quot;3795872Ki&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>目前的采集流程：</p>
+<p><img src="/post/docker/k8s-hpa-ms.png" alt="k8s-hpa-ms"></p>
+<h3 id="kubelet的指标采集"><a href="#kubelet的指标采集" class="headerlink" title="kubelet的指标采集"></a>kubelet的指标采集</h3><p>无论是 heapster 还是 metric-server，都只是数据的中转和聚合，两者都是调用的 kubelet 的 api 接口获取的数据，而 kubelet 代码中实际采集指标的是 cadvisor 模块，你可以在 node 节点访问 10250 端口获取监控数据：</p>
+<ul>
+<li>Kubelet Summary metrics:  <code>https://127.0.0.1:10250/metrics</code>，暴露 node、pod 汇总数据</li>
+<li>Cadvisor metrics: <code>https://127.0.0.1:10250/metrics/cadvisors</code>，暴露 container 维度数据</li>
+</ul>
+<p>调用示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system create token metrics-server</span><br><span class="line">eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI4ODY0LCJpYXQiOjE2NjgyMjUyNjQsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJtZXRyaWNzLXNlcnZlciIsInVpZCI6IjE4MDJmNGVkLWFjMDYtNDcwYS04YmExLWM0MDJjODgwMjI2OCJ9fSwibmJmIjoxNjY4MjI1MjY0LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06bWV0cmljcy1zZXJ2ZXIifQ.Wz3kRbwoCJr2v_Gh5gG9oTMcZOPAgUPcSCmS-Nv7TB7a0aiYzSAqlH2PIqDt1wsv_bmNlpg2QifuDF1lnd5FmBmPCsY-zJX-uW-MStAQaCjfV8iBDmlThIP20srpmMf-z6JzkAlIF7JTTeuv03AkZg50FVKvu_2Zk-lm9gEwUhWgXns3oSnhTCWFHh2rOwnNq3IwcypTrRGWBEt5e9BQ6HWWMiCkkZ0WfgATXAAzYsmzRMIp2ZXntoqYEJGLEwgqJNLPVFpCdSn_C3Ft_2Mnfex84uSH0SL08fD5KP23SibWcPyOHIsSrsuPqA03JF-XW_JjRQyhOZsadSjvTBSSMQ</span><br><span class="line"></span><br><span class="line">$ TOKEN=<span class="string">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI4ODY0LCJpYXQiOjE2NjgyMjUyNjQsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJtZXRyaWNzLXNlcnZlciIsInVpZCI6IjE4MDJmNGVkLWFjMDYtNDcwYS04YmExLWM0MDJjODgwMjI2OCJ9fSwibmJmIjoxNjY4MjI1MjY0LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06bWV0cmljcy1zZXJ2ZXIifQ.Wz3kRbwoCJr2v_Gh5gG9oTMcZOPAgUPcSCmS-Nv7TB7a0aiYzSAqlH2PIqDt1wsv_bmNlpg2QifuDF1lnd5FmBmPCsY-zJX-uW-MStAQaCjfV8iBDmlThIP20srpmMf-z6JzkAlIF7JTTeuv03AkZg50FVKvu_2Zk-lm9gEwUhWgXns3oSnhTCWFHh2rOwnNq3IwcypTrRGWBEt5e9BQ6HWWMiCkkZ0WfgATXAAzYsmzRMIp2ZXntoqYEJGLEwgqJNLPVFpCdSn_C3Ft_2Mnfex84uSH0SL08fD5KP23SibWcPyOHIsSrsuPqA03JF-XW_JjRQyhOZsadSjvTBSSMQ&quot;</span></span><br><span class="line"></span><br><span class="line">$ curl -k  -H <span class="string">&quot;Authorization: Bearer <span class="variable">$TOKEN</span>&quot;</span> https://localhost:10250/metrics</span><br></pre></td></tr></table></figure>
+
+<p>kubelet虽然提供了metric接口，但实际监控逻辑由内置的cAdvisor模块负责，早期的时候，cadvisor是单独的组件，从k8s 1.12开始，cadvisor监听的端口在k8s中被删除，所有监控数据统一由Kubelet的API提供。</p>
+<p>cadvisor获取指标时实际调用的是runc&#x2F;libcontainer库，而libcontainer是对cgroup文件的封装，即cadvsior也只是个转发者，它的数据来自于cgroup文件。</p>
+<p>所以cgroup文件中的值才是监控数据的最终来源</p>
+<p><strong>下图是Metrics数据流</strong></p>
+<p><img src="/post/docker/hpa-flow.webp" alt="hpa-flow"></p>
+<p><em>Metrics Server是独立的一个服务，只能服务内部实现自己的api，那么它是如何做到通过标准的kubernetes 的API格式暴露出去的？</em></p>
+<p>这是因为它使用到了k8s的聚合器 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kube-aggregator">kube-aggregator</a></p>
+<h3 id="kube-aggregator聚合器及Metric-Server的实现"><a href="#kube-aggregator聚合器及Metric-Server的实现" class="headerlink" title="kube-aggregator聚合器及Metric-Server的实现"></a>kube-aggregator聚合器及Metric-Server的实现</h3><p>kube-aggregator是对 apiserver 的api的一种拓展机制，它允许开发人员编写一个自己的服务，并把这个服务注册到k8s的api里面，即扩展 API 。</p>
+<p><img src="/post/docker/kube-aggregation.webp" alt="kube-aggregation"></p>
+<p>看下metric-server的实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get apiservice </span><br><span class="line">NAME                       SERVICE                      AVAILABLE                      </span><br><span class="line">v1beta1.metrics.k8s.io   kube-system/metrics-server		True</span><br><span class="line"></span><br><span class="line">$ kubectl get apiservice v1beta1.metrics.k8s.io -oyaml</span><br><span class="line">...</span><br><span class="line">spec:</span><br><span class="line">  group: metrics.k8s.io</span><br><span class="line">  groupPriorityMinimum: 100</span><br><span class="line">  insecureSkipTLSVerify: <span class="literal">true</span></span><br><span class="line">  service:</span><br><span class="line">    name: metrics-server</span><br><span class="line">    namespace: kube-system</span><br><span class="line">    port: 443</span><br><span class="line">  version: v1beta1</span><br><span class="line">  versionPriority: 100</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 会往apiserver里注册一个</span></span><br><span class="line"><span class="comment"># proxyPath := &quot;/apis/&quot; + apiService.Spec.Group + &quot;/&quot; + apiService.Spec.Version</span></span><br><span class="line"><span class="comment"># https://192.168.100.1:6443/apis/metrics.k8s.io/v1beta1 </span></span><br><span class="line"><span class="comment"># =&gt; https://metrics-server:443/apis/metrics.k8s.io/v1beta1 </span></span><br><span class="line"></span><br><span class="line">$ kubectl -n kube-system get svc metrics-server</span><br><span class="line">NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE</span><br><span class="line">metrics-server   ClusterIP   10.105.155.213   &lt;none&gt;        443/TCP   10h</span><br><span class="line"></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> create token test-pods-admin</span><br><span class="line">eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI5OTMyLCJpYXQiOjE2NjgyMjYzMzIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJsdWZmeSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJsdWZmeS1wb2RzLWFkbWluIiwidWlkIjoiNjAzYWEzMDYtNDljZi00Y2UxLWI1OGYtMGNmMjUzYTI4YmY2In19LCJuYmYiOjE2NjgyMjYzMzIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1wb2RzLWFkbWluIn0.LeKFaXBeaAsyHd06JFc6exenNtfuBadjUj3YtqgHiBMmhNds4zmB9_ysvI4p04W6Kov37YTZg4WSj_AqpsplfCVVg8h-3kAQfPC6cHG5oBN-VUsMC80lu-MZsBTI4C5in7WgddFyFqFMxXL_-TdpguYohOJ6NC90z3IGLCKy8pS5mOCUA34o1_9x5P3JM5e--R-NIbwZmdESkfHejiaENCau_cwP2L2lxmU364kppSrcX_kGLybT7nMV-Bg6Q_-pt0JZVtP5C5NZUuLN0Mtmsd9me8LJFyPDX4fkWtXwZraqiRDx_OTgbckIwQAIDseFEu8ikVBYZ2p6qPCvtIgsMQ</span><br><span class="line"></span><br><span class="line">$ Token=<span class="string">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IktJeWtHUFlydXZ2ZncxQVNxUlZyWHhCTkkwb01IbjNKUnFwZ18wUUxkVGcifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjY4MjI5OTMyLCJpYXQiOjE2NjgyMjYzMzIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJsdWZmeSIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJsdWZmeS1wb2RzLWFkbWluIiwidWlkIjoiNjAzYWEzMDYtNDljZi00Y2UxLWI1OGYtMGNmMjUzYTI4YmY2In19LCJuYmYiOjE2NjgyMjYzMzIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpsdWZmeTpsdWZmeS1wb2RzLWFkbWluIn0.LeKFaXBeaAsyHd06JFc6exenNtfuBadjUj3YtqgHiBMmhNds4zmB9_ysvI4p04W6Kov37YTZg4WSj_AqpsplfCVVg8h-3kAQfPC6cHG5oBN-VUsMC80lu-MZsBTI4C5in7WgddFyFqFMxXL_-TdpguYohOJ6NC90z3IGLCKy8pS5mOCUA34o1_9x5P3JM5e--R-NIbwZmdESkfHejiaENCau_cwP2L2lxmU364kppSrcX_kGLybT7nMV-Bg6Q_-pt0JZVtP5C5NZUuLN0Mtmsd9me8LJFyPDX4fkWtXwZraqiRDx_OTgbckIwQAIDseFEu8ikVBYZ2p6qPCvtIgsMQ&quot;</span></span><br><span class="line">$ URL=<span class="string">&quot;https://10.105.155.213/apis/metrics.k8s.io/v1beta1/namespaces/test/pods/myblog-84985b5b66-smpwb&quot;</span></span><br><span class="line"></span><br><span class="line">$ curl -k -H <span class="string">&quot;Authorization: Bearer <span class="variable">$Token</span>&quot;</span> <span class="variable">$URL</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;PodMetrics&quot;</span>,</span><br><span class="line">  <span class="string">&quot;apiVersion&quot;</span>: <span class="string">&quot;metrics.k8s.io/v1beta1&quot;</span>,</span><br><span class="line">  <span class="string">&quot;metadata&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;myblog-84985b5b66-smpwb&quot;</span>,</span><br><span class="line">    <span class="string">&quot;namespace&quot;</span>: <span class="string">&quot;test&quot;</span>,</span><br><span class="line">    <span class="string">&quot;creationTimestamp&quot;</span>: <span class="string">&quot;2023-10-24T03:46:47Z&quot;</span>,</span><br><span class="line">    <span class="string">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;app&quot;</span>: <span class="string">&quot;myblog&quot;</span>,</span><br><span class="line">      <span class="string">&quot;pod-template-hash&quot;</span>: <span class="string">&quot;6b5d9664d8&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;timestamp&quot;</span>: <span class="string">&quot;2023-10-24T03:46:00Z&quot;</span>,</span><br><span class="line">  <span class="string">&quot;window&quot;</span>: <span class="string">&quot;30s&quot;</span>,</span><br><span class="line">  <span class="string">&quot;containers&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;name&quot;</span>: <span class="string">&quot;myblog&quot;</span>,</span><br><span class="line">      <span class="string">&quot;usage&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;cpu&quot;</span>: <span class="string">&quot;1569859n&quot;</span>,</span><br><span class="line">        <span class="string">&quot;memory&quot;</span>: <span class="string">&quot;3800032Ki&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-hpa/">k8s 动态扩缩容</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-10-24, 00:05:19</p>
+        <p><span>最后更新:</span>2023-11-17, 00:58:35</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-hpa/" title="k8s 动态扩缩容">http://realtiger.github.io/k8s-hpa/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-hpa/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/generate-a-self-signed-ssl-certificate/">
+                    生成自签名SSL证书
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-auth/">
+                    k8s 认证和授权
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%9A%E8%BF%87HPA%E5%AE%9E%E7%8E%B0%E4%B8%9A%E5%8A%A1%E5%BA%94%E7%94%A8%E7%9A%84%E5%8A%A8%E6%80%81%E6%89%A9%E7%BC%A9%E5%AE%B9"><span class="toc-number">1.</span> <span class="toc-text">通过HPA实现业务应用的动态扩缩容</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HPA%E6%8E%A7%E5%88%B6%E5%99%A8%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">HPA控制器介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Metric-Server"><span class="toc-number">1.2.</span> <span class="toc-text">Metric Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">准备配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.3.</span> <span class="toc-text">部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HPA%E5%AE%9E%E8%B7%B5"><span class="toc-number">1.3.</span> <span class="toc-text">HPA实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8ECPU%E5%92%8C%E5%86%85%E5%AD%98%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%B8%E7%BC%A9"><span class="toc-number">1.3.1.</span> <span class="toc-text">基于CPU和内存的动态伸缩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAhpa%E8%B5%84%E6%BA%90"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">创建hpa资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">验证</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8C%87%E6%A0%87%E7%9A%84%E5%8A%A8%E6%80%81%E4%BC%B8%E7%BC%A9"><span class="toc-number">1.3.2.</span> <span class="toc-text">基于自定义指标的动态伸缩</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">1.4.</span> <span class="toc-text">实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96Pod%E7%9A%84%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE"><span class="toc-number">1.4.1.</span> <span class="toc-text">如何获取Pod的监控数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#kubelet%E7%9A%84%E6%8C%87%E6%A0%87%E9%87%87%E9%9B%86"><span class="toc-number">1.4.2.</span> <span class="toc-text">kubelet的指标采集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#kube-aggregator%E8%81%9A%E5%90%88%E5%99%A8%E5%8F%8AMetric-Server%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.4.3.</span> <span class="toc-text">kube-aggregator聚合器及Metric-Server的实现</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s 动态扩缩容　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/generate-a-self-signed-ssl-certificate/" title="上一篇: 生成自签名SSL证书">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-auth/" title="下一篇: k8s 认证和授权">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
