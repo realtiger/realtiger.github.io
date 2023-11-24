@@ -32,10 +32,8 @@ class Model {
             if (!this.modelList) await this.loadModelList();
             const target = modelSelection(this.modelList.models[modelId], modelTexturesId);
             loadlive2d("live2d", `${this.cdnPath}model/${target}/index.json`);
-            console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
         } else {
             loadlive2d("live2d", `${this.apiPath}get/?id=${modelId}-${modelTexturesId}`);
-            console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
         }
     }
 

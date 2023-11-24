@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 k8s中的网络也是一个比较复杂的部分，这里我们看一下k8s中的网络，以及网络插件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 容器网络接口">
+<meta property="og:url" content="http://realtiger.github.io/k8s-cni/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 k8s中的网络也是一个比较复杂的部分，这里我们看一下k8s中的网络，以及网络插件。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/docker-bridge.jpeg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/kubelet-cni-process.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/cni-network.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/pod-local.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/pods-network.webp">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/vxlan.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/vxlan-p2p.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/vxlan-p2p-overlay.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/flannel-actual.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/flannel-host-gw.png">
+<meta property="article:published_time" content="2023-11-19T18:37:18.000Z">
+<meta property="article:modified_time" content="2023-11-21T17:36:57.458Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="cni">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/docker-bridge.jpeg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s 容器网络接口 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-cni" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-cni/" class="article-date">
+      <time datetime="2023-11-19T18:37:18.000Z" itemprop="datePublished">2023-11-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s 容器网络接口
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">22分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>k8s中的网络也是一个比较复杂的部分，这里我们看一下k8s中的网络，以及网络插件。</p>
+<span id="more"></span>
+
+<h1 id="Kubernetes集群的网络实现"><a href="#Kubernetes集群的网络实现" class="headerlink" title="Kubernetes集群的网络实现"></a>Kubernetes集群的网络实现</h1><h2 id="容器网络回顾"><a href="#容器网络回顾" class="headerlink" title="容器网络回顾"></a>容器网络回顾</h2><p><img src="/post/docker/docker-bridge.jpeg" alt="docker-bridge"></p>
+<p>Docker 创建一个容器的时候，会执行如下操作：</p>
+<ul>
+<li>创建一对虚拟接口&#x2F;网卡，也就是veth pair；</li>
+<li>veth pair的一端桥接 到默认的 docker0 或指定网桥上，并具有一个唯一的名字，如 vethxxxxxx；</li>
+<li>veth pair的另一端放到新启动的容器内部，并修改名字作为 eth0，这个网卡&#x2F;接口只在容器的命名空间可见；</li>
+<li>从网桥可用地址段中（也就是与该bridge对应的network）获取一个空闲地址分配给容器的 eth0</li>
+<li>配置容器的默认路由</li>
+</ul>
+<h2 id="Pod-IP唯一性保障"><a href="#Pod-IP唯一性保障" class="headerlink" title="Pod IP唯一性保障"></a>Pod IP唯一性保障</h2><p>Kubernetes网络模型的核心要求之一是每个Pod应该获得自己的IP地址，如何实现？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /etc/kubernetes/manifests/kube-controller-manager.yaml</span><br><span class="line">...</span><br><span class="line">- --cluster-cidr=10.244.0.0/16</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为每个节点从cidr中分配一个网段，供该节点分配pod ip</span></span><br><span class="line">$ kubectl describe nodes k8s-node1</span><br><span class="line">...</span><br><span class="line">PodCIDR:                      10.244.1.0/24</span><br><span class="line">PodCIDRs:                     10.244.1.0/24</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="Pod配置网络流程"><a href="#Pod配置网络流程" class="headerlink" title="Pod配置网络流程"></a>Pod配置网络流程</h2><p>CNI：容器网络接口（Container Network Interface）， 主要能力是对接 Kubelet 完成容器网卡的创建，申请和设置 ip 地址，路由设置，网关设置，实现kubernetes集群的Pod网络通信及管理。</p>
+<p>CNI的具体实现有很多种：</p>
+<ul>
+<li>通用类型：flannel、calico、Cilium 等，部署使用简单</li>
+<li>其他：根据具体的网络环境及网络需求选择，比如<ul>
+<li>公有云机器，可以选择厂商与网络插件的定制Backend，如AWS、阿里、腾讯针对flannel均有自己的插件，也有AWS ECS CNI</li>
+<li>私有云厂商，比如Vmware NSX-T等</li>
+<li>网络性能等，MacVlan</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>k8s本身不提供cni的实现，因此安装完k8s集群后，需要单独安装网络组件</p>
+</blockquote>
+<p><img src="/post/docker/kubelet-cni-process.jpg" alt="kubelet-cni-process"></p>
+<ol>
+<li>pod调度到k8s的节点k8s-node1中</li>
+<li>k8s-node1的kubelet调用containerd创建pod</li>
+<li>containerd创建pod沙箱和pod所用的网络空间</li>
+<li>containerd查找配置 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /etc/containerd/config.toml</span></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.cni]</span><br><span class="line">  bin_dir = &quot;/opt/cni/bin&quot;</span><br><span class="line">  conf_dir = &quot;/etc/cni/net.d&quot;</span><br><span class="line">  conf_template = &quot;&quot;</span><br><span class="line">  ip_pref = &quot;&quot;</span><br><span class="line">  max_conf_num = 1</span><br><span class="line">......</span><br></pre></td></tr></table></figure></li>
+<li>查看目录<code>/etc/cni/net.d/</code>，发现<code>10-flannel.conflist</code>，使用flannel作为网络插件 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">sudo <span class="built_in">ls</span> /etc/cni/net.d/</span></span><br><span class="line">10-flannel.conflist</span><br></pre></td></tr></table></figure></li>
+<li>CNI开始为pod配置网络<ul>
+<li>flannel启动时候，写入了本机配置文件<code>/run/flannel/subnet.env</code>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /run/flannel/subnet.env</span></span><br><span class="line">FLANNEL_NETWORK=10.244.0.0/16</span><br><span class="line">FLANNEL_SUBNET=10.244.0.1/24</span><br><span class="line">FLANNEL_MTU=1450</span><br><span class="line">FLANNEL_IPMASQ=true</span><br></pre></td></tr></table></figure></li>
+<li>flannel将本机网段等信息传递给bridge插件<ul>
+<li>bridge插件创建cni0网桥</li>
+<li>创建veth pair，分别接入到pod网络空间和cni0网桥</li>
+<li>调用 本地IPAM CNI 插件，设置pod ip地址并记录已分配地址  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ip a s cni0</span></span><br><span class="line">15: cni0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc noqueue state UP group default qlen 1000</span><br><span class="line">    link/ether 6a:93:41:87:41:22 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.244.0.1/24 brd 10.244.0.255 scope global cni0</span><br><span class="line">        valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::6893:41ff:fe87:4122/64 scope link</span><br><span class="line">        valid_lft forever preferred_lft forever</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">yum install bridge-utils -y</span></span><br><span class="line">......</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">brctl show</span></span><br><span class="line">bridge name     bridge id               STP enabled     interfaces</span><br><span class="line">cni0            8000.6a9341874122       no              veth8a587a83</span><br><span class="line">docker0         8000.024289168674       no</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>IPAM CNI 插件从子网返回容器的IP地址，并将分配的IP本地存储在主机上 <code>/var/lib/cni/networks/cbr0/</code></li>
+</ul>
+</li>
+<li>containerd创建pause容器，并配置到新建的网络空间</li>
+<li>kubelet调用containerd开始拉取业务镜像</li>
+<li>启动业务容器并设置namespace和cgroup</li>
+</ol>
+<p>上图可以清晰的看到如下重点：</p>
+<ul>
+<li>kubelet、containerd、cni的工作边界和职责</li>
+<li>cni是被containerd进行调用，cni的实现是可以根据不同的网络环境配置的</li>
+<li>配置Pod网络的过程，实际上是一个网络工具的链式调用</li>
+</ul>
+<p>更细致的CNI调用过程如下图：</p>
+<p><img src="/post/docker/cni-network.webp" alt="cni-network"></p>
+<ul>
+<li>Flannel CNI<ul>
+<li>使用Flannel作为网络提供程序时，Containered CRI插件使用CNI配置文件<code>/etc/cni/net.d/10-flannel.conflist</code>调用Flannel CNI插件</li>
+<li>Flannel CNI插件与Flanneld结合使用。当Flanneld启动时，它会从apiserver中获取podCIDR和其他与网络相关的详细信息，并将它们存储在文件<code>/run/flannel/subnet.env</code>中</li>
+<li>Flannel CNI插件使用<code>/run/flannel/subnet.env</code>中的信息来配置和调用网桥CNI插件。</li>
+</ul>
+</li>
+<li>Bridge CNI<ul>
+<li>首次调用Bridge CNI插件时，它将使用配置文件中指定的<code>&quot;name&quot;: &quot;cni0&quot;</code>创建一个Linux网桥。然后，它为每个Pod创建veth对，该对的一端在容器的网络名称空间中，另一端连接到主机网络上的linux桥。使用Bridge CNI插件，主机上的所有容器都连接到主机网络上的linux网桥。</li>
+<li>配置完veth对后，Bridge插件将调用主机本地IPAM CNI插件</li>
+</ul>
+</li>
+<li>host-local IPAM CNI<ul>
+<li>Host-local IPAM（IP地址管理）插件从子网返回容器的IP地址，并将分配的IP本地存储在主机上</li>
+</ul>
+</li>
+</ul>
+<p>经过Pod网络配置后，本机的Pod应该是这样的：</p>
+<p><img src="/post/docker/pod-local.png" alt="pod-local"></p>
+<h2 id="kube-flannel的作用"><a href="#kube-flannel的作用" class="headerlink" title="kube-flannel的作用"></a>kube-flannel的作用</h2><p>从Pod的启动进程，看flannel的Pod：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-flannel get po -owide</span><br><span class="line">NAME                    READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES</span><br><span class="line">kube-flannel-ds-6tx4f   1/1     Running   0          87d   192.168.100.1   k8s-master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-flannel-ds-7p2rb   1/1     Running   0          87d   192.168.100.2   k8s-node1    &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-flannel-ds-rx54g   1/1     Running   0          87d   192.168.100.3   k8s-node2    &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line">$ kubectl -n kube-flannel get pod kube-flannel-ds-gdvpx -oyaml</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">  containers:</span><br><span class="line">  - args:</span><br><span class="line">    - --ip-masq</span><br><span class="line">    - --kube-subnet-mgr</span><br><span class="line">    - --iface=ens192</span><br><span class="line">    <span class="built_in">command</span>:</span><br><span class="line">    - /opt/bin/flanneld</span><br><span class="line">......</span><br><span class="line">  initContainers:</span><br><span class="line">  - args:</span><br><span class="line">    - -f</span><br><span class="line">    - /flannel</span><br><span class="line">    - /opt/cni/bin/flannel</span><br><span class="line">    <span class="built_in">command</span>:</span><br><span class="line">    - <span class="built_in">cp</span></span><br><span class="line">    image: docker.io/flannel/flannel-cni-plugin:v1.2.0</span><br><span class="line">    imagePullPolicy: IfNotPresent</span><br><span class="line">    name: install-cni-plugin</span><br><span class="line">    resources: &#123;&#125;</span><br><span class="line">    terminationMessagePath: /dev/termination-log</span><br><span class="line">    terminationMessagePolicy: File</span><br><span class="line">    volumeMounts:</span><br><span class="line">    - mountPath: /opt/cni/bin</span><br><span class="line">      name: cni-plugin</span><br><span class="line">    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line">      name: kube-api-access-db2cl</span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">  - args:</span><br><span class="line">    - -f</span><br><span class="line">    - /etc/kube-flannel/cni-conf.json</span><br><span class="line">    - /etc/cni/net.d/10-flannel.conflist</span><br><span class="line">    <span class="built_in">command</span>:</span><br><span class="line">    - <span class="built_in">cp</span></span><br><span class="line">    image: docker.io/flannel/flannel:v0.22.2</span><br><span class="line">    imagePullPolicy: IfNotPresent</span><br><span class="line">    name: install-cni</span><br><span class="line">    resources: &#123;&#125;</span><br><span class="line">    terminationMessagePath: /dev/termination-log</span><br><span class="line">    terminationMessagePolicy: File</span><br><span class="line">    volumeMounts:</span><br><span class="line">    - mountPath: /etc/cni/net.d</span><br><span class="line">      name: cni</span><br><span class="line">    - mountPath: /etc/kube-flannel/</span><br><span class="line">      name: flannel-cfg</span><br><span class="line">    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount</span><br><span class="line">      name: kube-api-access-db2cl</span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">......</span><br><span class="line">  volumes:</span><br><span class="line">  - hostPath:</span><br><span class="line">      path: /run/flannel</span><br><span class="line">      <span class="built_in">type</span>: <span class="string">&quot;&quot;</span></span><br><span class="line">    name: run</span><br><span class="line">  - hostPath:</span><br><span class="line">      path: /opt/cni/bin</span><br><span class="line">      <span class="built_in">type</span>: <span class="string">&quot;&quot;</span></span><br><span class="line">    name: cni-plugin</span><br><span class="line">  - hostPath:</span><br><span class="line">      path: /etc/cni/net.d</span><br><span class="line">      <span class="built_in">type</span>: <span class="string">&quot;&quot;</span></span><br><span class="line">    name: cni</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从配置文中可以知道，flannel的Pod做了如下事情：</span></span><br><span class="line"><span class="comment"># 1. 执行命令 /opt/bin/flanneld --ip-masq --kube-subnet-mgr --iface=eth0</span></span><br><span class="line"><span class="comment"># 2. 第一个 initContainer 执行命令 cp -f /flannel /opt/cni/bin/flannel</span></span><br><span class="line"><span class="comment"># 3. 第二个 initContainer 执行命令 cp -f /etc/kube-flannel/cni-conf.json /etc/cni/net.d/10-flannel.conflist</span></span><br></pre></td></tr></table></figure>
+
+<p>从进程可以得知：</p>
+<ol>
+<li>启动flanneld进程，功能未知</li>
+<li>拷贝flannel的网络插件到宿主机中，为containerd调用</li>
+<li>考虑flannel的配置文件，当成宿主机的CNI配置，告知containerd使用flannel</li>
+</ol>
+<h2 id="跨主机Pod通信"><a href="#跨主机Pod通信" class="headerlink" title="跨主机Pod通信"></a>跨主机Pod通信</h2><p>跨主机间的通信流程：</p>
+<p><img src="/post/docker/pods-network.webp" alt="pods-network"></p>
+<p>flannel的网络有多种后端实现：</p>
+<p>1.<code>udp</code><br>2. <code>vxlan</code><br>3. <code>host-gw</code><br>4. …</p>
+<p>不特殊指定的话，默认会使用vxlan技术作为Backend，可以通过如下命令查看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-flannel <span class="built_in">exec</span> -it kube-flannel-ds-6tx4f -- <span class="built_in">cat</span> /etc/kube-flannel/net-conf.json</span><br><span class="line">Defaulted container <span class="string">&quot;kube-flannel&quot;</span> out of: kube-flannel, install-cni-plugin (init), install-cni (init)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;Network&quot;</span>: <span class="string">&quot;10.244.0.0/16&quot;</span>,</span><br><span class="line">  <span class="string">&quot;Backend&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;Type&quot;</span>: <span class="string">&quot;vxlan&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用vxlan作为后端实现时，flanneld进程的作用：</p>
+<ul>
+<li>启动flannel.1作为VTEP设备，用来封包、解包，实现跨主机通信</li>
+<li>监听宿主机的Pod CIDR，维护本机路由表</li>
+</ul>
+<h3 id="vxlan介绍及点对点通信的实现"><a href="#vxlan介绍及点对点通信的实现" class="headerlink" title="vxlan介绍及点对点通信的实现"></a>vxlan介绍及点对点通信的实现</h3><p>VXLAN 全称是虚拟可扩展的局域网（ Virtual eXtensible Local Area Network），它是一种 overlay 技术，通过三层的网络来搭建虚拟的二层网络。</p>
+<p><img src="/post/docker/vxlan.png" alt="vxlan"></p>
+<p>它创建在原来的 IP 网络（三层）上，只要是三层可达（能够通过 IP 互相通信）的网络就能部署 vxlan。在每个端点上都有一个 vtep 负责 vxlan 协议报文的封包和解包，也就是在虚拟报文上封装 vtep 通信的报文头部。物理网络上可以创建多个 vxlan 网络，这些 vxlan 网络可以认为是一个隧道，不同节点的虚拟机能够通过隧道直连。每个 vxlan 网络由唯一的 VNI 标识，不同的 vxlan 可以不相互影响。</p>
+<ul>
+<li>VTEP（VXLAN Tunnel Endpoints）：vxlan 网络的边缘设备，用来进行 vxlan 报文的处理（封包和解包）。vtep 可以是网络设备（比如交换机），也可以是一台机器（比如虚拟化集群中的宿主机）</li>
+<li>VNI（VXLAN Network Identifier）：VNI 是每个 vxlan 的标识，一共有 2^24 &#x3D; 16,777,216，一般每个 VNI 对应一个租户，也就是说使用 vxlan 搭建的公有云可以理论上可以支撑千万级别的租户</li>
+</ul>
+<h3 id="vxlan点对点通信的实现"><a href="#vxlan点对点通信的实现" class="headerlink" title="vxlan点对点通信的实现"></a>vxlan点对点通信的实现</h3><p>在k8s选择两台机器，利用vxlan的点对点能力，实现虚拟二层网络的通信</p>
+<p><img src="/post/docker/vxlan-p2p.png" alt="vxlan-p2p"></p>
+<h4 id="配置vxlan网络"><a href="#配置vxlan网络" class="headerlink" title="配置vxlan网络"></a>配置vxlan网络</h4><p><code>192.168.100.1</code>节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建vTEP设备，对端指向192.168.100.2节点，指定VNI及underlay网络使用的网卡</span></span><br><span class="line">$ sudo ip <span class="built_in">link</span> add vxlan20 <span class="built_in">type</span> vxlan <span class="built_in">id</span> 20 remote 192.168.100.2 dstport 4789 dev ens224</span><br><span class="line"><span class="comment"># 查看设备信息</span></span><br><span class="line">$ sudo ip -d <span class="built_in">link</span> show vxlan20</span><br><span class="line"><span class="comment"># 启动设备</span></span><br><span class="line">$ sudo ip <span class="built_in">link</span> <span class="built_in">set</span> vxlan20 up</span><br><span class="line"><span class="comment"># 设置ip地址</span></span><br><span class="line">$ sudo ip addr add 172.16.1.1/24 dev vxlan20</span><br></pre></td></tr></table></figure>
+
+<p><code>192.168.100.2</code>节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建VTEP设备，对端指向192.168.100.1节点，指定VNI及underlay网络使用的网卡</span></span><br><span class="line">$ sudo ip <span class="built_in">link</span> add vxlan20 <span class="built_in">type</span> vxlan <span class="built_in">id</span> 20 remote 192.168.100.1 dstport 4789 dev ens224</span><br><span class="line"><span class="comment"># 启动设备</span></span><br><span class="line">$ sudo ip <span class="built_in">link</span> <span class="built_in">set</span> vxlan20 up</span><br><span class="line"><span class="comment"># 设置ip地址</span></span><br><span class="line">$ sudo ip addr add 172.16.2.2/24 dev vxlan20</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试点对点通信"><a href="#测试点对点通信" class="headerlink" title="测试点对点通信"></a>测试点对点通信</h4><p>在<code>192.168.100.1</code>节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ping -c 6 172.16.2.2</span><br><span class="line">PING 172.16.2.2 (172.16.2.2) 56(84) 比特的数据。</span><br><span class="line">^C</span><br><span class="line">--- 172.16.2.2 ping 统计 ---</span><br><span class="line">已发送 6 个包， 已接收 0 个包, 100% packet loss, time 5105ms</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置路由"><a href="#配置路由" class="headerlink" title="配置路由"></a>配置路由</h4><p>在<code>192.168.100.1</code>节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">走vtep封包解包</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ip route add 172.16.2.0/24 dev vxlan20</span></span><br></pre></td></tr></table></figure>
+
+<p>在<code>192.168.100.2</code>机器上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ip route add 172.16.1.0/24 dev vxlan20</span><br></pre></td></tr></table></figure>
+
+<h4 id="再次测试点对点通信"><a href="#再次测试点对点通信" class="headerlink" title="再次测试点对点通信"></a>再次测试点对点通信</h4><p>在<code>192.168.100.1</code>节点，再次ping：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ping 172.16.2.2</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="等似模型"><a href="#等似模型" class="headerlink" title="等似模型"></a>等似模型</h4><p><img src="/post/docker/vxlan-p2p-overlay.png" alt="vxlan-p2p-overlay"></p>
+<p>这里的隧道是一个逻辑上的概念，在 vxlan 模型中并没有具体的物理实体相对应。隧道可以看做是一种虚拟通道，vxlan 通信双方认为自己是在直接通信，并不知道底层网络的存在。从整体来说，每个 vxlan 网络像是为通信的虚拟机搭建了一个单独的通信通道，也就是隧道。</p>
+<p>整个vxlan实现的过程就是机器的报文通过 vtep 添加上 vxlan 以及外部的报文层，然后发送出去，对方 vtep 收到之后拆除 vxlan 头部然后根据 VNI 把原始报文发送到目的虚拟机。</p>
+<h4 id="清除配置"><a href="#清除配置" class="headerlink" title="清除配置"></a>清除配置</h4><p>两台机器上都进行清除配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ip <span class="built_in">link</span> del vxlan20</span><br></pre></td></tr></table></figure>
+
+<h3 id="跨主机Pod通信-1"><a href="#跨主机Pod通信-1" class="headerlink" title="跨主机Pod通信"></a>跨主机Pod通信</h3><p>接下来看看k8s中跨主机Pod通信的流量详细过程。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群中的Pod，查找两个不同节点的Pod，这里选取了myblog和testpod</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> get po -o wide</span><br><span class="line">NAME                       READY   STATUS    RESTARTS   AGE   IP              NODE        NOMINATED NODE   READINESS GATES</span><br><span class="line">myblog-84985b5b66-smpwb    1/1     Running   0          76d   10.244.1.5      k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">mysql-7f97cb6cc9-vzxpd     1/1     Running   0          76d   192.168.100.2   k8s-node1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">testpod-865855cfc5-m2f99   1/1     Running   0          63d   10.244.2.13     k8s-node2   &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> myblog-84985b5b66-smpwb -- ping 10.244.2.13 -c 6</span><br><span class="line">PING 10.244.2.13 (10.244.2.13) 56(84) bytes of data.</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=1 ttl=62 time=1.05 ms</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=2 ttl=62 time=1.04 ms</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=3 ttl=62 time=0.856 ms</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=4 ttl=62 time=1.14 ms</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=5 ttl=62 time=1.03 ms</span><br><span class="line">64 bytes from 10.244.2.13: icmp_seq=6 ttl=62 time=0.974 ms</span><br><span class="line"></span><br><span class="line">--- 10.244.2.13 ping statistics ---</span><br><span class="line">6 packets transmitted, 6 received, 0% packet loss, time 5005ms</span><br><span class="line">rtt min/avg/max/mdev = 0.856/1.014/1.143/0.086 ms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看路由</span></span><br><span class="line">$ kubectl -n <span class="built_in">test</span> <span class="built_in">exec</span> myblog-84985b5b66-smpwb -- route -n</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">0.0.0.0         10.244.1.1      0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">10.244.0.0      10.244.1.1      255.255.0.0     UG    0      0        0 eth0</span><br><span class="line">10.244.1.0      0.0.0.0         255.255.255.0   U     0      0        0 eth0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看k8s-master 的veth pair 和网桥</span></span><br><span class="line">$ brctl show</span><br><span class="line">bridge name     bridge <span class="built_in">id</span>               STP enabled     interfaces</span><br><span class="line">cni0            8000.6a9341874122       no              veth8a587a83</span><br><span class="line">                                                        vethe7a6a0e0</span><br><span class="line">docker0         8000.024289168674       no</span><br><span class="line"></span><br><span class="line"><span class="comment"># 流量到了cni0后，查看master节点的route</span></span><br><span class="line">$ ip r s</span><br><span class="line">default via 10.209.0.200 dev ens192 proto dhcp src 10.209.0.13 metric 100</span><br><span class="line">default via 192.168.100.254 dev ens224 proto static metric 101</span><br><span class="line">10.209.0.0/21 dev ens192 proto kernel scope <span class="built_in">link</span> src 10.209.0.13 metric 100</span><br><span class="line">10.244.0.0/24 dev cni0 proto kernel scope <span class="built_in">link</span> src 10.244.0.1</span><br><span class="line">10.244.1.0/24 via 10.244.1.0 dev flannel.1 onlink</span><br><span class="line">10.244.2.0/24 via 10.244.2.0 dev flannel.1 onlink</span><br><span class="line">172.7.21.0/24 dev docker0 proto kernel scope <span class="built_in">link</span> src 172.7.21.1 linkdown</span><br><span class="line">192.168.100.0/24 dev ens224 proto kernel scope <span class="built_in">link</span> src 192.168.100.1 metric 101</span><br><span class="line"></span><br><span class="line"><span class="comment"># 流量转发到了flannel.1网卡，查看该网卡，其实是vtep设备</span></span><br><span class="line">$ ip -d <span class="built_in">link</span> show flannel.1</span><br><span class="line">$ ip -d <span class="built_in">link</span> show flannel.1</span><br><span class="line">6: flannel.1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc noqueue state UNKNOWN mode DEFAULT group default</span><br><span class="line">    <span class="built_in">link</span>/ether 0e:af:83:0c:88:29 brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 65535</span><br><span class="line">    vxlan <span class="built_in">id</span> 1 <span class="built_in">local</span> 10.209.0.13 dev ens192 srcport 0 0 dstport 8472 nolearning ttl auto ageing 300 udpcsum noudp6zerocsumtx noudp6zerocsumrx addrgenmode eui64 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536</span><br><span class="line"></span><br><span class="line"><span class="comment"># 该转发到哪里，通过etcd查询数据，然后本地缓存，流量不用走多播发送</span></span><br><span class="line">$ bridge fdb show dev flannel.1</span><br><span class="line">f6:62:9f:90:cf:fe dst 10.209.0.15 self permanent</span><br><span class="line">66:1a:39:32:d5:13 dst 10.209.0.11 self permanent</span><br></pre></td></tr></table></figure>
+
+<p>查看k8s-node1的路由</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">对端的vtep设备接收到请求后做解包，取出源payload内容</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">route -n</span></span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">0.0.0.0         172.21.64.190   0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">10.244.0.0      10.244.0.0      255.255.255.0   UG    0      0        0 flannel.1</span><br><span class="line">10.244.1.0      0.0.0.0         255.255.255.0   U     0      0        0 cni0</span><br><span class="line">10.244.2.0      10.244.2.0      255.255.255.0   UG    0      0        0 flannel.1</span><br><span class="line">169.254.0.0     0.0.0.0         255.255.0.0     U     1002   0        0 eth0</span><br><span class="line">172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">根据路由规则转发到cni0网桥,然后由网桥转到具体的Pod中</span></span><br></pre></td></tr></table></figure>
+
+<p>实际的请求图：</p>
+<p><img src="/post/docker/flannel-actual.png" alt="flannel-actual"></p>
+<h3 id="kube-flannel中flanneld的作用"><a href="#kube-flannel中flanneld的作用" class="headerlink" title="kube-flannel中flanneld的作用"></a>kube-flannel中flanneld的作用</h3><p>现在我们可以说一下前面未知的flanneld进程的作用了。</p>
+<p>从上面的分析可以看到，flannel的Pod中的flanneld进程的作用有如下几点，保证Pod网络的通信（vxlan模式）：</p>
+<ul>
+<li>启动flannel.1作为VTEP设备，用来封包、解包，实现跨主机通信</li>
+<li>监听宿主机的Pod CIDR，维护本机路由表</li>
+<li>通过etcd查询数据，然后本地缓存，流量不用走多播发送</li>
+</ul>
+<h3 id="利用host-gw模式提升集群网络性能"><a href="#利用host-gw模式提升集群网络性能" class="headerlink" title="利用host-gw模式提升集群网络性能"></a>利用host-gw模式提升集群网络性能</h3><p>vxlan模式适用于三层可达的网络环境，对集群的网络要求很宽松，但是同时由于会通过VTEP设备进行额外封包和解包，因此给性能带来了额外的开销。</p>
+<p>网络插件的目的其实就是将本机的cni0网桥的流量送到目的主机的cni0网桥。实际上有很多集群是部署在同一二层网络环境下的，可以直接利用二层的主机当作流量转发的网关。这样的话，可以不用进行封包解包，直接通过路由表去转发流量。</p>
+<p><img src="/post/docker/flannel-host-gw.png" alt="flannel-host-gw"></p>
+<blockquote>
+<p>为什么三层可达的网络不直接利用网关转发流量？</p>
+<p>这是因为内核当中的路由规则，网关必须在跟主机当中至少一个 IP 处于同一网段。<br>由于k8s集群内部各节点均需要实现Pod互通，因此，也就意味着host-gw模式需要整个集群节点都在同一二层网络内。</p>
+</blockquote>
+<p>首先修改flannel的网络后端为host-gw</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl edit cm kube-flannel-cfg -n kube-flannel</span><br><span class="line">...</span><br><span class="line">net-conf.json: |</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;Network&quot;</span>: <span class="string">&quot;10.244.0.0/16&quot;</span>,</span><br><span class="line">      <span class="string">&quot;Backend&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;Type&quot;</span>: <span class="string">&quot;host-gw&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">kind: ConfigMap</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>重建Flannel的Pod</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-flannel get pod</span><br><span class="line">NAME                    READY   STATUS    RESTARTS   AGE</span><br><span class="line">kube-flannel-ds-6tx4f   1/1     Running   0          88d</span><br><span class="line">kube-flannel-ds-7p2rb   1/1     Running   0          88d</span><br><span class="line">kube-flannel-ds-rx54g   1/1     Running   0          88d</span><br><span class="line"></span><br><span class="line">$ kubectl -n kube-flannel delete po kube-flannel-ds-6tx4f kube-flannel-ds-7p2rb kube-flannel-ds-rx54g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等待Pod新启动后，查看日志，出现Backend type: host-gw字样</span></span><br><span class="line">$ kubectl -n kube-flannel logs -f kube-flannel-ds-xbbg2</span><br><span class="line">Defaulted container <span class="string">&quot;kube-flannel&quot;</span> out of: kube-flannel, install-cni-plugin (init), install-cni (init)</span><br><span class="line">I1121 17:30:43.302575       1 main.go:212] CLI flags config: &#123;etcdEndpoints:http://127.0.0.1:4001,http://127.0.0.1:2379 etcdPrefix:/coreos.com/network etcdKeyfile: etcdCertfile: etcdCAFile: etcdUsername: etcdPassword: version:<span class="literal">false</span> kubeSubnetMgr:<span class="literal">true</span> kubeApiUrl: kubeAnnotationPrefix:flannel.alpha.coreos.com kubeConfigFile: iface:[ens224] ifaceRegex:[] ipMasq:<span class="literal">true</span> ifaceCanReach: subnetFile:/run/flannel/subnet.env publicIP: publicIPv6: subnetLeaseRenewMargin:60 healthzIP:0.0.0.0 healthzPort:0 iptablesResyncSeconds:5 iptablesForwardRules:<span class="literal">true</span> netConfPath:/etc/kube-flannel/net-conf.json setNodeNetworkUnavailable:<span class="literal">true</span> useMultiClusterCidr:<span class="literal">false</span>&#125;</span><br><span class="line">W1121 17:30:43.302852       1 client_config.go:617] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.</span><br><span class="line">I1121 17:30:43.336114       1 kube.go:145] Waiting 10m0s <span class="keyword">for</span> node controller to <span class="built_in">sync</span></span><br><span class="line">I1121 17:30:43.336353       1 kube.go:489] Starting kube subnet manager</span><br><span class="line">I1121 17:30:43.345998       1 kube.go:510] Creating the node lease <span class="keyword">for</span> IPv4. This is the n.Spec.PodCIDRs: [10.244.0.0/24]</span><br><span class="line">I1121 17:30:43.346170       1 kube.go:510] Creating the node lease <span class="keyword">for</span> IPv4. This is the n.Spec.PodCIDRs: [10.244.1.0/24]</span><br><span class="line">I1121 17:30:43.346257       1 kube.go:510] Creating the node lease <span class="keyword">for</span> IPv4. This is the n.Spec.PodCIDRs: [10.244.2.0/24]</span><br><span class="line">I1121 17:30:44.337195       1 kube.go:152] Node controller <span class="built_in">sync</span> successful</span><br><span class="line">I1121 17:30:44.337292       1 main.go:232] Created subnet manager: Kubernetes Subnet Manager - k8s-master</span><br><span class="line">I1121 17:30:44.337312       1 main.go:235] Installing signal handlers</span><br><span class="line">I1121 17:30:44.337914       1 main.go:543] Found network config - Backend <span class="built_in">type</span>: host-gw</span><br><span class="line">I1121 17:30:44.339623       1 match.go:259] Using interface with name ens224 and address 192.168.100.1</span><br><span class="line">I1121 17:30:44.339696       1 match.go:281] Defaulting external address to interface address (192.168.100.1)</span><br><span class="line">I1121 17:30:44.360432       1 main.go:357] Setting up masking rules</span><br><span class="line">I1121 17:30:44.361152       1 kube.go:510] Creating the node lease <span class="keyword">for</span> IPv4. This is the n.Spec.PodCIDRs: [10.244.0.0/24]</span><br><span class="line">I1121 17:30:44.417318       1 main.go:408] Changing default FORWARD chain policy to ACCEPT</span><br><span class="line">I1121 17:30:44.422345       1 iptables.go:290] generated 7 rules</span><br><span class="line">I1121 17:30:44.428274       1 iptables.go:290] generated 3 rules</span><br><span class="line">I1121 17:30:44.428651       1 main.go:436] Wrote subnet file to /run/flannel/subnet.env</span><br><span class="line">I1121 17:30:44.428713       1 main.go:440] Running backend.</span><br><span class="line">I1121 17:30:44.429253       1 route_network.go:56] Watching <span class="keyword">for</span> new subnet leases</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>查看节点路由表：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ ip r s</span><br><span class="line">default via 10.209.0.200 dev ens192 proto dhcp src 10.209.0.13 metric 100</span><br><span class="line">default via 192.168.100.254 dev ens224 proto static metric 101</span><br><span class="line">10.209.0.0/21 dev ens192 proto kernel scope <span class="built_in">link</span> src 10.209.0.13 metric 100</span><br><span class="line">10.244.0.0/24 dev cni0 proto kernel scope <span class="built_in">link</span> src 10.244.0.1</span><br><span class="line">10.244.1.0/24 via 192.168.100.2 dev ens224</span><br><span class="line">10.244.2.0/24 via 192.168.100.3 dev ens224</span><br><span class="line">172.7.21.0/24 dev docker0 proto kernel scope <span class="built_in">link</span> src 172.7.21.1 linkdown</span><br><span class="line">192.168.100.0/24 dev ens224 proto kernel scope <span class="built_in">link</span> src 192.168.100.1 metric 101</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>flannel pod做的几个事情：</p>
+<ul>
+<li>为了配置本机的Pod网络<ul>
+<li>flannel pod启动时，拷贝cni的配置文件<code>/etc/cni/net.d/10-flannel.conflist</code>，告知CRI(containerd) 使用flannel插件进行配置网络</li>
+<li>拷贝一份可执行文件到宿主机 <code>/opt/cni/bin/flannel</code></li>
+<li>调用apiserver，得到分配到本机的PodCIDR，写入到<code>/run/flannel/subnet.env</code></li>
+<li>调用本机的bridge插件，创建本地cni0网桥，创建虚拟网卡对，链接cni0和Pod网络空间</li>
+<li>bridge cni调用local ipam插件（host-local），记录并分配pod ip，写入到<code>/var/lib/cni/networks/cbr0/</code></li>
+</ul>
+</li>
+<li>为了使得跨主机实现Pod的访问<ul>
+<li>创建flannel.1 vtep设备，支持vxlan模式下封包解包</li>
+<li>维护本机路由表，转发Pod的流量</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-cni/">k8s 容器网络接口</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-11-20, 02:37:18</p>
+        <p><span>最后更新:</span>2023-11-22, 01:36:57</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-cni/" title="k8s 容器网络接口">http://realtiger.github.io/k8s-cni/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-cni/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-persistent-volume/">
+                    k8s 持久卷
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes%E9%9B%86%E7%BE%A4%E7%9A%84%E7%BD%91%E7%BB%9C%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">Kubernetes集群的网络实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%9B%9E%E9%A1%BE"><span class="toc-number">1.1.</span> <span class="toc-text">容器网络回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod-IP%E5%94%AF%E4%B8%80%E6%80%A7%E4%BF%9D%E9%9A%9C"><span class="toc-number">1.2.</span> <span class="toc-text">Pod IP唯一性保障</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pod%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BB%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text">Pod配置网络流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kube-flannel%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.4.</span> <span class="toc-text">kube-flannel的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%A8%E4%B8%BB%E6%9C%BAPod%E9%80%9A%E4%BF%A1"><span class="toc-number">1.5.</span> <span class="toc-text">跨主机Pod通信</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#vxlan%E4%BB%8B%E7%BB%8D%E5%8F%8A%E7%82%B9%E5%AF%B9%E7%82%B9%E9%80%9A%E4%BF%A1%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.5.1.</span> <span class="toc-text">vxlan介绍及点对点通信的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vxlan%E7%82%B9%E5%AF%B9%E7%82%B9%E9%80%9A%E4%BF%A1%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.5.2.</span> <span class="toc-text">vxlan点对点通信的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEvxlan%E7%BD%91%E7%BB%9C"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">配置vxlan网络</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E7%82%B9%E5%AF%B9%E7%82%B9%E9%80%9A%E4%BF%A1"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">测试点对点通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">配置路由</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%8D%E6%AC%A1%E6%B5%8B%E8%AF%95%E7%82%B9%E5%AF%B9%E7%82%B9%E9%80%9A%E4%BF%A1"><span class="toc-number">1.5.2.4.</span> <span class="toc-text">再次测试点对点通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%89%E4%BC%BC%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.5.2.5.</span> <span class="toc-text">等似模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B8%85%E9%99%A4%E9%85%8D%E7%BD%AE"><span class="toc-number">1.5.2.6.</span> <span class="toc-text">清除配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E4%B8%BB%E6%9C%BAPod%E9%80%9A%E4%BF%A1-1"><span class="toc-number">1.5.3.</span> <span class="toc-text">跨主机Pod通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#kube-flannel%E4%B8%ADflanneld%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.5.4.</span> <span class="toc-text">kube-flannel中flanneld的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8host-gw%E6%A8%A1%E5%BC%8F%E6%8F%90%E5%8D%87%E9%9B%86%E7%BE%A4%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD"><span class="toc-number">1.5.5.</span> <span class="toc-text">利用host-gw模式提升集群网络性能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s 容器网络接口　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-persistent-volume/" title="下一篇: k8s 持久卷">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-cni/">k8s 容器网络接口</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-persistent-volume/">k8s 持久卷</a></li><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>

@@ -1366,6 +1366,10 @@ body .ui-tooltip {
 .article-entry p {
   margin: 0.85em auto;
   line-height: 1.7;
+  display: block;
+}
+.article-entry p:has(img) {
+  display: block;
 }
 .article-entry em {
   font-style: italic;
