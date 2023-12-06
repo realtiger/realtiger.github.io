@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 Prometheus 是一个开源监控系统，它本身已经成为了云原生中指标监控的事实标准，本文主要介绍k8s集群监控的安装和配置。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s prometheus监控">
+<meta property="og:url" content="http://realtiger.github.io/k8s-prometheus-introduction-install/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 Prometheus 是一个开源监控系统，它本身已经成为了云原生中指标监控的事实标准，本文主要介绍k8s集群监控的安装和配置。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/monitor-earlier.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/custom-hpa.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/prometheus.svg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-ui-page.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-ui-choose-targets.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-ui-targets-page.jpg">
+<meta property="article:published_time" content="2023-11-28T11:42:58.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:02:31.642Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="prometheus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/monitor-earlier.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s prometheus监控 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iptables/" rel="tag">iptables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-prometheus-introduction-install" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-prometheus-introduction-install/" class="article-date">
+      <time datetime="2023-11-28T11:42:58.000Z" itemprop="datePublished">2023-11-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s prometheus监控
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">2.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">12分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>Prometheus 是一个开源监控系统，它本身已经成为了云原生中指标监控的事实标准，本文主要介绍k8s集群监控的安装和配置。</p>
+<span id="more"></span>
+
+<h1 id="k8s集群监控体系演变史"><a href="#k8s集群监控体系演变史" class="headerlink" title="k8s集群监控体系演变史"></a>k8s集群监控体系演变史</h1><p>k8s集群监控体系主要经历了三个版本的演变：</p>
+<h2 id="第一版本：Cadvisor-InfluxDB-Grafana"><a href="#第一版本：Cadvisor-InfluxDB-Grafana" class="headerlink" title="第一版本：Cadvisor+InfluxDB+Grafana"></a>第一版本：<strong>Cadvisor+InfluxDB+Grafana</strong></h2><p>只能从主机维度进行采集，没有Namespace、Pod等维度的汇聚功能</p>
+<h2 id="第二版本：-Heapster-InfluxDB-Grafana"><a href="#第二版本：-Heapster-InfluxDB-Grafana" class="headerlink" title="第二版本： Heapster+InfluxDB+Grafana"></a>第二版本： <strong>Heapster+InfluxDB+Grafana</strong></h2><p>heapster负责调用各node中的cadvisor接口，对数据进行汇总，然后导到InfluxDB，可以从cluster，node，pod的各个层面提供详细的资源使用情况。</p>
+<p><img src="/post/docker/monitor-earlier.png" alt="monitor-earlier"></p>
+<h2 id="第三版本：Metrics-Server-Prometheus"><a href="#第三版本：Metrics-Server-Prometheus" class="headerlink" title="第三版本：Metrics-Server + Prometheus"></a>第三版本：Metrics-Server + Prometheus</h2><p><img src="/post/docker/custom-hpa.png" alt="custom-hpa"></p>
+<h2 id="监控接口标准化"><a href="#监控接口标准化" class="headerlink" title="监控接口标准化"></a>监控接口标准化</h2><p>k8s对监控接口进行了标准化，主要分了三类：</p>
+<ol>
+<li><p>Resource Metrics</p>
+<p> metric-api对应的接口是 metrics.k8s.io，主要的实现就是 metrics-server，它提供的是资源的监控，比较常见的是节点级别、pod 级别、namespace 级别、class 级别。这类的监控指标都可以通过 metrics.k8s.io 这个接口获取到 </p>
+</li>
+<li><p>Custom Metrics<br> 对应的接口是 custom.metrics.k8s.io，主要的实现是 Prometheus， 它提供的是资源监控和自定义监控，资源监控和上面的资源监控其实是有覆盖关系的。</p>
+<p> 自定义监控指的是：比如应用上面想暴露一个类似像在线人数，或者说调用后面的这个数据库的 MySQL 的慢查询。这些其实都是可以在应用层做自己的定义的，然后并通过标准的 Prometheus 的 client，暴露出相应的 metrics，然后再被 Prometheus 进行采集</p>
+</li>
+<li><p>External Metrics</p>
+<p> 对应的接口是 external.metrics.k8s.io。主要的实现厂商就是各个云厂商的 provider，通过这个 provider 可以通过云资源的监控指标</p>
+</li>
+</ol>
+<h1 id="Prometheus架构"><a href="#Prometheus架构" class="headerlink" title="Prometheus架构"></a>Prometheus架构</h1><p><img src="/post/docker/prometheus.svg" alt="prometheus"></p>
+<ol>
+<li>Prometheus Server ，监控、告警平台核心，抓取目标端监控数据，生成聚合数据，存储时间序列数据</li>
+<li>exporter，由被监控的对象提供，提供API暴漏监控对象的指标，供prometheus 抓取<ul>
+<li>node-exporter</li>
+<li>blackbox-exporter</li>
+<li>redis-exporter</li>
+<li>mysql-exporter</li>
+<li>custom-exporter</li>
+<li>…</li>
+</ul>
+</li>
+<li>pushgateway，提供一个网关地址，外部数据可以推送到该网关，prometheus也会从该网关拉取数据 </li>
+<li>Alertmanager，接收Prometheus发送的告警并对于告警进行一系列的处理后发送给指定的目标 </li>
+<li>Grafana：配置数据源，图标方式展示数据</li>
+</ol>
+<h1 id="Prometheus安装"><a href="#Prometheus安装" class="headerlink" title="Prometheus安装"></a>Prometheus安装</h1><p>Prometheus基于go开发，项目地址<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/prometheus/prometheus">在这里</a></p>
+<h2 id="docker-启动"><a href="#docker-启动" class="headerlink" title="docker 启动"></a>docker 启动</h2><p>真正部署到k8s之前，我们可以先使用docker启动一个prometheus实例，这样可以方便我们进行测试，我们先看一下它启动需要什么参数可以供我们修改。</p>
+<p>使用docker部署直接启动镜像即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --name prometheus -d -p 127.0.0.1:9090:9090 prom/prometheus:v2.48.0</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们去容器内容查看一下默认的启动命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --name prometheus -p 9090:9090 prom/prometheus:v2.48.0</span><br><span class="line">$ docker <span class="built_in">exec</span> -it prometheus sh</span><br><span class="line">/prometheus $ ps aux</span><br><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 nobody    0:00 /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheu</span><br><span class="line">   26 nobody    0:00 sh</span><br><span class="line">   32 nobody    0:00 ps aux</span><br><span class="line"></span><br><span class="line"><span class="comment">#/ cat /etc/prometheus/prometheus.yml</span></span><br><span class="line"><span class="comment"># my global config</span></span><br><span class="line">global:</span><br><span class="line">  scrape_interval:     15s <span class="comment"># Set the scrape interval to every 15 seconds. Default is every 1 minute.</span></span><br><span class="line">  evaluation_interval: 15s <span class="comment"># Evaluate rules every 15 seconds. The default is every 1 minute.</span></span><br><span class="line">  <span class="comment"># scrape_timeout is set to the global default (10s).</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Alertmanager configuration</span></span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      <span class="comment"># - alertmanager:9093</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Load rules once and periodically evaluate them according to the global &#x27;evaluation_interval&#x27;.</span></span><br><span class="line">rule_files:</span><br><span class="line">  <span class="comment"># - &quot;first_rules.yml&quot;</span></span><br><span class="line">  <span class="comment"># - &quot;second_rules.yml&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># A scrape configuration containing exactly one endpoint to scrape:</span></span><br><span class="line"><span class="comment"># Here it&#x27;s Prometheus itself.</span></span><br><span class="line">scrape_configs:</span><br><span class="line">  <span class="comment"># The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span></span><br><span class="line">  - job_name: <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># metrics_path defaults to &#x27;/metrics&#x27;</span></span><br><span class="line">    <span class="comment"># scheme defaults to &#x27;http&#x27;.</span></span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>从上面的结果可以看到prometheus的启动命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles</span><br></pre></td></tr></table></figure>
+
+<p>其中，我们可以看到几个关键的参数：</p>
+<ul>
+<li>–config.file：配置文件路径，配置了哪些指标需要采集，采集的频率是多少等</li>
+<li>–storage.tsdb.path：tsdb数据存储路径</li>
+<li>–web.console.libraries：prometheus的web控制台的静态文件路径</li>
+<li>–web.console.templates：prometheus的web控制台的模板文件路径</li>
+</ul>
+<p>其他常用参数：</p>
+<ul>
+<li>–web.enable-lifecycle：支持热更新，直接执行localhost:9090&#x2F;-&#x2F;reload立即生效</li>
+<li>–web.enable-admin-api：支持admin api，可以通过api来获取prometheus的一些信息</li>
+<li>–web.route-prefix：prometheus的ui&#x2F;api的前缀</li>
+<li>–web.external-url：prometheus的ui&#x2F;api的外部访问地址</li>
+<li>–web.page-title：prometheus的web控制台的标题</li>
+<li>–web.max-connections：prometheus的web控制台的最大连接数</li>
+</ul>
+<h2 id="k8s部署"><a href="#k8s部署" class="headerlink" title="k8s部署"></a>k8s部署</h2><p>我们通过docker启动已经知道了prometheus的启动参数，接下来我们就可以通过k8s来部署prometheus了。</p>
+<p>首先准备所需的资源清单，比如配置文件，数据库的pvc资源，rbac资源，deployment资源，service资源，ingress资源等。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置文件，使用configmap的形式保存，覆盖默认的配置文件</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-cm.yml</span><br><span class="line"><span class="comment"># my global config</span></span><br><span class="line">global:</span><br><span class="line">  scrape_interval: 30s</span><br><span class="line">  evaluation_interval: 30s</span><br><span class="line">  <span class="comment"># scrape_timeout is set to the global default (10s).</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Alertmanager configuration</span></span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      <span class="comment"># - alertmanager:9093</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Load rules once and periodically evaluate them according to the global &#x27;evaluation_interval&#x27;.</span></span><br><span class="line">rule_files:</span><br><span class="line">  <span class="comment"># - &quot;first_rules.yml&quot;</span></span><br><span class="line">  <span class="comment"># - &quot;second_rules.yml&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># A scrape configuration containing exactly one endpoint to scrape:</span></span><br><span class="line"><span class="comment"># Here it&#x27;s Prometheus itself.</span></span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据库的pvc资源</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-pvc.yaml</span><br><span class="line">kind: PersistentVolumeClaim</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line">spec:</span><br><span class="line">  accessModes:</span><br><span class="line">    - ReadWriteOnce</span><br><span class="line">  storageClassName: nfs-client</span><br><span class="line">  resources:</span><br><span class="line">    requests:</span><br><span class="line">      storage: 200Gi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># prometheus的资源文件</span></span><br><span class="line"><span class="comment"># 需要防止出现Prometheus数据存储权限问题，因为Prometheus内部使用nobody启动进程，挂载数据目录后权限为root，因此使用initContainer进行目录权限修复：</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-deployment.yaml</span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line">  labels:</span><br><span class="line">    app: prometheus</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: prometheus</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: prometheus</span><br><span class="line">    spec:</span><br><span class="line">      serviceAccountName: prometheus</span><br><span class="line">      initContainers:</span><br><span class="line">      - name: <span class="string">&quot;change-permission-of-directory&quot;</span></span><br><span class="line">        image: busybox</span><br><span class="line">        <span class="built_in">command</span>: [<span class="string">&quot;/bin/sh&quot;</span>]</span><br><span class="line">        args: [<span class="string">&quot;-c&quot;</span>, <span class="string">&quot;chown -R 65534:65534 /prometheus&quot;</span>]</span><br><span class="line">        securityContext:</span><br><span class="line">          privileged: <span class="literal">true</span></span><br><span class="line">        volumeMounts:</span><br><span class="line">        - mountPath: <span class="string">&quot;/etc/prometheus&quot;</span></span><br><span class="line">          name: config-volume</span><br><span class="line">        - mountPath: <span class="string">&quot;/prometheus&quot;</span></span><br><span class="line">          name: data</span><br><span class="line">      containers:</span><br><span class="line">      - image: prom/prometheus:v2.48.0</span><br><span class="line">        name: prometheus</span><br><span class="line">        args:</span><br><span class="line">        - <span class="string">&quot;--config.file=/etc/prometheus/prometheus.yml&quot;</span></span><br><span class="line">        - <span class="string">&quot;--storage.tsdb.path=/prometheus&quot;</span>  <span class="comment"># 指定tsdb数据路径</span></span><br><span class="line">        - <span class="string">&quot;--web.enable-lifecycle&quot;</span>  <span class="comment"># 支持热更新，直接执行localhost:9090/-/reload立即生效</span></span><br><span class="line">        - <span class="string">&quot;--web.console.libraries=/usr/share/prometheus/console_libraries&quot;</span></span><br><span class="line">        - <span class="string">&quot;--web.console.templates=/usr/share/prometheus/consoles&quot;</span></span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 9090</span><br><span class="line">          name: http</span><br><span class="line">        volumeMounts:</span><br><span class="line">        - mountPath: <span class="string">&quot;/etc/prometheus&quot;</span></span><br><span class="line">          name: config-volume</span><br><span class="line">        - mountPath: <span class="string">&quot;/prometheus&quot;</span></span><br><span class="line">          name: data</span><br><span class="line">        resources:</span><br><span class="line">          requests:</span><br><span class="line">            cpu: 100m</span><br><span class="line">            memory: 512Mi</span><br><span class="line">          limits:</span><br><span class="line">            cpu: 100m</span><br><span class="line">            memory: 512Mi</span><br><span class="line">      volumes:</span><br><span class="line">      - name: data</span><br><span class="line">        persistentVolumeClaim:</span><br><span class="line">          claimName: prometheus</span><br><span class="line">      - configMap:</span><br><span class="line">          name: prometheus-config</span><br><span class="line">        name: config-volume</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># rbac,prometheus会调用k8s api做服务发现进行抓取指标</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-rbac.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRole</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">rules:</span><br><span class="line">- apiGroups:</span><br><span class="line">  - <span class="string">&quot;&quot;</span></span><br><span class="line">  resources:</span><br><span class="line">  - nodes</span><br><span class="line">  - services</span><br><span class="line">  - endpoints</span><br><span class="line">  - pods</span><br><span class="line">  - nodes/proxy</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">- apiGroups:</span><br><span class="line">  - <span class="string">&quot;extensions&quot;</span></span><br><span class="line">  resources:</span><br><span class="line">    - ingresses</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">- apiGroups:</span><br><span class="line">  - <span class="string">&quot;&quot;</span></span><br><span class="line">  resources:</span><br><span class="line">  - configmaps</span><br><span class="line">  - nodes/metrics</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">- nonResourceURLs:</span><br><span class="line">  - /metrics</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: prometheus</span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 提供Service，为Ingress使用</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-svc.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line">  labels:</span><br><span class="line">    app: prometheus</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    app: prometheus</span><br><span class="line">  <span class="built_in">type</span>: ClusterIP</span><br><span class="line">  ports:</span><br><span class="line">    - name: web</span><br><span class="line">      port: 9090</span><br><span class="line">      targetPort: http</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建访问的ingress资源</span></span><br><span class="line">$ <span class="built_in">cat</span> prometheus-ingress.yaml</span><br><span class="line">apiVersion: networking.k8s.io/v1</span><br><span class="line">kind: Ingress</span><br><span class="line">metadata:</span><br><span class="line">  name: prometheus</span><br><span class="line">  namespace: monitor</span><br><span class="line">spec:</span><br><span class="line">  rules:</span><br><span class="line">  - host: prometheus.test.com</span><br><span class="line">    http:</span><br><span class="line">      paths:</span><br><span class="line">      - path: /</span><br><span class="line">        pathType: Prefix</span><br><span class="line">        backend:</span><br><span class="line">          service: </span><br><span class="line">            name: prometheus</span><br><span class="line">            port:</span><br><span class="line">              number: 9090</span><br></pre></td></tr></table></figure>
+
+<p>部署上述资源：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 命名空间</span></span><br><span class="line">$ kubectl create namespace monitor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建cm</span></span><br><span class="line">$ kubectl -n monitor create cm prometheus-config --from-file=prometheus.yml=prometheus-cm.yml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建pvc</span></span><br><span class="line">$ kubectl apply -f prometheus-pvc.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建rbac</span></span><br><span class="line">$ kubectl apply -f prometheus-rbac.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建deployment</span></span><br><span class="line">$ kubectl apply -f prometheus-deployment.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建svc</span></span><br><span class="line">$ kubectl apply -f prometheus-svc.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建ingress</span></span><br><span class="line">$ kubectl apply -f prometheus-ingress.yaml</span><br></pre></td></tr></table></figure>
+
+<p>等待pod启动完成后，我们就可以通过ingress访问prometheus了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n monitor get po -o wide</span><br><span class="line"></span><br><span class="line">$ kubectl -n monitor logs prometheus-5bc5966ff8-f84vx</span><br><span class="line">......</span><br><span class="line">ts=2023-12-01T11:43:56.696Z <span class="built_in">caller</span>=main.go:1048 level=info msg=<span class="string">&quot;TSDB started&quot;</span></span><br><span class="line">ts=2023-12-01T11:43:56.696Z <span class="built_in">caller</span>=main.go:1229 level=info msg=<span class="string">&quot;Loading configuration file&quot;</span> filename=/etc/prometheus/prometheus.yml</span><br><span class="line">ts=2023-12-01T11:43:56.697Z <span class="built_in">caller</span>=main.go:1266 level=info msg=<span class="string">&quot;Completed loading of configuration file&quot;</span> filename=/etc/prometheus/prometheus.yml totalDuration=1.610796ms db_storage=2.624µs remote_storage=3.863µs web_handler=1.187µs query_engine=1.973µs scrape=786.861µs scrape_sd=80.748µs notify=79.645µs notify_sd=28.501µs rules=3.403µs tracing=12.743µs</span><br><span class="line">ts=2023-12-01T11:43:56.698Z <span class="built_in">caller</span>=main.go:1009 level=info msg=<span class="string">&quot;Server is ready to receive web requests.&quot;</span></span><br><span class="line">.....</span><br><span class="line"></span><br><span class="line">$ curl http://prometheus.test.com</span><br></pre></td></tr></table></figure>
+
+<h2 id="prometheus的数据"><a href="#prometheus的数据" class="headerlink" title="prometheus的数据"></a>prometheus的数据</h2><p>部署完成后，我们可以访问prometheus的web控制台，查看prometheus的数据。</p>
+<p><img src="/post/docker/k8s-prometheus-ui-page.jpg" alt="k8s-prometheus-ui-page"></p>
+<p>然后我们选择进入targets页面，查看prometheus的默认targets：</p>
+<p><img src="/post/docker/k8s-prometheus-ui-choose-targets.jpg" alt="k8s-prometheus-ui-choose-targets"></p>
+<p><img src="/post/docker/k8s-prometheus-ui-targets-page.jpg" alt="k8s-prometheus-ui-targets-page"></p>
+<p>可以看到prometheus默认采集了一些k8s的指标，这里只有一个endpoint是 <code>http://localhost:9090/metrics</code> ，这个是prometheus自身的指标。</p>
+<p>我们可以通过访问这个endpoint来查看prometheus自身的指标：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://prometheus.test.com/metrics</span><br><span class="line">......</span><br><span class="line"><span class="comment"># HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.</span></span><br><span class="line"><span class="comment"># TYPE promhttp_metric_handler_requests_total counter</span></span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;200&quot;</span>&#125; 152</span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;500&quot;</span>&#125; 0</span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;503&quot;</span>&#125; 0</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>可以看到返回的监控数据格式都比较固定，那它们怎么存储呢？接下来我们就来看一下prometheus的数据存储。</p>
+<h1 id="时间序列数据库（TSDB）"><a href="#时间序列数据库（TSDB）" class="headerlink" title="时间序列数据库（TSDB）"></a>时间序列数据库（TSDB）</h1><h2 id="初识TSDB"><a href="#初识TSDB" class="headerlink" title="初识TSDB"></a>初识TSDB</h2> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># http://prometheus.test.com/metrics 是通过ingress访问，接下来我们直接使用pod的ip访问9090端口获取信息</span></span><br><span class="line">$ kubectl -n monitor get po -o wide</span><br><span class="line">NAME                          READY   STATUS    RESTARTS   AGE    IP            NODE         NOMINATED NODE   READINESS GATES</span><br><span class="line">prometheus-5bc5966ff8-f84vx   1/1     Running   0          129m   10.244.0.26   k8s-master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line">$ $ curl http://10.244.0.26:9090/metrics</span><br><span class="line">......</span><br><span class="line"><span class="comment"># HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.</span></span><br><span class="line"><span class="comment"># TYPE promhttp_metric_handler_requests_total counter</span></span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;200&quot;</span>&#125; 258</span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;500&quot;</span>&#125; 0</span><br><span class="line">promhttp_metric_handler_requests_total&#123;code=<span class="string">&quot;503&quot;</span>&#125; 0</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>分析一下上面的监控数据信息：</p>
+<ul>
+<li>首先是注释的HELP开头的信息，说明该行为指标的帮助信息，通常解释指标的含义</li>
+<li>然后是注释的TYPE开头的信息，指明了指标的类型<ul>
+<li>counter 计数器</li>
+<li>guage 测量器</li>
+<li>histogram 柱状图</li>
+<li>summary 采样点分位图统计</li>
+</ul>
+</li>
+<li>最后是非注释的每一行，表示当前采集到的一个监控样本：<ul>
+<li>promhttp_metric_handler_requests_total表明了当前指标的名称</li>
+<li>大括号中的标签则反映了当前样本的一些特征和维度</li>
+<li>浮点数则是该监控样本的具体值。</li>
+</ul>
+</li>
+</ul>
+<h2 id="TSDB存储工作方式"><a href="#TSDB存储工作方式" class="headerlink" title="TSDB存储工作方式"></a>TSDB存储工作方式</h2><p>每次采集到的数据都会被Prometheus以time-series（时间序列）的方式保存到内存中，定期刷新到硬盘。如下所示，可以将time-series理解为一个以时间为X轴的数字矩阵：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">^</span><br><span class="line">│   . . . . . . . . . . . . . . . . .   . .   node_cpu&#123;cpu=<span class="string">&quot;cpu0&quot;</span>,mode=<span class="string">&quot;idle&quot;</span>&#125;</span><br><span class="line">│     . . . . . . . . . . . . . . . . . . .   node_cpu&#123;cpu=<span class="string">&quot;cpu0&quot;</span>,mode=<span class="string">&quot;system&quot;</span>&#125;</span><br><span class="line">│     . . . . . . . . . .   . . . . . . . .   node_load1&#123;&#125;</span><br><span class="line">│     . . . . . . . . . . . . . . . .   . .  </span><br><span class="line">v</span><br><span class="line">  &lt;------------------ 时间 ----------------&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在time-series中的每一个点称为一个样本（sample），样本由以下三部分组成：</p>
+<ul>
+<li>指标(metric)：metric name和描述当前样本特征的labelsets;</li>
+<li>时间戳(timestamp)：一个精确到毫秒的时间戳;</li>
+<li>样本值(value)： 一个float64的浮点型数据表示当前样本的值。</li>
+</ul>
+<h2 id="TSDB数据格式"><a href="#TSDB数据格式" class="headerlink" title="TSDB数据格式"></a>TSDB数据格式</h2><p>在形式上，所有的指标(Metric)都通过如下格式标示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;metric name&gt;&#123;&lt;label name&gt;=&lt;label value&gt;, ...&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>指标的名称(metric name)可以反映被监控样本的含义（比如，<code>http_request_total</code> - 表示当前系统接收到的HTTP请求总量）。</li>
+<li>标签(label)反映了当前样本的特征维度，通过这些维度Prometheus可以对样本数据进行过滤，聚合等。</li>
+</ul>
+<h2 id="TSDB数据更新"><a href="#TSDB数据更新" class="headerlink" title="TSDB数据更新"></a>TSDB数据更新</h2><p>Prometheus会定期去targets列表拉取监控数据，存储到TSDB中，并且提供指标查询、分析的语句和接口。这样我们就能获取到比较全面的监控数据，进行分析、报警等。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-prometheus-introduction-install/">k8s prometheus监控</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-11-28, 19:42:58</p>
+        <p><span>最后更新:</span>2023-12-01, 22:02:31</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-prometheus-introduction-install/" title="k8s prometheus监控">http://realtiger.github.io/k8s-prometheus-introduction-install/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-prometheus-introduction-install/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/linux-iptables/">
+                    linux iptables 防火墙
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-helm/">
+                    k8s helm
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#k8s%E9%9B%86%E7%BE%A4%E7%9B%91%E6%8E%A7%E4%BD%93%E7%B3%BB%E6%BC%94%E5%8F%98%E5%8F%B2"><span class="toc-number">1.</span> <span class="toc-text">k8s集群监控体系演变史</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%89%88%E6%9C%AC%EF%BC%9ACadvisor-InfluxDB-Grafana"><span class="toc-number">1.1.</span> <span class="toc-text">第一版本：Cadvisor+InfluxDB+Grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%89%88%E6%9C%AC%EF%BC%9A-Heapster-InfluxDB-Grafana"><span class="toc-number">1.2.</span> <span class="toc-text">第二版本： Heapster+InfluxDB+Grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%89%88%E6%9C%AC%EF%BC%9AMetrics-Server-Prometheus"><span class="toc-number">1.3.</span> <span class="toc-text">第三版本：Metrics-Server + Prometheus</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E6%8E%A5%E5%8F%A3%E6%A0%87%E5%87%86%E5%8C%96"><span class="toc-number">1.4.</span> <span class="toc-text">监控接口标准化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Prometheus%E6%9E%B6%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">Prometheus架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Prometheus%E5%AE%89%E8%A3%85"><span class="toc-number">3.</span> <span class="toc-text">Prometheus安装</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-%E5%90%AF%E5%8A%A8"><span class="toc-number">3.1.</span> <span class="toc-text">docker 启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#k8s%E9%83%A8%E7%BD%B2"><span class="toc-number">3.2.</span> <span class="toc-text">k8s部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#prometheus%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">3.3.</span> <span class="toc-text">prometheus的数据</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88TSDB%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">时间序列数据库（TSDB）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%AF%86TSDB"><span class="toc-number">4.1.</span> <span class="toc-text">初识TSDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSDB%E5%AD%98%E5%82%A8%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">TSDB存储工作方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSDB%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">TSDB数据格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSDB%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0"><span class="toc-number">4.4.</span> <span class="toc-text">TSDB数据更新</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s prometheus监控　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/linux-iptables/" title="上一篇: linux iptables 防火墙">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-helm/" title="下一篇: k8s helm">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-add-targets/">k8s prometheus 添加监控目标</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-iptables/">linux iptables 防火墙</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-introduction-install/">k8s prometheus监控</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-helm/">k8s helm</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-cni/">k8s 容器网络接口</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-persistent-volume/">k8s 持久卷</a></li><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记总目录</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>

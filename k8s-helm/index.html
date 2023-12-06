@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 helm 是 k8s 的包管理工具，类似于 yum&#x2F;apt&#x2F;homebrew。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s helm">
+<meta property="og:url" content="http://realtiger.github.io/k8s-helm/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 helm 是 k8s 的包管理工具，类似于 yum&#x2F;apt&#x2F;homebrew。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/harbor-architecture.png">
+<meta property="article:published_time" content="2023-11-24T15:56:22.000Z">
+<meta property="article:modified_time" content="2023-12-04T05:14:56.136Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="helm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/harbor-architecture.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s helm | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iptables/" rel="tag">iptables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-helm" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-helm/" class="article-date">
+      <time datetime="2023-11-24T15:56:22.000Z" itemprop="datePublished">2023-11-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s helm
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">20分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>helm 是 k8s 的包管理工具，类似于 yum&#x2F;apt&#x2F;homebrew。</p>
+<span id="more"></span>
+
+<h1 id="Helm的安装和使用"><a href="#Helm的安装和使用" class="headerlink" title="Helm的安装和使用"></a>Helm的安装和使用</h1><h2 id="认识Helm"><a href="#认识Helm" class="headerlink" title="认识Helm"></a>认识Helm</h2><p>Helm的重要概念有以下几个：</p>
+<ul>
+<li>chart，应用的信息集合，包括各种对象的配置模板、参数定义、依赖关系、文档说明等</li>
+<li>Repository，chart仓库，存储chart的地方，并且提供了一个该 Repository 的 Chart 包的清单文件以供查询。Helm 可以同时管理多个不同的 Repository。</li>
+<li>release， 当 chart 被安装到 kubernetes 集群，就生成了一个 release ， 是 chart 的运行实例，代表了一个正在运行的应用</li>
+</ul>
+<p>helm 是包管理工具，包就是指 chart，helm 能够：</p>
+<ul>
+<li>从零创建chart</li>
+<li>与仓库交互，拉取、保存、更新 chart</li>
+<li>在kubernetes集群中安装、卸载 release</li>
+<li>更新、回滚、测试 release</li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>下载最新的稳定版本：<code>https://get.helm.sh/helm-v3.2.4-linux-amd64.tar.gz</code></p>
+<blockquote>
+<p>helm的版本兼容性可以<a target="_blank" rel="external nofollow noopener noreferrer" href="https://helm.sh/docs/topics/version_skew/">查看这里</a>，中文版<a target="_blank" rel="external nofollow noopener noreferrer" href="https://helm.sh/zh/docs/topics/version_skew/">查看这里</a></p>
+<p>最新安装方式<a target="_blank" rel="external nofollow noopener noreferrer" href="https://helm.sh/docs/intro/install/">查看这里</a>，中文版<a target="_blank" rel="external nofollow noopener noreferrer" href="https://helm.sh/zh/docs/intro/install/">查看这里</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># k8s-master节点</span></span><br><span class="line">$ wget https://get.helm.sh/helm-v3.2.4-linux-amd64.tar.gz</span><br><span class="line">$ tar -zxf helm-v3.2.4-linux-amd64.tar.gz</span><br><span class="line">$ sudo <span class="built_in">cp</span> linux-amd64/helm /usr/sbin/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">$ helm version</span><br><span class="line">version.BuildInfo&#123;Version:<span class="string">&quot;v3.2.4&quot;</span>, GitCommit:<span class="string">&quot;0ad800ef43d3b826f31a5ad8dfbb4fe05d143688&quot;</span>, GitTreeState:<span class="string">&quot;clean&quot;</span>, GoVersion:<span class="string">&quot;go1.13.12&quot;</span>&#125;</span><br><span class="line">$ helm <span class="built_in">env</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看仓库</span></span><br><span class="line">$ helm repo <span class="built_in">ls</span></span><br><span class="line"><span class="comment"># 添加仓库</span></span><br><span class="line">$ helm repo add stable https://charts.bitnami.com/bitnami</span><br><span class="line"><span class="comment"># 同步最新charts信息到本地</span></span><br><span class="line">$ helm repo update</span><br></pre></td></tr></table></figure>
+
+<h2 id="入门实践1：使用helm安装wordpress应用"><a href="#入门实践1：使用helm安装wordpress应用" class="headerlink" title="入门实践1：使用helm安装wordpress应用"></a>入门实践1：使用helm安装wordpress应用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># helm 搜索chart包</span></span><br><span class="line">$ helm search repo wordpress</span><br><span class="line">NAME                    CHART VERSION   APP VERSION     DESCRIPTION</span><br><span class="line">stable/wordpress        18.1.15         6.4.1           WordPress is the world<span class="string">&#x27;s most popular blogging ...</span></span><br><span class="line"><span class="string">stable/wordpress-intel  2.1.31          6.1.1           DEPRECATED WordPress for Intel is the most popu...</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">$ kubectl create namespace wordpress</span></span><br><span class="line"><span class="string"># 从仓库安装</span></span><br><span class="line"><span class="string">$ helm -n wordpress install wordpress stable/wordpress --set mariadb.primary.persistence.enabled=false --set service.type=ClusterIP --set ingress.enabled=true --set persistence.enabled=false --set ingress.hostname=wordpress.test.com</span></span><br><span class="line"><span class="string">NAME: wordpress</span></span><br><span class="line"><span class="string">LAST DEPLOYED: Sat Nov 25 00:39:08 2023</span></span><br><span class="line"><span class="string">NAMESPACE: wordpress</span></span><br><span class="line"><span class="string">STATUS: deployed</span></span><br><span class="line"><span class="string">REVISION: 1</span></span><br><span class="line"><span class="string">TEST SUITE: None</span></span><br><span class="line"><span class="string">NOTES:</span></span><br><span class="line"><span class="string">CHART NAME: wordpress</span></span><br><span class="line"><span class="string">CHART VERSION: 18.1.15</span></span><br><span class="line"><span class="string">APP VERSION: 6.4.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">** Please be patient while the chart is being deployed **</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Your WordPress site can be accessed through the following DNS name from within your cluster:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    wordpress.wordpress.svc.cluster.local (port 80)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">To access your WordPress site from outside the cluster follow the steps below:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">1. Get the WordPress URL and associate WordPress hostname to your cluster external IP:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">   export CLUSTER_IP=$(minikube ip) # On Minikube. Use: `kubectl cluster-info` on others K8s clusters</span></span><br><span class="line"><span class="string">   echo &quot;WordPress URL: http://wordpress.test.com/&quot;</span></span><br><span class="line"><span class="string">   echo &quot;$CLUSTER_IP  wordpress.test.com&quot; | sudo tee -a /etc/hosts</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">2. Open a browser and access WordPress using the obtained URL.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">3. Login with the following credentials below to see your blog:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  echo Username: user</span></span><br><span class="line"><span class="string">  echo Password: $(kubectl get secret --namespace wordpress wordpress -o jsonpath=&quot;&#123;.data.wordpress-password&#125;&quot; | base64 -d)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看release</span></span><br><span class="line"><span class="string">$ helm -n wordpress ls</span></span><br><span class="line"><span class="string">NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION</span></span><br><span class="line"><span class="string">wordpress       wordpress       1               2023-11-25 00:39:08.988234268 +0800 CST deployed        wordpress-18.1.15       6.4.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看k8s中的资源</span></span><br><span class="line"><span class="string">$ kubectl -n wordpress get all</span></span><br><span class="line"><span class="string">NAME                             READY   STATUS    RESTARTS   AGE</span></span><br><span class="line"><span class="string">pod/wordpress-6c64d789df-hvpfl   1/1     Running   0          8m2s</span></span><br><span class="line"><span class="string">pod/wordpress-mariadb-0          1/1     Running   0          8m2s</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE</span></span><br><span class="line"><span class="string">service/wordpress           ClusterIP   10.98.202.134   &lt;none&gt;        80/TCP,443/TCP   8m3s</span></span><br><span class="line"><span class="string">service/wordpress-mariadb   ClusterIP   10.96.212.179   &lt;none&gt;        3306/TCP         8m3s</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME                        READY   UP-TO-DATE   AVAILABLE   AGE</span></span><br><span class="line"><span class="string">deployment.apps/wordpress   1/1     1            1           8m2s</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME                                   DESIRED   CURRENT   READY   AGE</span></span><br><span class="line"><span class="string">replicaset.apps/wordpress-6c64d789df   1         1         1       8m2s</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME                                 READY   AGE</span></span><br><span class="line"><span class="string">statefulset.apps/wordpress-mariadb   1/1     8m2s</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># chart不适配k8s的ingress，需要添加上ingressClassName: nginx</span></span><br><span class="line"><span class="string">$ kubectl -n wordpress edit ing wordpress</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  ingressClassName: nginx</span></span><br><span class="line"><span class="string">  rules:</span></span><br><span class="line"><span class="string">  - host: wordpress.test.com</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 从chart仓库中把chart包下载到本地</span></span><br><span class="line"><span class="string">$ helm pull stable/wordpress</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 卸载</span></span><br><span class="line"><span class="string">$ helm -n wordpress uninstall wordpress</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="入门实践2：新建nginx的chart并安装"><a href="#入门实践2：新建nginx的chart并安装" class="headerlink" title="入门实践2：新建nginx的chart并安装"></a>入门实践2：新建nginx的chart并安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ helm create nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从本地安装到别的命名空间demo</span></span><br><span class="line">$ kubectl create namespace demo</span><br><span class="line">$ helm -n demo install nginx ./nginx --<span class="built_in">set</span> replicaCount=2 --<span class="built_in">set</span> image.tag=alpine</span><br><span class="line">NAME: nginx</span><br><span class="line">LAST DEPLOYED: Sat Nov 25 00:53:52 2023</span><br><span class="line">NAMESPACE: demo</span><br><span class="line">STATUS: deployed</span><br><span class="line">REVISION: 1</span><br><span class="line">NOTES:</span><br><span class="line">1. Get the application URL by running these commands:</span><br><span class="line">  <span class="built_in">export</span> POD_NAME=$(kubectl get pods --namespace demo -l <span class="string">&quot;app.kubernetes.io/name=nginx,app.kubernetes.io/instance=nginx&quot;</span> -o jsonpath=<span class="string">&quot;&#123;.items[0].metadata.name&#125;&quot;</span>)</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;Visit http://127.0.0.1:8080 to use your application&quot;</span></span><br><span class="line">  kubectl --namespace demo port-forward <span class="variable">$POD_NAME</span> 8080:80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">$ helm -n demo <span class="built_in">ls</span></span><br><span class="line">$ kubectl -n demo get all</span><br></pre></td></tr></table></figure>
+
+<h1 id="Chart的模板语法及开发"><a href="#Chart的模板语法及开发" class="headerlink" title="Chart的模板语法及开发"></a>Chart的模板语法及开发</h1><p>接下来我们分析一下nginx的chart实现分析，然后总结出chart的开发规范。</p>
+<h2 id="Chart的目录结构"><a href="#Chart的目录结构" class="headerlink" title="Chart的目录结构"></a>Chart的目录结构</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ tree nginx/</span><br><span class="line">nginx/</span><br><span class="line">├── charts						<span class="comment"># 存放子chart</span></span><br><span class="line">├── Chart.yaml					<span class="comment"># 该chart的全局定义信息</span></span><br><span class="line">├── templates					<span class="comment"># chart运行所需的资源清单模板，用于和values做渲染</span></span><br><span class="line">│   ├── deployment.yaml</span><br><span class="line">│   ├── _helpers.tpl		<span class="comment"># 定义全局的命名模板，方便在其他模板中引入使用</span></span><br><span class="line">│   ├── hpa.yaml</span><br><span class="line">│   ├── ingress.yaml</span><br><span class="line">│   ├── NOTES.txt			<span class="comment"># helm安装完成后终端的提示信息</span></span><br><span class="line">│   ├── serviceaccount.yaml</span><br><span class="line">│   ├── service.yaml</span><br><span class="line">│   └── tests</span><br><span class="line">│       └── test-connection.yaml</span><br><span class="line">└── values.yaml					<span class="comment"># 模板使用的默认值信息</span></span><br></pre></td></tr></table></figure>
+
+<p>很明显，资源清单都在templates中，数据来源于values.yaml，安装的过程就是将模板与数据融合成k8s可识别的资源清单，然后部署到k8s环境中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看模板渲染后的资源清单</span></span><br><span class="line"><span class="comment"># --dry-run：不真正安装，只是渲染模板</span></span><br><span class="line"><span class="comment"># --debug：打印渲染后的资源清单</span></span><br><span class="line">$ helm install debug-nginx ./nginx --dry-run --<span class="built_in">set</span> replicaCount=2 --debug</span><br></pre></td></tr></table></figure>
+
+<h2 id="分析模板文件的实现"><a href="#分析模板文件的实现" class="headerlink" title="分析模板文件的实现"></a>分析模板文件的实现</h2><h3 id="引用命名模板并传递作用域"><a href="#引用命名模板并传递作用域" class="headerlink" title="引用命名模板并传递作用域"></a>引用命名模板并传递作用域</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; include <span class="string">&quot;nginx.fullname&quot;</span> . &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>include从_helpers.tpl中引用命名模板，并传递顶级作用域.</p>
+<h3 id="内置对象"><a href="#内置对象" class="headerlink" title="内置对象"></a>内置对象</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.Values</span><br><span class="line">.Release.Name</span><br><span class="line">.Chart</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Release</code>：该对象描述了 release 本身的相关信息，它内部有几个对象：<ul>
+<li><code>Release.Name</code>：release 名称</li>
+<li><code>Release.Namespace</code>：release 安装到的命名空间</li>
+<li><code>Release.IsUpgrade</code>：如果当前操作是升级或回滚，则该值为 true</li>
+<li><code>Release.IsInstall</code>：如果当前操作是安装，则将其设置为 true</li>
+<li><code>Release.Revision</code>：release 的 revision 版本号，在安装的时候，值为1，每次升级或回滚都会增加</li>
+<li><code>Release.Service</code>：渲染当前模板的服务，在 Helm 上，实际上该值始终为 Helm</li>
+</ul>
+</li>
+<li><code>Values</code>：从 <code>values.yaml</code> 文件和用户提供的 values 文件传递到模板的 Values 值</li>
+<li><code>Chart</code>：获取 <code>Chart.yaml</code> 文件的内容，该文件中的任何数据都可以访问，例如 <code>&#123;&#123; .Chart.Name &#125;&#125;-&#123;&#123; .Chart.Version&#125;&#125;</code> 可以渲染成 <code>mychart-0.1.0</code></li>
+</ul>
+<h3 id="模板定义"><a href="#模板定义" class="headerlink" title="模板定义"></a>模板定义</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- define <span class="string">&quot;nginx.fullname&quot;</span> -&#125;&#125;</span><br><span class="line">&#123;&#123;- <span class="keyword">if</span> .Values.fullnameOverride &#125;&#125;</span><br><span class="line">&#123;&#123;- .Values.fullnameOverride | trunc <span class="number">63</span> | trimSuffix <span class="string">&quot;-&quot;</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- <span class="keyword">else</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- $name := <span class="keyword">default</span> .Chart.Name .Values.nameOverride &#125;&#125;</span><br><span class="line">&#123;&#123;- <span class="keyword">if</span> contains $name .Release.Name &#125;&#125;</span><br><span class="line">&#123;&#123;- .Release.Name | trunc <span class="number">63</span> | trimSuffix <span class="string">&quot;-&quot;</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- <span class="keyword">else</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- printf <span class="string">&quot;%s-%s&quot;</span> .Release.Name $name | trunc <span class="number">63</span> | trimSuffix <span class="string">&quot;-&quot;</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">name:</span> &#123;&#123; <span class="string">.Release.Name</span> &#125;&#125;<span class="string">-configmap</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line"><span class="attr">myvalue:</span> <span class="string">&quot;Hello World&quot;</span></span><br><span class="line"><span class="attr">drink:</span> &#123;&#123; <span class="string">.Values.favorite.drink</span> <span class="string">|</span> <span class="string">default</span> <span class="string">&quot;tea&quot;</span> <span class="string">|</span> <span class="string">quote</span> &#125;&#125;</span><br><span class="line"><span class="attr">food:</span> &#123;&#123; <span class="string">.Values.favorite.food</span> <span class="string">|</span> <span class="string">upper</span> <span class="string">|</span> <span class="string">quote</span> &#125;&#125;</span><br><span class="line">&#123;&#123; <span class="string">if</span> <span class="string">eq</span> <span class="string">.Values.favorite.drink</span> <span class="string">&quot;coffee&quot;</span> &#125;&#125;</span><br><span class="line"><span class="attr">mug:</span> <span class="literal">true</span></span><br><span class="line">&#123;&#123; <span class="string">end</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>渲染完后是：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">mychart-1575971172-configmap</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line"><span class="attr">myvalue:</span> <span class="string">&quot;Hello World&quot;</span></span><br><span class="line"><span class="attr">drink:</span> <span class="string">&quot;coffee&quot;</span></span><br><span class="line"><span class="attr">food:</span> <span class="string">&quot;PIZZA&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">mug:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="去掉空格"><a href="#去掉空格" class="headerlink" title="去掉空格"></a>去掉空格</h3><ul>
+<li><code>&#123;&#123;- &#125;&#125;</code>  去掉左边的空格及换行</li>
+<li><code>&#123;&#123; -&#125;&#125; </code>  去掉右侧的空格及换行</li>
+</ul>
+<h3 id="管道及方法"><a href="#管道及方法" class="headerlink" title="管道及方法"></a>管道及方法</h3><ol>
+<li><p>trunc表示字符串截取，63作为参数传递给trunc方法，trimSuffix表示去掉<code>-</code>后缀</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- .Values.fullnameOverride | trunc <span class="number">63</span> | trimSuffix <span class="string">&quot;-&quot;</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>nindent表示前面的空格数</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">selector:</span><br><span class="line">  matchLabels:</span><br><span class="line">    &#123;&#123;- include <span class="string">&quot;nginx.selectorLabels&quot;</span> . | nindent <span class="number">6</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>lower表示将内容小写，quote表示用双引号引起来</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value: &#123;&#123; include <span class="string">&quot;mytpl&quot;</span> . | lower | quote &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>条件判断语句每个if对应一个end</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- <span class="keyword">if</span> .Values.fullnameOverride &#125;&#125;</span><br><span class="line">...</span><br><span class="line">&#123;&#123;- <span class="keyword">else</span> &#125;&#125;</span><br><span class="line">...</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p> 通常用来根据values.yaml中定义的开关来控制模板中的显示：</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- <span class="keyword">if</span> not .Values.autoscaling.enabled &#125;&#125;</span><br><span class="line">replicas: &#123;&#123; .Values.replicaCount &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>定义变量，模板中可以通过变量名字去引用</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- $name := <span class="keyword">default</span> .Chart.Name .Values.nameOverride &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>遍历values的数据</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- with .Values.nodeSelector &#125;&#125;</span><br><span class="line">nodeSelector:</span><br><span class="line">  &#123;&#123;- toYaml . | nindent <span class="number">8</span> &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p> toYaml处理值中的转义及特殊字符， “kubernetes.io&#x2F;role”&#x3D;master ， name&#x3D;”value1,value2” 类似的情况</p>
+</li>
+<li><p>default设置默认值</p>
+ <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">image: <span class="string">&quot;&#123;&#123; .Values.image.repository &#125;&#125;:&#123;&#123; .Values.image.tag | default .Chart.AppVersion &#125;&#125;&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>更多语法参考：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://helm.sh/docs/topics/charts/">https://helm.sh/docs/topics/charts/</a></p>
+<h1 id="Helm-使用"><a href="#Helm-使用" class="headerlink" title="Helm 使用"></a>Helm 使用</h1><h2 id="Helm-template"><a href="#Helm-template" class="headerlink" title="Helm template"></a>Helm template</h2><p>hpa.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;<span class="bullet">-</span> <span class="string">if</span> <span class="string">.Values.autoscaling.enabled</span> &#125;&#125;</span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">autoscaling/v2beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">HorizontalPodAutoscaler</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> &#123;&#123; <span class="string">include</span> <span class="string">&quot;nginx.fullname&quot;</span> <span class="string">.</span> &#125;&#125;</span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    &#123;&#123;<span class="bullet">-</span> <span class="string">include</span> <span class="string">&quot;nginx.labels&quot;</span> <span class="string">.</span> <span class="string">|</span> <span class="string">nindent</span> <span class="number">4</span> &#125;&#125;</span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">scaleTargetRef:</span></span><br><span class="line">    <span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line">    <span class="attr">name:</span> &#123;&#123; <span class="string">include</span> <span class="string">&quot;nginx.fullname&quot;</span> <span class="string">.</span> &#125;&#125;</span><br><span class="line">  <span class="attr">minReplicas:</span> &#123;&#123; <span class="string">.Values.autoscaling.minReplicas</span> &#125;&#125;</span><br><span class="line">  <span class="attr">maxReplicas:</span> &#123;&#123; <span class="string">.Values.autoscaling.maxReplicas</span> &#125;&#125;</span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">  &#123;&#123;<span class="bullet">-</span> <span class="string">if</span> <span class="string">.Values.autoscaling.targetCPUUtilizationPercentage</span> &#125;&#125;</span><br><span class="line">    <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">Resource</span></span><br><span class="line">      <span class="attr">resource:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">cpu</span></span><br><span class="line">        <span class="attr">targetAverageUtilization:</span> &#123;&#123; <span class="string">.Values.autoscaling.targetCPUUtilizationPercentage</span> &#125;&#125;</span><br><span class="line">  &#123;&#123;<span class="bullet">-</span> <span class="string">end</span> &#125;&#125;</span><br><span class="line">  &#123;&#123;<span class="bullet">-</span> <span class="string">if</span> <span class="string">.Values.autoscaling.targetMemoryUtilizationPercentage</span> &#125;&#125;</span><br><span class="line">    <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">Resource</span></span><br><span class="line">      <span class="attr">resource:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">memory</span></span><br><span class="line">        <span class="attr">targetAverageUtilization:</span> &#123;&#123; <span class="string">.Values.autoscaling.targetMemoryUtilizationPercentage</span> &#125;&#125;</span><br><span class="line">  &#123;&#123;<span class="bullet">-</span> <span class="string">end</span> &#125;&#125;</span><br><span class="line">&#123;&#123;<span class="bullet">-</span> <span class="string">end</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="赋值方式"><a href="#赋值方式" class="headerlink" title="赋值方式"></a>赋值方式</h2><p>创建Release的时候赋值</p>
+<ul>
+<li><p>set的方式</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 改变副本数和resource值</span></span><br><span class="line">$ helm install nginx-2 ./nginx --<span class="built_in">set</span> replicaCount=2 --<span class="built_in">set</span> resources.limits.cpu=200m --<span class="built_in">set</span> resources.limits.memory=256Mi</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>value文件的方式</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> nginx-values.yaml</span><br><span class="line">resources:</span><br><span class="line">limits:</span><br><span class="line">  cpu: 100m</span><br><span class="line">  memory: 128Mi</span><br><span class="line">requests:</span><br><span class="line">  cpu: 100m</span><br><span class="line">  memory: 128Mi</span><br><span class="line">autoscaling:</span><br><span class="line">enabled: <span class="literal">true</span></span><br><span class="line">minReplicas: 1</span><br><span class="line">maxReplicas: 3</span><br><span class="line">targetCPUUtilizationPercentage: 80</span><br><span class="line">ingress:</span><br><span class="line">enabled: <span class="literal">true</span></span><br><span class="line">hosts:</span><br><span class="line">  - host: chart-example.test.com</span><br><span class="line">    paths:</span><br><span class="line">    - /</span><br><span class="line"></span><br><span class="line">$ helm install -f nginx-values.yaml nginx-3 ./nginx</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="查看渲染后的资源清单"><a href="#查看渲染后的资源清单" class="headerlink" title="查看渲染后的资源清单"></a>查看渲染后的资源清单</h2><p>使用helm template查看渲染模板</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ helm -n <span class="built_in">test</span> template nginx ./nginx --<span class="built_in">set</span> replicaCount=2 --<span class="built_in">set</span> image.tag=alpine --<span class="built_in">set</span> autoscaling.enabled=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="实战：使用Helm部署Harbor镜像及chart仓库"><a href="#实战：使用Helm部署Harbor镜像及chart仓库" class="headerlink" title="实战：使用Helm部署Harbor镜像及chart仓库"></a>实战：使用Helm部署Harbor镜像及chart仓库</h1><h2 id="harbor架构"><a href="#harbor架构" class="headerlink" title="harbor架构"></a>harbor架构</h2><p>架构 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/goharbor/harbor/wiki/Architecture-Overview-of-Harbor">https://github.com/goharbor/harbor/wiki/Architecture-Overview-of-Harbor</a></p>
+<p><img src="/post/docker/harbor-architecture.png" alt="harbor-architecture"></p>
+<ul>
+<li>Core，核心组件<ul>
+<li>API Server，接收处理用户请求</li>
+<li>Config Manager ：所有系统的配置，比如认证、邮件、证书配置等</li>
+<li>Project Manager：项目管理</li>
+<li>Quota Manager ：配额管理</li>
+<li>Chart Controller：chart管理</li>
+<li>Replication Controller ：镜像副本控制器，可以与不同类型的仓库实现镜像同步<ul>
+<li>Distribution (docker registry)</li>
+<li>Docker Hub</li>
+<li>…</li>
+</ul>
+</li>
+<li>Scan Manager ：扫描管理，引入第三方组件，进行镜像安全扫描</li>
+<li>Registry Driver ：镜像仓库驱动，目前使用docker registry</li>
+</ul>
+</li>
+<li>Job Service，执行异步任务，如同步镜像信息</li>
+<li>Log Collector，统一日志收集器，收集各模块日志</li>
+<li>GC Controller</li>
+<li>Chart Museum，chart仓库服务，第三方</li>
+<li>Docker Registry，镜像仓库服务</li>
+<li>kv-storage，redis缓存服务，job service使用，存储job metadata</li>
+<li>local&#x2F;remote storage，存储服务，比较镜像存储</li>
+<li>SQL Database，postgresl，存储用户、项目等元数据</li>
+</ul>
+<p>通常用作企业级镜像仓库服务，实际功能强大很多。</p>
+<p>组件众多，因此使用helm部署</p>
+<h2 id="准备repo"><a href="#准备repo" class="headerlink" title="准备repo"></a>准备repo</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加harbor chart仓库</span></span><br><span class="line">$ helm repo add harbor https://helm.goharbor.io</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索harbor的chart</span></span><br><span class="line">$ helm search repo harbor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 不知道如何部署，因此拉到本地</span></span><br><span class="line">$ helm pull harbor/harbor</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建pvc"><a href="#创建pvc" class="headerlink" title="创建pvc"></a>创建pvc</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl create namespace harbor</span><br><span class="line">$ <span class="built_in">cat</span> harbor-pvc.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: PersistentVolumeClaim</span><br><span class="line">metadata:</span><br><span class="line">  name: harbor-data</span><br><span class="line">  namespace: harbor</span><br><span class="line">spec:</span><br><span class="line">  accessModes:</span><br><span class="line">  - ReadWriteMany</span><br><span class="line">  resources:</span><br><span class="line">    requests:</span><br><span class="line">      storage: 20Gi</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建pvc</span></span><br><span class="line">kubectl create -f harbor-pvc.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改helm配置"><a href="#修改helm配置" class="headerlink" title="修改helm配置"></a>修改helm配置</h2><p>修改harbor配置：</p>
+<ul>
+<li><p>ingress访问的配置（36行和46行）</p>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">34   ingress:</span></span><br><span class="line"><span class="attr">35     hosts:</span></span><br><span class="line"><span class="attr">36       core:</span> <span class="string">core.harbor.domain</span></span><br><span class="line"><span class="attr">37       notary:</span> <span class="string">notary.harbor.domain</span></span><br><span class="line"><span class="number">38</span>     <span class="comment"># set to the type of ingress controller if it has specific requirements.</span></span><br><span class="line"><span class="number">39</span>     <span class="comment"># leave as `default` for most ingress controllers.</span></span><br><span class="line"><span class="number">40</span>     <span class="comment"># set to `gce` if using the GCE ingress controller</span></span><br><span class="line"><span class="number">41</span>     <span class="comment"># set to `ncp` if using the NCP (NSX-T Container Plugin) ingress controller</span></span><br><span class="line"><span class="number">42</span>     <span class="comment"># set to `alb` if using the ALB ingress controller</span></span><br><span class="line"><span class="attr">43     controller:</span> <span class="string">default</span></span><br><span class="line"><span class="number">44</span>     <span class="comment">## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress</span></span><br><span class="line"><span class="attr">45     kubeVersionOverride:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">46     className:</span> <span class="string">&quot;nginx&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>externalURL，web访问入口，和ingress的域名相同（126行）</p>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">126 externalURL:</span> <span class="string">https://harbor.test.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>持久化，使用PVC对接的nfs（215，220，225，227，249，251，258，260）</p>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">204 persistence:</span></span><br><span class="line"><span class="attr">205   enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="number">206</span>   <span class="comment"># Setting it to &quot;keep&quot; to avoid removing PVCs during a helm delete</span></span><br><span class="line"><span class="number">207</span>   <span class="comment"># operation. Leaving it empty will delete PVCs after the chart deleted</span></span><br><span class="line"><span class="number">208</span>   <span class="comment"># (this does not apply for PVCs that are created for internal database</span></span><br><span class="line"><span class="number">209</span>   <span class="comment"># and redis components, i.e. they are never deleted automatically)</span></span><br><span class="line"><span class="attr">210   resourcePolicy:</span> <span class="string">&quot;keep&quot;</span></span><br><span class="line"><span class="attr">211   persistentVolumeClaim:</span></span><br><span class="line"><span class="attr">212     registry:</span></span><br><span class="line"><span class="number">213</span>       <span class="comment"># Use the existing PVC which must be created manually before bound,</span></span><br><span class="line"><span class="number">214</span>       <span class="comment"># and specify the &quot;subPath&quot; if the PVC is shared with other components</span></span><br><span class="line"><span class="attr">215       existingClaim:</span> <span class="string">&quot;harbor-data&quot;</span></span><br><span class="line"><span class="number">216</span>       <span class="comment"># Specify the &quot;storageClass&quot; used to provision the volume. Or the default</span></span><br><span class="line"><span class="number">217</span>       <span class="comment"># StorageClass will be used (the default).</span></span><br><span class="line"><span class="number">218</span>       <span class="comment"># Set it to &quot;-&quot; to disable dynamic provisioning</span></span><br><span class="line"><span class="attr">219       storageClass:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">220       subPath:</span> <span class="string">&quot;registry&quot;</span></span><br><span class="line"><span class="attr">221       accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"><span class="attr">222       size:</span> <span class="string">5Gi</span></span><br><span class="line"><span class="attr">223       annotations:</span> &#123;&#125;</span><br><span class="line"><span class="attr">224     chartmuseum:</span></span><br><span class="line"><span class="attr">225       existingClaim:</span> <span class="string">&quot;harbor-data&quot;</span></span><br><span class="line"><span class="attr">226       storageClass:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">227       subPath:</span> <span class="string">&quot;chartmuseum&quot;</span></span><br><span class="line"><span class="attr">228       accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"><span class="attr">229       size:</span> <span class="string">5Gi</span></span><br><span class="line"><span class="attr">230       annotations:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="number">246</span>     <span class="comment"># If external database is used, the following settings for database will</span></span><br><span class="line"><span class="number">247</span>     <span class="comment"># be ignored</span></span><br><span class="line"><span class="attr">248     database:</span></span><br><span class="line"><span class="attr">249       existingClaim:</span> <span class="string">&quot;harbor-data&quot;</span></span><br><span class="line"><span class="attr">250       storageClass:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">251       subPath:</span> <span class="string">&quot;database&quot;</span></span><br><span class="line"><span class="attr">252       accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"><span class="attr">253       size:</span> <span class="string">1Gi</span></span><br><span class="line"><span class="attr">254       annotations:</span> &#123;&#125;</span><br><span class="line"><span class="number">255</span>     <span class="comment"># If external Redis is used, the following settings for Redis will</span></span><br><span class="line"><span class="number">256</span>     <span class="comment"># be ignored</span></span><br><span class="line"><span class="attr">257     redis:</span></span><br><span class="line"><span class="attr">258       existingClaim:</span> <span class="string">&quot;harbor-data&quot;</span></span><br><span class="line"><span class="attr">259       storageClass:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">260       subPath:</span> <span class="string">&quot;redis&quot;</span></span><br><span class="line"><span class="attr">261       accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"><span class="attr">262       size:</span> <span class="string">1Gi</span></span><br><span class="line"><span class="attr">263       annotations:</span> &#123;&#125;</span><br><span class="line"><span class="attr">264     trivy:</span></span><br><span class="line"><span class="attr">265       existingClaim:</span> <span class="string">&quot;harbor-data&quot;</span></span><br><span class="line"><span class="attr">266       storageClass:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="attr">267       subPath:</span> <span class="string">&quot;trivy&quot;</span></span><br><span class="line"><span class="attr">268       accessMode:</span> <span class="string">ReadWriteOnce</span></span><br><span class="line"><span class="attr">269       size:</span> <span class="string">5Gi</span></span><br><span class="line"><span class="attr">270       annotations:</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>管理员账户密码（382行）</p>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">382 harborAdminPassword:</span> <span class="string">&quot;Harbor12345!&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>trivy、notary漏洞扫描组件，暂不启用（639，711行）</p>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">637 trivy:</span></span><br><span class="line"><span class="number">638</span>   <span class="comment"># enabled the flag to enable Trivy scanner</span></span><br><span class="line"><span class="attr">639   enabled:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">640   image:</span></span><br><span class="line"><span class="number">641</span>     <span class="comment"># repository the repository for Trivy adapter image</span></span><br><span class="line"><span class="attr">642     repository:</span> <span class="string">goharbor/trivy-adapter-photon</span></span><br><span class="line"><span class="number">643</span>     <span class="comment"># tag the tag for Trivy adapter image</span></span><br><span class="line"><span class="attr">644     tag:</span> <span class="string">v2.6.2</span></span><br><span class="line"></span><br><span class="line"><span class="attr">710 notary:</span></span><br><span class="line"><span class="attr">711   enabled:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">712   server:</span></span><br><span class="line"><span class="number">713</span>     <span class="comment"># set the service account to be used, default if left empty</span></span><br><span class="line"><span class="attr">714     serviceAccountName:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="number">715</span>     <span class="comment"># mount the service account token</span></span><br><span class="line"><span class="attr">716     automountServiceAccountToken:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="helm创建"><a href="#helm创建" class="headerlink" title="helm创建"></a>helm创建</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用本地chart安装</span></span><br><span class="line">$ helm -n harbor install harbor ./harbor</span><br></pre></td></tr></table></figure>
+
+<h2 id="推送镜像到Harbor仓库"><a href="#推送镜像到Harbor仓库" class="headerlink" title="推送镜像到Harbor仓库"></a>推送镜像到Harbor仓库</h2><p>配置hosts及docker非安全仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /etc/hosts</span><br><span class="line">...</span><br><span class="line">172.21.65.226 k8s-master harbor.test.com</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cat</span> /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;insecure-registries&quot;</span>: [<span class="string">&quot;registry.access.redhat.com&quot;</span>,<span class="string">&quot;quay.io&quot;</span>,<span class="string">&quot;harbor.test.com&quot;</span>],</span><br><span class="line">  <span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://hub-mirror.c.163.com&quot;</span>],</span><br><span class="line">&#125;</span><br><span class="line">                       </span><br><span class="line"><span class="comment"># 重启docker,使配置生效</span></span><br><span class="line">$ systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用账户密码登录admin/Harbor12345</span></span><br><span class="line">$ docker login harbor.test.com</span><br><span class="line"></span><br><span class="line">$ docker tag nginx:alpine harbor.test.com/library/nginx:alpine</span><br><span class="line">$ docker push harbor.test.com/library/nginx:alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># containerd使用harbor.test.com</span></span><br><span class="line">$ <span class="built_in">mkdir</span> -p /etc/containerd/certs.d/harbor.test.com</span><br><span class="line">$ <span class="built_in">cat</span> /etc/containerd/certs.d/harbor.test.com/hosts.toml</span><br><span class="line">server = <span class="string">&quot;https://harbor.test.com&quot;</span></span><br><span class="line">[host.<span class="string">&quot;https://harbor.test.com&quot;</span>]</span><br><span class="line">  capabilities = [<span class="string">&quot;pull&quot;</span>, <span class="string">&quot;resolve&quot;</span>, <span class="string">&quot;push&quot;</span>]</span><br><span class="line">  skip_verify = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 快速启动服务验证</span></span><br><span class="line">$ kubectl create deployment <span class="built_in">test</span> --image=harbor.test.com/library/nginx:alpine</span><br></pre></td></tr></table></figure>
+
+<h2 id="推送chart到Harbor仓库"><a href="#推送chart到Harbor仓库" class="headerlink" title="推送chart到Harbor仓库"></a>推送chart到Harbor仓库</h2><p>helm3默认没有安装helm push插件，需要手动安装。插件地址 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/chartmuseum/helm-push">https://github.com/chartmuseum/helm-push</a></p>
+<h3 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h3><p>在线安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ helm plugin install https://github.com/chartmuseum/helm-push</span><br></pre></td></tr></table></figure>
+
+<p>离线安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> helm-push</span><br><span class="line">$ wget https://github.com/chartmuseum/helm-push/releases/download/v0.8.1/helm-push_0.8.1_linux_amd64.tar.gz</span><br><span class="line">$ tar zxf helm-push_0.8.1_linux_amd64.tar.gz -C helm-push</span><br><span class="line">$ helm plugin install ./helm-push</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加repo"><a href="#添加repo" class="headerlink" title="添加repo"></a>添加repo</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ helm repo add myharbor https://harbor.test.com/chartrepo/test</span><br><span class="line"><span class="comment"># x509错误</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加证书信任，根证书为配置给ingress使用的证书</span></span><br><span class="line">$ kubectl get secret harbor-ingress -n harbor -o jsonpath=<span class="string">&quot;&#123;.data.ca\.crt&#125;&quot;</span> | <span class="built_in">base64</span> -d &gt;harbor.ca.crt</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cp</span> harbor.ca.crt /etc/pki/ca-trust/source/anchors</span><br><span class="line">$ update-ca-trust <span class="built_in">enable</span>; update-ca-trust extract</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次添加</span></span><br><span class="line">$ helm repo add <span class="built_in">test</span> https://harbor.test.com/chartrepo/test --ca-file=harbor.ca.crt  --username admin --password Harbor12345!</span><br><span class="line"></span><br><span class="line">$ helm repo <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="推送chart到仓库："><a href="#推送chart到仓库：" class="headerlink" title="推送chart到仓库："></a>推送chart到仓库：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ helm push harbor <span class="built_in">test</span> --ca-file=harbor.ca.crt -u admin -p Harbor12345!</span><br></pre></td></tr></table></figure>
+
+<h1 id="实战：使用Helm部署NFS-StorageClass"><a href="#实战：使用Helm部署NFS-StorageClass" class="headerlink" title="实战：使用Helm部署NFS StorageClass"></a>实战：使用Helm部署NFS StorageClass</h1><h2 id="准备repo-1"><a href="#准备repo-1" class="headerlink" title="准备repo"></a>准备repo</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加nfs-subdir-external-provisioner chart仓库</span></span><br><span class="line">$ helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索nfs-subdir-external-provisioner的chart</span></span><br><span class="line">$ helm search repo nfs-subdir-external-provisioner</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉到本地，目前我看到最新版本是4.0.18，我们就使用指定版本的方式安装</span></span><br><span class="line">$ helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --version 4.0.18</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改helm配置-1"><a href="#修改helm配置-1" class="headerlink" title="修改helm配置"></a>修改helm配置</h2><p>这里我们之前创建了nfs服务器，服务器地址是<code>192.168.100.1</code>，共享目录是<code>/</code>，因此我们修改对应的配置即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ tar xf nfs-subdir-external-provisioner-4.0.18.tgz</span><br><span class="line">$ <span class="built_in">cd</span> nfs-subdir-external-provisioner</span><br><span class="line"></span><br><span class="line">$ vim values.yaml</span><br><span class="line">...</span><br><span class="line">image:</span><br><span class="line">  <span class="comment"># 如果不放心镜像的下载可以修改仓库地址</span></span><br><span class="line">  repository: willdockerhub/nfs-subdir-external-provisioner</span><br><span class="line">...</span><br><span class="line">nfs:</span><br><span class="line">  server: 192.168.100.1</span><br><span class="line">  path: /</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="helm创建-1"><a href="#helm创建-1" class="headerlink" title="helm创建"></a>helm创建</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建命名空间</span></span><br><span class="line">$ kubectl create namespace nfs-subdir-external-provisioner</span><br><span class="line"><span class="comment"># 使用本地chart安装，因为我进入了nfs-subdir-external-provisioner目录，所以直接使用.表示当前目录</span></span><br><span class="line">$ helm -n nfs-subdir-external-provisioner install nfs-subdir-external-provisioner .</span><br></pre></td></tr></table></figure>
+
+<h2 id="确认StorageClass"><a href="#确认StorageClass" class="headerlink" title="确认StorageClass"></a>确认StorageClass</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看pod运行情况</span></span><br><span class="line">$ kubectl -n nfs-subdir-external-provisioner get pod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看StorageClass</span></span><br><span class="line">$ kubectl get sc</span><br></pre></td></tr></table></figure>
+
+<h1 id="实战：使用Helm部署Ingress-Controller"><a href="#实战：使用Helm部署Ingress-Controller" class="headerlink" title="实战：使用Helm部署Ingress Controller"></a>实战：使用Helm部署Ingress Controller</h1><h2 id="准备repo-2"><a href="#准备repo-2" class="headerlink" title="准备repo"></a>准备repo</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加ingress-nginx chart仓库</span></span><br><span class="line">$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索ingress-nginx的chart</span></span><br><span class="line">$ helm search repo ingress-nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉到本地，目前我看到最新版本是4.8.3</span></span><br><span class="line">$ helm pull ingress-nginx/ingress-nginx</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改helm配置-2"><a href="#修改helm配置-2" class="headerlink" title="修改helm配置"></a>修改helm配置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ tar xf ingress-nginx-4.8.3.tgz</span><br><span class="line">$ vim ingress-nginx/values.yaml</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">controller:</span><br><span class="line">  <span class="comment"># 之前使用的是hostNetwork方式，这里我们使用hostPort方式</span></span><br><span class="line">  hostPort:</span><br><span class="line">    enabled: <span class="literal">true</span></span><br><span class="line">...</span><br><span class="line">  <span class="comment"># 做集群负载均衡需要将所有的节点都部署上ingress-controller，可以使用daemonset方式部署</span></span><br><span class="line">  kind: DaemonSet</span><br><span class="line">...</span><br><span class="line">  nodeSelector:</span><br><span class="line">    kubernetes.io/os: linux</span><br><span class="line">    <span class="comment"># 这里我们多加一个标签，控制在哪些节点上部署ingress-controller</span></span><br><span class="line">    ingress: <span class="string">&quot;true&quot;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="helm创建-2"><a href="#helm创建-2" class="headerlink" title="helm创建"></a>helm创建</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 给节点打标签，所有想要部署ingress-controller的节点都需要打上该标签</span></span><br><span class="line">$ kubectl label node k8s-master ingress=<span class="literal">true</span></span><br><span class="line">$ kubectl label node k8s-node1 ingress=<span class="literal">true</span></span><br><span class="line">$ kubectl label node k8s-node2 ingress=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建命名空间并使用本地chart安装</span></span><br><span class="line">$ helm upgrade -n ingress-nginx --create-namespace --install ingress-nginx ./ingress-nginx</span><br></pre></td></tr></table></figure>
+
+<h2 id="确认Ingress-Controller"><a href="#确认Ingress-Controller" class="headerlink" title="确认Ingress Controller"></a>确认Ingress Controller</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看pod运行情况</span></span><br><span class="line">$ kubectl -n ingress-nginx get pod</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看ingress-controller的service</span></span><br><span class="line">$ kubectl -n ingress-nginx get svc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署测试应用，使用ingress暴露服务，然后访问测试确认是否生效。这里具体的应用部署方式不再赘述。</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-helm/">k8s helm</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-11-24, 23:56:22</p>
+        <p><span>最后更新:</span>2023-12-04, 13:14:56</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-helm/" title="k8s helm">http://realtiger.github.io/k8s-helm/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-helm/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/k8s-prometheus-introduction-install/">
+                    k8s prometheus监控
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-cni/">
+                    k8s 容器网络接口
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Helm%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">Helm的安装和使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A4%E8%AF%86Helm"><span class="toc-number">1.1.</span> <span class="toc-text">认识Helm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.2.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8%E5%AE%9E%E8%B7%B51%EF%BC%9A%E4%BD%BF%E7%94%A8helm%E5%AE%89%E8%A3%85wordpress%E5%BA%94%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">入门实践1：使用helm安装wordpress应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8%E5%AE%9E%E8%B7%B52%EF%BC%9A%E6%96%B0%E5%BB%BAnginx%E7%9A%84chart%E5%B9%B6%E5%AE%89%E8%A3%85"><span class="toc-number">1.4.</span> <span class="toc-text">入门实践2：新建nginx的chart并安装</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chart%E7%9A%84%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95%E5%8F%8A%E5%BC%80%E5%8F%91"><span class="toc-number">2.</span> <span class="toc-text">Chart的模板语法及开发</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chart%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">Chart的目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.2.</span> <span class="toc-text">分析模板文件的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E5%91%BD%E5%90%8D%E6%A8%A1%E6%9D%BF%E5%B9%B6%E4%BC%A0%E9%80%92%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="toc-number">2.2.1.</span> <span class="toc-text">引用命名模板并传递作用域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%AE%E5%AF%B9%E8%B1%A1"><span class="toc-number">2.2.2.</span> <span class="toc-text">内置对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%AE%9A%E4%B9%89"><span class="toc-number">2.2.3.</span> <span class="toc-text">模板定义</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.2.3.1.</span> <span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%BB%E6%8E%89%E7%A9%BA%E6%A0%BC"><span class="toc-number">2.2.4.</span> <span class="toc-text">去掉空格</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%A1%E9%81%93%E5%8F%8A%E6%96%B9%E6%B3%95"><span class="toc-number">2.2.5.</span> <span class="toc-text">管道及方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Helm-%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">Helm 使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Helm-template"><span class="toc-number">3.1.</span> <span class="toc-text">Helm template</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%8B%E5%80%BC%E6%96%B9%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">赋值方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%B8%B2%E6%9F%93%E5%90%8E%E7%9A%84%E8%B5%84%E6%BA%90%E6%B8%85%E5%8D%95"><span class="toc-number">3.3.</span> <span class="toc-text">查看渲染后的资源清单</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BD%BF%E7%94%A8Helm%E9%83%A8%E7%BD%B2Harbor%E9%95%9C%E5%83%8F%E5%8F%8Achart%E4%BB%93%E5%BA%93"><span class="toc-number">4.</span> <span class="toc-text">实战：使用Helm部署Harbor镜像及chart仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#harbor%E6%9E%B6%E6%9E%84"><span class="toc-number">4.1.</span> <span class="toc-text">harbor架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87repo"><span class="toc-number">4.2.</span> <span class="toc-text">准备repo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BApvc"><span class="toc-number">4.3.</span> <span class="toc-text">创建pvc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9helm%E9%85%8D%E7%BD%AE"><span class="toc-number">4.4.</span> <span class="toc-text">修改helm配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#helm%E5%88%9B%E5%BB%BA"><span class="toc-number">4.5.</span> <span class="toc-text">helm创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F%E5%88%B0Harbor%E4%BB%93%E5%BA%93"><span class="toc-number">4.6.</span> <span class="toc-text">推送镜像到Harbor仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A8%E9%80%81chart%E5%88%B0Harbor%E4%BB%93%E5%BA%93"><span class="toc-number">4.7.</span> <span class="toc-text">推送chart到Harbor仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="toc-number">4.7.1.</span> <span class="toc-text">安装插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0repo"><span class="toc-number">4.7.2.</span> <span class="toc-text">添加repo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E9%80%81chart%E5%88%B0%E4%BB%93%E5%BA%93%EF%BC%9A"><span class="toc-number">4.7.3.</span> <span class="toc-text">推送chart到仓库：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BD%BF%E7%94%A8Helm%E9%83%A8%E7%BD%B2NFS-StorageClass"><span class="toc-number">5.</span> <span class="toc-text">实战：使用Helm部署NFS StorageClass</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87repo-1"><span class="toc-number">5.1.</span> <span class="toc-text">准备repo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9helm%E9%85%8D%E7%BD%AE-1"><span class="toc-number">5.2.</span> <span class="toc-text">修改helm配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#helm%E5%88%9B%E5%BB%BA-1"><span class="toc-number">5.3.</span> <span class="toc-text">helm创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AE%E8%AE%A4StorageClass"><span class="toc-number">5.4.</span> <span class="toc-text">确认StorageClass</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BD%BF%E7%94%A8Helm%E9%83%A8%E7%BD%B2Ingress-Controller"><span class="toc-number">6.</span> <span class="toc-text">实战：使用Helm部署Ingress Controller</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87repo-2"><span class="toc-number">6.1.</span> <span class="toc-text">准备repo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9helm%E9%85%8D%E7%BD%AE-2"><span class="toc-number">6.2.</span> <span class="toc-text">修改helm配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#helm%E5%88%9B%E5%BB%BA-2"><span class="toc-number">6.3.</span> <span class="toc-text">helm创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AE%E8%AE%A4Ingress-Controller"><span class="toc-number">6.4.</span> <span class="toc-text">确认Ingress Controller</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s helm　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/k8s-prometheus-introduction-install/" title="上一篇: k8s prometheus监控">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-cni/" title="下一篇: k8s 容器网络接口">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-add-targets/">k8s prometheus 添加监控目标</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-iptables/">linux iptables 防火墙</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-introduction-install/">k8s prometheus监控</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-helm/">k8s helm</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-cni/">k8s 容器网络接口</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-persistent-volume/">k8s 持久卷</a></li><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记总目录</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>

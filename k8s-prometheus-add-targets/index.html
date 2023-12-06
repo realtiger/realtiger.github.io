@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 上面我们已经部署了Prometheus，现在我们来看看如何添加监控目标。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s prometheus 添加监控目标">
+<meta property="og:url" content="http://realtiger.github.io/k8s-prometheus-add-targets/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 上面我们已经部署了Prometheus，现在我们来看看如何添加监控目标。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-coredns-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-coredns-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-api-server-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-api-server-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-node-exporter-target-error.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/when-relabel-work.png">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-node-exporter-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-node-exporter-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-cadvisor-target-error.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-cadvisor-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-cadvisor-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-kubelet-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-container-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-kubelet-graph.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-endpoints-target-error.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-endpoints-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-kube-state-metrics-target.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-kube-state-metrics-graph.jpg">
+<meta property="article:published_time" content="2023-12-01T14:07:24.000Z">
+<meta property="article:modified_time" content="2023-12-05T03:33:11.618Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="monitoring">
+<meta property="article:tag" content="targets">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/k8s-prometheus-coredns-target.jpg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>k8s prometheus 添加监控目标 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iptables/" rel="tag">iptables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-prometheus-add-targets" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-prometheus-add-targets/" class="article-date">
+      <time datetime="2023-12-01T14:07:24.000Z" itemprop="datePublished">2023-12-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s prometheus 添加监控目标
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">21分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>上面我们已经部署了Prometheus，现在我们来看看如何添加监控目标。</p>
+<span id="more"></span>
+
+<h1 id="添加coreDNS监控"><a href="#添加coreDNS监控" class="headerlink" title="添加coreDNS监控"></a>添加coreDNS监控</h1><h2 id="coreDNS监控指标"><a href="#coreDNS监控指标" class="headerlink" title="coreDNS监控指标"></a>coreDNS监控指标</h2><p>无论是业务应用还是k8s系统组件，只要提供了metrics api，并且该api返回的数据格式满足标准的Prometheus数据格式要求即可。</p>
+<p>其实，很多组件已经为了适配Prometheus采集指标，添加了对应的&#x2F;metrics api，比如CoreDNS:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system get po -owide | grep coredns</span><br><span class="line">coredns-66f779496c-cx2zv             1/1     Running   0            98d   10.244.1.2      k8s-node1    &lt;none&gt;           &lt;none&gt;</span><br><span class="line">coredns-66f779496c-t5zs2             1/1     Running   0            98d   10.244.1.3      k8s-node1    &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line">$ curl 10.244.1.2:9153/metrics</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改target配置"><a href="#修改target配置" class="headerlink" title="修改target配置"></a>修改target配置</h2><p>加入coreDns的监控目标，只需要修改Prometheus的配置文件即可。因为Prometheus的配置文件是以configmap的形式保存的，所以我们需要修改configmap的内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查询coreDNS的ClusterIP，因为Pod的IP可能会变化</span></span><br><span class="line">$ kubectl -n kube-system get svc</span><br><span class="line">NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                  AGE</span><br><span class="line">kube-dns         ClusterIP   10.96.0.10       &lt;none&gt;        53/UDP,53/TCP,9153/TCP   98d</span><br><span class="line">metrics-server   ClusterIP   10.105.155.213   &lt;none&gt;        443/TCP                  15d</span><br><span class="line"></span><br><span class="line">$ kubectl -n monitor edit configmap prometheus-config</span><br><span class="line">...</span><br><span class="line">    scrape_configs:</span><br><span class="line">      - job_name: <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line">        static_configs:</span><br><span class="line">        - targets: [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br><span class="line">      - job_name: <span class="string">&#x27;coredns&#x27;</span></span><br><span class="line">        static_configs:</span><br><span class="line">        - targets: [<span class="string">&#x27;10.96.0.10:9153&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等待30s左右，确认配置文件已经更新，这个是k8s的机制，只需要等待即可</span></span><br><span class="line">$ kubectl -n monitor <span class="built_in">exec</span> prometheus-5bc5966ff8-f84vx -- <span class="built_in">cat</span> /etc/prometheus/prometheus.yml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启Prometheus进程，因为我们添加了参数，所以使用热更新即可</span></span><br><span class="line">$ kubectl -n monitor get po -owide</span><br><span class="line">NAME                          READY   STATUS    RESTARTS   AGE     IP            NODE         NOMINATED NODE   READINESS GATES</span><br><span class="line">prometheus-5bc5966ff8-f84vx   1/1     Running   0          3h39m   10.244.0.26   k8s-master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line">$ curl -XPOST 10.244.0.26:9090/-/reload</span><br></pre></td></tr></table></figure>
+
+<p>此时我们登录Prometheus的Web界面，可以看到coreDNS已经添加到监控目标中了。</p>
+<p><img src="/post/docker/k8s-prometheus-coredns-target.jpg" alt="k8s-prometheus-coredns-target"></p>
+<p>我们使用Prometheus的查询语句，可以看到coreDNS的监控指标：</p>
+<p><img src="/post/docker/k8s-prometheus-coredns-graph.jpg" alt="k8s-prometheus-coredns-graph"></p>
+<h1 id="监控api-server等系统组件"><a href="#监控api-server等系统组件" class="headerlink" title="监控api-server等系统组件"></a>监控api-server等系统组件</h1><h2 id="常用监控对象的指标采集"><a href="#常用监控对象的指标采集" class="headerlink" title="常用监控对象的指标采集"></a>常用监控对象的指标采集</h2><p>对于集群的监控一般我们需要考虑以下几个方面：</p>
+<ul>
+<li>内部系统组件的状态：比如 kube-apiserver、kube-scheduler、kube-controller-manager、kubedns&#x2F;coredns 等组件的详细运行状态</li>
+<li>Kubernetes 节点的监控：比如节点的 cpu、load、disk、memory 等指标</li>
+<li>业务容器基础指标的监控（容器CPU、内存、磁盘等）, hpa ,kubelet, advistor</li>
+<li>业务容器业务指标的监控，业务代码实现了&#x2F;metrics的api，暴露业务的指标</li>
+<li>编排级的 metrics：比如 Deployment 的状态、资源请求、调度和 API 延迟等数据指标</li>
+</ul>
+<h2 id="监控-kube-apiserver"><a href="#监控-kube-apiserver" class="headerlink" title="监控 kube-apiserver"></a>监控 kube-apiserver</h2><p>api-server自身也提供了 &#x2F;metrics 的api来提供监控数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get svc</span><br><span class="line">NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE</span><br><span class="line">kubernetes   ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP   98d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建token</span></span><br><span class="line">$ kubectl -n monitor create token prometheus</span><br><span class="line">$ token=<span class="string">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IkFJa1A2OHMwZnVKdHl2VnBaWG5QWl9TRlFCbFhKcmtvcGdEZjFDR1RuMjQifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzAxNDQ5MzcyLCJpYXQiOjE3MDE0NDU3NzIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJtb25pdG9yIiwic2VydmljZWFjY291bnQiOnsibmFtZSI6InByb21ldGhldXMiLCJ1aWQiOiJhNGJjMWI5Yi0wMzBjLTRhMGItYjI3MS1kOTMwNGJiZjEwYjAifX0sIm5iZiI6MTcwMTQ0NTc3Miwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Om1vbml0b3I6cHJvbWV0aGV1cyJ9.Frbx-O0rFmf0DXdFGCU2Nh1avWK6EUOlGahyebwoDHHJC0eFEITrJWw7oE8crOlC_fdBsRcqoLZkgRPna2lxJmzZ_Imxo6nepKqhzDjaoeXngcx1w-rAmuzkjSSJJxsCIIpwAjW3ZMBNdpaj1Q5cKhjOMgFwFEcfCAAzxabRrDkH_qPrMsY3eHmxYqFD168HktpVhUkDmzfUvJKypECp4YGccjNAtN7T5hpe8q94hn-_fdvf_xmRUeOqEUSHcdr9lwf8Tq8fF8rMcSM_0OCnUQjvHM6jixyxEOw53axoXmL2VN3RPajfUB5ECV27fi_XG1oTJck7OzE0vA0kOfUN3w&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求apiserver的监控数据</span></span><br><span class="line">$ curl -k -H <span class="string">&quot;Authorization: Bearer <span class="variable">$&#123;token&#125;</span>&quot;</span> https://10.96.0.1/metrics</span><br></pre></td></tr></table></figure>
+
+<p>确认api-server的监控数据已经正常返回后，就可以通过手动配置如下job来添加对apiserver服务的监控，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n monitor edit configmap prometheus-config</span><br><span class="line">...</span><br><span class="line">      - job_name: <span class="string">&#x27;kubernetes-apiserver&#x27;</span></span><br><span class="line">        static_configs:</span><br><span class="line">        - targets: [<span class="string">&#x27;10.96.0.1&#x27;</span>]</span><br><span class="line">        scheme: https</span><br><span class="line">        tls_config:</span><br><span class="line">          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span><br><span class="line">          insecure_skip_verify: <span class="literal">true</span></span><br><span class="line">        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token</span><br></pre></td></tr></table></figure>
+
+<p>只有我们创建了一个service account资源，就会在容器挂载目录&#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;下生成一个token文件，这个文件就是apiserver的token，我们可以通过这个token来访问apiserver的&#x2F;metrics api。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">确认配置文件更新</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl -n monitor <span class="built_in">exec</span> prometheus-5bc5966ff8-f84vx -- <span class="built_in">cat</span> /etc/prometheus/prometheus.yml</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启Prometheus进程</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">curl -XPOST 10.244.0.26:9090/-/reload</span></span><br></pre></td></tr></table></figure>
+
+<p>确认api-server已经添加到监控目标中了。</p>
+<p><img src="/post/docker/k8s-prometheus-api-server-target.jpg" alt="k8s-prometheus-api-server-target"></p>
+<p>我们使用Prometheus的查询语句，可以看到apiserver的监控指标：</p>
+<p><img src="/post/docker/k8s-prometheus-api-server-graph.jpg" alt="k8s-prometheus-api-server-graph"></p>
+<h1 id="监控宿主机指标"><a href="#监控宿主机指标" class="headerlink" title="监控宿主机指标"></a>监控宿主机指标</h1><h2 id="监控集群节点基础指标"><a href="#监控集群节点基础指标" class="headerlink" title="监控集群节点基础指标"></a>监控集群节点基础指标</h2><p>如果想要监控集群节点的基础指标，比如节点的cpu、load、disk、memory等指标，可以使用node_exporter来采集。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/prometheus/node_exporter">node_exporter</a>是一个开源的第三方组件，工作原理是通过在节点上启动一个进程，该进程会定期采集节点的基础指标，然后通过http的方式暴露给Prometheus采集。</p>
+<p>我们要部署node_exporter，需要满足以下几个条件：</p>
+<ul>
+<li>每个节点都需要监控，因此可以使用DaemonSet类型来管理node_exporter</li>
+<li>添加节点的容忍配置，</li>
+<li>挂载宿主机中的系统文件信息</li>
+</ul>
+<h3 id="部署node-exporter"><a href="#部署node-exporter" class="headerlink" title="部署node_exporter"></a>部署node_exporter</h3><p>创建 node-exporter 的资源清单</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> node-exporter.ds.yaml</span><br><span class="line"></span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: DaemonSet</span><br><span class="line">metadata:</span><br><span class="line">  name: node-exporter</span><br><span class="line">  namespace: monitor</span><br><span class="line">  labels:</span><br><span class="line">    app: node-exporter</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: node-exporter</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: node-exporter</span><br><span class="line">    spec:</span><br><span class="line">      hostPID: <span class="literal">true</span></span><br><span class="line">      hostIPC: <span class="literal">true</span></span><br><span class="line">      hostNetwork: <span class="literal">true</span></span><br><span class="line">      nodeSelector:</span><br><span class="line">        kubernetes.io/os: linux</span><br><span class="line">      containers:</span><br><span class="line">      - name: node-exporter</span><br><span class="line">        image: prom/node-exporter:v1.7.0</span><br><span class="line">        args:</span><br><span class="line">        - --web.listen-address=$(HOSTIP):9100</span><br><span class="line">        - --path.procfs=/host/proc</span><br><span class="line">        - --path.sysfs=/host/sys</span><br><span class="line">        - --path.rootfs=/host/root</span><br><span class="line">        - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)</span><br><span class="line">        - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 9100</span><br><span class="line">        <span class="built_in">env</span>:</span><br><span class="line">        - name: HOSTIP</span><br><span class="line">          valueFrom:</span><br><span class="line">            fieldRef:</span><br><span class="line">              fieldPath: status.hostIP</span><br><span class="line">        resources:</span><br><span class="line">          requests:</span><br><span class="line">            cpu: 150m</span><br><span class="line">            memory: 180Mi</span><br><span class="line">          limits:</span><br><span class="line">            cpu: 150m</span><br><span class="line">            memory: 180Mi</span><br><span class="line">        securityContext:</span><br><span class="line">          runAsNonRoot: <span class="literal">true</span></span><br><span class="line">          runAsUser: 65534</span><br><span class="line">        volumeMounts:</span><br><span class="line">        - name: proc</span><br><span class="line">          mountPath: /host/proc</span><br><span class="line">        - name: sys</span><br><span class="line">          mountPath: /host/sys</span><br><span class="line">        - name: root</span><br><span class="line">          mountPath: /host/root</span><br><span class="line">          mountPropagation: HostToContainer</span><br><span class="line">          readOnly: <span class="literal">true</span></span><br><span class="line">      tolerations:</span><br><span class="line">      - operator: <span class="string">&quot;Exists&quot;</span></span><br><span class="line">      volumes:</span><br><span class="line">      - name: proc</span><br><span class="line">        hostPath:</span><br><span class="line">          path: /proc</span><br><span class="line">      - name: dev</span><br><span class="line">        hostPath:</span><br><span class="line">          path: /dev</span><br><span class="line">      - name: sys</span><br><span class="line">        hostPath:</span><br><span class="line">          path: /sys</span><br><span class="line">      - name: root</span><br><span class="line">        hostPath:</span><br><span class="line">          path: /</span><br></pre></td></tr></table></figure>
+
+<p>创建node-exporter服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f node-exporter.ds.yaml</span><br><span class="line"></span><br><span class="line">$ kubectl -n monitor get po -owide</span><br><span class="line">NAME                          READY   STATUS    RESTARTS   AGE     IP              NODE         NOMINATED NODE   READINESS GATES</span><br><span class="line">node-exporter-7vdxl           1/1     Running   0          36s     192.168.100.3   k8s-node2    &lt;none&gt;           &lt;none&gt;</span><br><span class="line">node-exporter-bkqj6           1/1     Running   0          36s     192.168.100.2   k8s-node1    &lt;none&gt;           &lt;none&gt;</span><br><span class="line">node-exporter-bmv4m           1/1     Running   0          36s     192.168.100.1   k8s-master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">prometheus-5bc5966ff8-f84vx   1/1     Running   0          4h34m   10.244.0.26     k8s-master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取k8s-master节点的监控指标</span></span><br><span class="line">$ curl 192.168.100.1:9100/metrics</span><br></pre></td></tr></table></figure>
+
+<p>这样我们就可以通过node-exporter的服务来采集节点的基础指标了。</p>
+<blockquote>
+<p>我们也可以通过helm来部署node-exporter，指令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</span><br><span class="line">$ helm repo update</span><br><span class="line">$ helm install node-exporter prometheus-community/prometheus-node-exporter -n monitor</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="Prometheus的服务发现与Relabeling"><a href="#Prometheus的服务发现与Relabeling" class="headerlink" title="Prometheus的服务发现与Relabeling"></a>Prometheus的服务发现与Relabeling</h2><p>接下来就要将node-exporter添加到监控目标，那么如何添加到Prometheus的target中呢？</p>
+<ul>
+<li>配置一个Service，后端挂载node-exporter的服务，把Service的地址配置到target中<ul>
+<li>带来新的问题，target中无法直观的看到各节点node-exporter的状态</li>
+</ul>
+</li>
+<li>把每个node-exporter的服务都添加到target列表中<ul>
+<li>带来新的问题，集群节点的增删，都需要手动维护列表</li>
+<li>target列表维护量随着集群规模增加</li>
+</ul>
+</li>
+</ul>
+<p>于是我们需要一种更加智能的方式来添加监控目标，这就是Prometheus的服务发现机制。</p>
+<p>我们之前已经给Prometheus配置了RBAC，有读取node的权限，因此Prometheus可以去调用Kubernetes API获取node信息，所以Prometheus通过与 Kubernetes API 集成，提供了内置的服务发现分别是：<code>Node</code>、<code>Service</code>、<code>Pod</code>、<code>Endpoints</code>、<code>Ingress</code></p>
+<p>我们再次修改prometheus的配置文件，添加node的服务发现配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">    scrape_configs:</span><br><span class="line">      - job_name: <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line">        static_configs:</span><br><span class="line">        - targets: [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br><span class="line">      - job_name: <span class="string">&#x27;coredns&#x27;</span></span><br><span class="line">        static_configs:</span><br><span class="line">        - targets: [<span class="string">&#x27;10.96.0.10:9153&#x27;</span>]</span><br><span class="line">      <span class="comment"># 下面是添加的内容</span></span><br><span class="line">      - job_name: <span class="string">&#x27;kubernetes-sd-node-exporter&#x27;</span></span><br><span class="line">        <span class="comment"># 注意：类型换了，之前使用的是static_configs，都是静态配置，现在使用的是kubernetes_sd_configs，是kubernetes的服务发现</span></span><br><span class="line">        kubernetes_sd_configs:</span><br><span class="line">          - role: node</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>重新reload后查看效果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl -n monitor <span class="built_in">exec</span> prometheus-5bc5966ff8-f84vx -- <span class="built_in">cat</span> /etc/prometheus/prometheus.yml</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">curl -XPOST 10.244.0.26:9090/-/reload</span></span><br></pre></td></tr></table></figure>
+
+<p>重新reload后，查看Prometheus的targets列表，可以看到node-exporter已经添加到监控目标中了，但是似乎有点问题，我们看到node-exporter的状态是DOWN的。</p>
+<p><img src="/post/docker/k8s-prometheus-node-exporter-target-error.jpg" alt="k8s-prometheus-node-exporter-target-error"></p>
+<p>可以看到默认访问的地址是<a target="_blank" rel="external nofollow noopener noreferrer" href="http://node-ip:10250/metrics%EF%BC%8C10250%E6%98%AFkubelet">http://node-ip:10250/metrics，10250是kubelet</a> API的服务端口，说明Prometheus的node类型的服务发现模式，默认是和kubelet的10250绑定的，而我们是期望使用node-exporter作为采集的指标来源，因此需要把访问的endpoint替换成<a target="_blank" rel="external nofollow noopener noreferrer" href="http://node-ip:9100/metrics%E3%80%82">http://node-ip:9100/metrics。</a></p>
+<p><img src="/post/docker/when-relabel-work.png" alt="when-relabel-work"></p>
+<p>在真正抓取数据前，Prometheus提供了relabeling的能力。Relabeling 重新标记用于配置 Prometheus 元信息的方式，它是转换和过滤 Prometheus 中 label 标签对象的核心。</p>
+<p>那怎么理解这个功能呢？</p>
+<p>查看Target的Label列，可以发现，每个target对应会有很多<code>Before Relabeling/Discovered labels</code>的标签，这些__开头的label是系统内部使用，不会存储到样本的数据里，但是，我们在查看数据的时候，可以发现，每个数据都有两个默认的label，即：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prometheus_notifications_dropped_total&#123;instance=<span class="string">&quot;localhost:9090&quot;</span>,job=<span class="string">&quot;prometheus&quot;</span>&#125;	</span><br></pre></td></tr></table></figure>
+
+<p>instance的值其实则取自于<code>__address__</code></p>
+<p>这种发生在采集样本数据之前，对Target实例的标签进行重写的机制在Prometheus被称为Relabeling，这些配置还是在Prometheus配置文件里面配置。。</p>
+<p>因此，利用relabeling的能力，只需要将<code>__address__</code>替换成node_exporter的服务地址即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">      - job_name: <span class="string">&#x27;kubernetes-sd-node-exporter&#x27;</span></span><br><span class="line">        kubernetes_sd_configs:</span><br><span class="line">          - role: node</span><br><span class="line">        relabel_configs:</span><br><span class="line">        - source_labels: [__address__]</span><br><span class="line">          regex: <span class="string">&#x27;(.*):10250&#x27;</span></span><br><span class="line">          replacement: <span class="string">&#x27;$&#123;1&#125;:9100&#x27;</span></span><br><span class="line">          target_label: __address__</span><br><span class="line">          action: replace</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>再次更新Prometheus服务后，查看targets列表及node-exporter提供的指标</p>
+<p><img src="/post/docker/k8s-prometheus-node-exporter-target.jpg" alt="k8s-prometheus-node-exporter-target"></p>
+<p>查看node-exporter的监控指标 node_load1 （1分钟的load）</p>
+<p><img src="/post/docker/k8s-prometheus-node-exporter-graph.jpg" alt="k8s-prometheus-node-exporter-graph"></p>
+<h2 id="容器指标采集"><a href="#容器指标采集" class="headerlink" title="容器指标采集"></a>容器指标采集</h2><h3 id="使用cadvisor实现容器指标的采集"><a href="#使用cadvisor实现容器指标的采集" class="headerlink" title="使用cadvisor实现容器指标的采集"></a>使用cadvisor实现容器指标的采集</h3><p>目前cAdvisor集成到了kubelet组件内 ，因此如果我们希望通过cadvisor采集容器指标，可以通过kubelet的接口实现容器指标的采集，具体的API为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://&lt;node-ip&gt;:10250/metrics/cadvisor    <span class="comment"># node上的cadvisor采集到的容器指标</span></span><br><span class="line">https://&lt;node-ip&gt;:10250/metrics             <span class="comment"># node上的kubelet的指标数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># $ token=`kubectl -n kube-system create token metrics-server`</span></span><br><span class="line"><span class="comment"># $ curl -k -H &quot;Authorization: Bearer $&#123;token&#125;&quot; https://192.168.100.1:10250/metrics</span></span><br></pre></td></tr></table></figure>
+
+<p>因此，针对容器指标来讲，我们期望的采集target是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://192.168.100.1:10250/metrics/cadvisor</span><br><span class="line">https://192.168.100.2:10250/metrics/cadvisor</span><br><span class="line">https://192.168.100.3:10250/metrics/cadvisor</span><br></pre></td></tr></table></figure>
+
+<p>即每个node节点都需要去采集数据，联想到prometheus的服务发现中的node类型，因此，配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-cadvisor&#x27;</span></span><br><span class="line">      <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">node</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>重新加载配置（reload，具体过程与上面类似，这里不再赘述），查看targets列表，可以看到cadvisor已经添加到监控目标中了。</p>
+<p>但是默认添加的target列表为：<code>__schema__://__address__ __metrics_path__</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.100.1:10250/metrics</span><br><span class="line">http://192.168.100.2:10250/metrics</span><br><span class="line">http://192.168.100.3:10250/metrics</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/docker/k8s-prometheus-cadvisor-target-error.jpg" alt="k8s-prometheus-cadvisor-target-error"></p>
+<p>和期望值不同的是<code>__schema__</code>和<code>__metrics_path__</code>，针对<code>__schema__</code>，我们可以直接针对<code>__metrics_path__</code>可以使用relabel修改</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-cadvisor&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">node</span></span><br><span class="line">        <span class="attr">scheme:</span> <span class="string">https</span></span><br><span class="line">        <span class="attr">tls_config:</span></span><br><span class="line">          <span class="attr">ca_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span></span><br><span class="line">          <span class="attr">insecure_skip_verify:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">bearer_token_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/token</span></span><br><span class="line">        <span class="attr">relabel_configs:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">          <span class="attr">replacement:</span> <span class="string">/metrics/cadvisor</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>重新应用配置，然后重建Prometheus的pod。</p>
+<p>查看targets列表，可以看到targets已经更新为我们期望的值。</p>
+<p><img src="/post/docker/k8s-prometheus-cadvisor-target.jpg" alt="k8s-prometheus-cadvisor-target"></p>
+<p>查看cadvisor指标，比如container_cpu_system_seconds_total，container_memory_usage_bytes</p>
+<p><img src="/post/docker/k8s-prometheus-cadvisor-graph.jpg" alt="k8s-prometheus-cadvisor-graph"> </p>
+<p>综上，利用node类型的服务发现，可以实现对daemonset类型服务的目标自动发现以及监控数据抓取。</p>
+<h2 id="采集kubelet的指标"><a href="#采集kubelet的指标" class="headerlink" title="采集kubelet的指标"></a>采集kubelet的指标</h2><p>若想采集kubelet的指标，只需要使用以下配置即可：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-kubelet&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">node</span></span><br><span class="line">        <span class="attr">scheme:</span> <span class="string">https</span></span><br><span class="line">        <span class="attr">tls_config:</span></span><br><span class="line">          <span class="attr">ca_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span></span><br><span class="line">          <span class="attr">insecure_skip_verify:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">bearer_token_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/token</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>还是同样的操作，修改配置文件，reload，重建pod，查看targets列表，查看kubelet的监控指标。</p>
+<p><img src="/post/docker/k8s-prometheus-kubelet-target.jpg" alt="k8s-prometheus-kubelet-target"></p>
+<p><img src="/post/docker/k8s-prometheus-container-graph.jpg" alt="k8s-prometheus-container-graph"></p>
+<p><img src="/post/docker/k8s-prometheus-kubelet-graph.jpg" alt="k8s-prometheus-kubelet-graph"></p>
+<h1 id="集群Service服务的监控指标采集"><a href="#集群Service服务的监控指标采集" class="headerlink" title="集群Service服务的监控指标采集"></a>集群Service服务的监控指标采集</h1><h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>比如集群中存在100个业务应用，每个业务应用都需要被Prometheus监控。</p>
+<p>每个服务都需要手动添加配置的话，工作量太大，而且随着集群规模的增加，维护成本也会增加。那么有没有更好的方式呢？</p>
+<p>答案是肯定的，Prometheus提供了服务发现的功能，可以自动发现集群中的服务，然后自动添加到监控目标中。</p>
+<p>我们只需要在Prometheus的配置文件中，添加如下配置即可：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-endpoints&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">endpoints</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>同样的，还是那几个步骤，修改配置文件，reload，重建pod，查看targets列表。</p>
+<p><img src="/post/docker/k8s-prometheus-endpoints-target-error.jpg" alt="k8s-prometheus-endpoints-target-error"></p>
+<p>可以看到，targets列表中，<code>kubernetes-sd-endpoints</code>下出现了N多条数。</p>
+<p>这些数据其实就是集群中所有的Service的Endpoint列表中的内容每一个都添加<code>/metrics</code>后缀，然后作为监控目标。</p>
+<p>我们可以通过查看集群中的所有ep列表来对比网页中的数据。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl get endpoints --all-namespaces</span></span><br></pre></td></tr></table></figure>
+
+<p>但是实际上并不是每个服务都已经实现了&#x2F;metrics监控的，也不是每个实现了&#x2F;metrics接口的服务都需要注册到Prometheus中，因此，我们需要一种方式对需要采集的服务实现自主可控。这就需要利用relabeling中的keep功能。</p>
+<h2 id="relabeling的keep功能"><a href="#relabeling的keep功能" class="headerlink" title="relabeling的keep功能"></a>relabeling的keep功能</h2><p>我们知道，relabel的作用对象是target的<code>Before Relabling</code>标签，那么我们可以定义如下的配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-endpoints&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">endpoints</span></span><br><span class="line">        <span class="attr">relabel_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_scrape</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">keep</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的配置的意思是，如果target的<code>Before Relabling</code>中存在<code>__meta_kubernetes_service_annotation_prometheus_io_scrape</code>，且值为<code>true</code>的话，则会加入到kubernetes-sd-endpoints这个target中，否则就会被删除。</p>
+<p>因此可以为我们期望被采集的服务，加上对应的Prometheus的label即可，那么就可以只采集我们期望的服务了。</p>
+<h2 id="添加label"><a href="#添加label" class="headerlink" title="添加label"></a>添加label</h2><p>那么问题来了，怎么添加这个label呢？</p>
+<p>解决这个问题之前，我们先来查看coredns的metrics类型<code>Before Relabling</code>中的值，可以发现，存在如下类型的Prometheus的标签：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__meta_kubernetes_service_annotation_prometheus_io_scrape=<span class="string">&quot;true&quot;</span></span><br><span class="line">__meta_kubernetes_service_annotation_prometheus_io_port=<span class="string">&quot;9153&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来我们查看一下coredns对应的service的属性：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system get service kube-dns -oyaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  annotations:</span><br><span class="line">    prometheus.io/port: <span class="string">&quot;9153&quot;</span></span><br><span class="line">    prometheus.io/scrape: <span class="string">&quot;true&quot;</span></span><br><span class="line">  creationTimestamp: <span class="string">&quot;2023-08-25T07:17:31Z&quot;</span></span><br><span class="line">  labels:</span><br><span class="line">    k8s-app: kube-dns</span><br><span class="line">    kubernetes.io/cluster-service: <span class="string">&quot;true&quot;</span></span><br><span class="line">    kubernetes.io/name: CoreDNS</span><br><span class="line">  name: kube-dns</span><br><span class="line">  namespace: kube-system</span><br><span class="line">  ......</span><br></pre></td></tr></table></figure>
+
+<p>发现存在annotations声明，并且和之前查看的<code>Before Relabling</code>中的值是一致的，因此可以联想到二者存在对应关系，Service的定义中的annotations里的特殊字符会被转换成Prometheus中的label中的下划线。</p>
+<p>这样的话，我们只需要为我们需要采集的服务定义上如下的annotations声明，即可实现Prometheus自动采集数据</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">	<span class="attr">prometheus.io/scrape:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="修改path"><a href="#修改path" class="headerlink" title="修改path"></a>修改path</h2><p>有些时候，我们业务应用提供监控数据的path地址并不一定是&#x2F;metrics，如何实现兼容呢？</p>
+<p>同样的思路，我们知道，Prometheus会默认使用<code>Before Relabling</code>中的<code>__metrics_path</code>作为采集路径，因此，我们再自定义一个annotation，<code>prometheus.io/path</code>，然后想办法让prometheus使用该值替换<code>__metrics_path</code>即可。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">prometheus.io/scrape:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">    <span class="attr">prometheus.io/path:</span> <span class="string">&quot;/path/to/metrics&quot;</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>这样，Prometheus端会自动生成如下标签：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__meta_kubernetes_service_annotation_prometheus_io_path=<span class="string">&quot;/path/to/metrics&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们只需要在relabel_configs中用该标签的值，去重写<code>__metrics_path__</code>的值即可。因此：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-endpoints&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">endpoints</span></span><br><span class="line">        <span class="attr">relabel_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_scrape</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">keep</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="literal">true</span></span><br><span class="line">          <span class="comment"># 新加部分</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_path</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="string">(.+)</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="修改port"><a href="#修改port" class="headerlink" title="修改port"></a>修改port</h2><p>有些时候，业务服务的metrics是独立的端口，比如coredns，业务端口是53，监控指标采集端口是9153，这种情况，又该如何处理呢？</p>
+<p>很自然的，还是通过自定义annotation来处理，</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">prometheus.io/scrape:</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">    <span class="attr">prometheus.io/path:</span> <span class="string">&quot;/path/to/metrics&quot;</span></span><br><span class="line">    <span class="attr">prometheus.io/port:</span> <span class="string">&quot;9153&quot;</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>annotations已经编写好了，那么如何替换又是一个问题了。</p>
+<p>我们知道Prometheus默认使用<code>Before Relabeling</code>中的<code>__address__</code>进行作为服务指标采集的地址，但是该地址的格式通常是这样的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__address__=<span class="string">&quot;10.244.1.2:53&quot;</span></span><br><span class="line">__address__=<span class="string">&quot;10.244.1.3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们的目标是将如下两部分拼接在一起：</p>
+<ul>
+<li>10.244.1.2</li>
+<li>prometheus.io&#x2F;port定义的值，即<code>__meta_kubernetes_service_annotation_prometheus_io_port</code>的值</li>
+</ul>
+<p>因此，需要使用正则规则取出上述两部分：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-endpoints&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">endpoints</span></span><br><span class="line">        <span class="attr">relabel_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_scrape</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">keep</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="literal">true</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_path</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="string">(.+)</span></span><br><span class="line">          <span class="comment"># 新加部分</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__address__</span>, <span class="string">__meta_kubernetes_service_annotation_prometheus_io_port</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">__address__</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="string">([^:]+)(?::\d+)?;(\d+)</span></span><br><span class="line">            <span class="attr">replacement:</span> <span class="string">$1:$2</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的几点：</p>
+<ul>
+<li><code>__address__</code>中的<code>:&lt;port&gt;</code>有可能不存在，因此，使用<code>()?</code>的匹配方式进行</li>
+<li>表达式中，三段<code>()</code>我们只需要第一和第三段，不需要中间括号部分的内容，因此使用<code>?:</code>的方式来做非获取匹配，即可以匹配内容，但是不会被记录到$1,$2这种变量中</li>
+<li>多个source_labels中间默认使用<code>;</code>号分割，因此匹配的时候需要注意添加<code>;</code>号</li>
+</ul>
+<h2 id="添加更多的label"><a href="#添加更多的label" class="headerlink" title="添加更多的label"></a>添加更多的label</h2><p>此外，还可以将<code>Before relabeling</code>中的更多常用的字段取出来添加到目标的label中，比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- source_labels: [__meta_kubernetes_namespace]</span><br><span class="line">  action: replace</span><br><span class="line">  target_label: kubernetes_namespace</span><br><span class="line">- source_labels: [__meta_kubernetes_service_name]</span><br><span class="line">  action: replace</span><br><span class="line">  target_label: kubernetes_service_name</span><br><span class="line">- source_labels: [__meta_kubernetes_pod_name]</span><br><span class="line">  action: replace</span><br><span class="line">  target_label: kubernetes_pod_name</span><br></pre></td></tr></table></figure>
+
+<h2 id="全部配置"><a href="#全部配置" class="headerlink" title="全部配置"></a>全部配置</h2><p>因此，目前的relabel的配置如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">......</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;kubernetes-sd-endpoints&#x27;</span></span><br><span class="line">        <span class="attr">kubernetes_sd_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">role:</span> <span class="string">endpoints</span></span><br><span class="line">        <span class="attr">relabel_configs:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_scrape</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">keep</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="literal">true</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_annotation_prometheus_io_path</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">__metrics_path__</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="string">(.+)</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__address__</span>, <span class="string">__meta_kubernetes_service_annotation_prometheus_io_port</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">__address__</span></span><br><span class="line">            <span class="attr">regex:</span> <span class="string">([^:]+)(?::\d+)?;(\d+)</span></span><br><span class="line">            <span class="attr">replacement:</span> <span class="string">$1:$2</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_namespace</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">kubernetes_namespace</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_service_name</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">kubernetes_service_name</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">source_labels:</span> [<span class="string">__meta_kubernetes_pod_name</span>]</span><br><span class="line">            <span class="attr">action:</span> <span class="string">replace</span></span><br><span class="line">            <span class="attr">target_label:</span> <span class="string">kubernetes_pod_name</span></span><br><span class="line"><span class="string">......</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="重新加载配置，查看效果"><a href="#重新加载配置，查看效果" class="headerlink" title="重新加载配置，查看效果"></a>重新加载配置，查看效果</h2><p>更新configmap并reload Prometheus服务，查看target列表。</p>
+<p><img src="/post/docker/k8s-prometheus-endpoints-target.jpg" alt="k8s-prometheus-endpoints-target"></p>
+<h1 id="kube-state-metrics监控"><a href="#kube-state-metrics监控" class="headerlink" title="kube-state-metrics监控"></a>kube-state-metrics监控</h1><h2 id="kube-state-metrics监控是什么？"><a href="#kube-state-metrics监控是什么？" class="headerlink" title="kube-state-metrics监控是什么？"></a>kube-state-metrics监控是什么？</h2><p>已经有了cadvisor，容器运行的指标已经可以获取到，但是下面这种情况却无能为力：</p>
+<ul>
+<li>我调度了多少个replicas？现在可用的有几个？</li>
+<li>多少个Pod是running&#x2F;stopped&#x2F;terminated状态？</li>
+<li>Pod重启了多少次？</li>
+</ul>
+<p>而这些则是kube-state-metrics提供的内容，它基于client-go开发，轮询Kubernetes API，并将Kubernetes的结构化信息转换为metrics。因此，需要借助于<code>kube-state-metrics</code>来实现。</p>
+<h2 id="kube-state-metrics提供的指标"><a href="#kube-state-metrics提供的指标" class="headerlink" title="kube-state-metrics提供的指标"></a>kube-state-metrics提供的指标</h2><p>指标类别包括：</p>
+<ul>
+<li>CronJob Metrics</li>
+<li>DaemonSet Metrics</li>
+<li>Deployment Metrics</li>
+<li>Job Metrics</li>
+<li>LimitRange Metrics</li>
+<li>Node Metrics</li>
+<li>PersistentVolume Metrics</li>
+<li>PersistentVolumeClaim Metrics</li>
+<li>Pod Metrics<ul>
+<li>kube_pod_info</li>
+<li>kube_pod_owner</li>
+<li>kube_pod_status_phase</li>
+<li>kube_pod_status_ready</li>
+<li>kube_pod_status_scheduled</li>
+<li>kube_pod_container_status_waiting</li>
+<li>kube_pod_container_status_terminated_reason</li>
+<li>…</li>
+</ul>
+</li>
+<li>Pod Disruption Budget Metrics</li>
+<li>ReplicaSet Metrics</li>
+<li>ReplicationController Metrics</li>
+<li>ResourceQuota Metrics</li>
+<li>Service Metrics</li>
+<li>StatefulSet Metrics</li>
+<li>Namespace Metrics</li>
+<li>Horizontal Pod Autoscaler Metrics</li>
+<li>Endpoint Metrics</li>
+<li>Secret Metrics</li>
+<li>ConfigMap Metrics</li>
+</ul>
+<h2 id="部署kube-state-metrics"><a href="#部署kube-state-metrics" class="headerlink" title="部署kube-state-metrics"></a>部署kube-state-metrics</h2><p>kube-state-metrics的部署，可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment">官方文档</a></p>
+<p>这里我使用helm部署，helm的官方chart<a target="_blank" rel="external nofollow noopener noreferrer" href="https://artifacthub.io/packages/helm/prometheus-community/kube-state-metrics/">在这里</a>，部署清单的github地址是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics">prometheus-community&#x2F;helm-charts</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</span><br><span class="line">$ helm repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载chart</span></span><br><span class="line">$ helm pull prometheus-community/kube-state-metrics</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">$ tar zxf kube-state-metrics-5.15.2.tgz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改values.yaml，如果镜像无法下载，可以修改镜像地址为bitnami/kube-state-metrics:2.10.1</span></span><br><span class="line"><span class="comment"># 这里我没做任何修改，直接使用默认的配置</span></span><br><span class="line"><span class="comment"># $ vim kube-state-metrics/values.yaml</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">$ helm install kube-state-metrics prometheus-community/kube-state-metrics -n monitor</span><br></pre></td></tr></table></figure>
+
+<h2 id="如何添加到Prometheus监控target中"><a href="#如何添加到Prometheus监控target中" class="headerlink" title="如何添加到Prometheus监控target中"></a>如何添加到Prometheus监控target中</h2><p>因为我们已经添加了<code>kubernetes-sd-endpoints</code>的服务发现，因此，只需要在Service的annotations中添加<code>prometheus.io/scrape: &quot;true&quot;</code>即可。这里我们使用的helm进行的部署，因此使用默认的配置即可，不需要做任何修改。</p>
+<p>如果使用yaml文件进行部署，可以参考如下的配置修改service的配置让其支持prometheus的监控：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> service.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  annotations:</span><br><span class="line">    prometheus.io/scrape: <span class="string">&quot;true&quot;</span></span><br><span class="line">    prometheus.io/port: <span class="string">&quot;8080&quot;</span></span><br><span class="line">  labels:</span><br><span class="line">    app.kubernetes.io/name: kube-state-metrics</span><br><span class="line">    app.kubernetes.io/version: 2.1.0</span><br><span class="line">  name: kube-state-metrics</span><br><span class="line">  namespace: monitor</span><br><span class="line">spec:</span><br><span class="line">  clusterIP: None</span><br><span class="line">  ports:</span><br><span class="line">  - name: http-metrics</span><br><span class="line">    port: 8080</span><br><span class="line">    targetPort: http-metrics</span><br><span class="line">  - name: telemetry</span><br><span class="line">    port: 8081</span><br><span class="line">    targetPort: telemetry</span><br><span class="line">  selector:</span><br><span class="line">    app.kubernetes.io/name: kube-state-metrics</span><br><span class="line">    </span><br><span class="line">$ kubectl apply -f service.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看效果"><a href="#查看效果" class="headerlink" title="查看效果"></a>查看效果</h2><p>不需要修改Prometheus的配置文件了，因为有了<code>kubernetes-sd-endpoints</code>的服务发现，直接查看targets列表，可以看到<code>kubenetes-sd-endpoints</code>下已经添加了<code>kube-state-metrics</code>的监控目标。</p>
+<p><img src="/post/docker/k8s-prometheus-kube-state-metrics-target.jpg" alt="k8s-prometheus-kube-state-metrics-target"></p>
+<p>查看kube-state-metrics的监控指标，比如kube_pod_container_status_running，kube_deployment_status_replicas，kube_deployment_status_replicas_unavailable等。</p>
+<p><img src="/post/docker/k8s-prometheus-kube-state-metrics-graph.jpg" alt="k8s-prometheus-kube-state-metrics-graph"></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-prometheus-add-targets/">k8s prometheus 添加监控目标</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-12-01, 22:07:24</p>
+        <p><span>最后更新:</span>2023-12-05, 11:33:11</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-prometheus-add-targets/" title="k8s prometheus 添加监控目标">http://realtiger.github.io/k8s-prometheus-add-targets/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-prometheus-add-targets/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/linux-iptables/">
+                    linux iptables 防火墙
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0coreDNS%E7%9B%91%E6%8E%A7"><span class="toc-number">1.</span> <span class="toc-text">添加coreDNS监控</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#coreDNS%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87"><span class="toc-number">1.1.</span> <span class="toc-text">coreDNS监控指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9target%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.</span> <span class="toc-text">修改target配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7api-server%E7%AD%89%E7%B3%BB%E7%BB%9F%E7%BB%84%E4%BB%B6"><span class="toc-number">2.</span> <span class="toc-text">监控api-server等系统组件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%9B%91%E6%8E%A7%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%8C%87%E6%A0%87%E9%87%87%E9%9B%86"><span class="toc-number">2.1.</span> <span class="toc-text">常用监控对象的指标采集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7-kube-apiserver"><span class="toc-number">2.2.</span> <span class="toc-text">监控 kube-apiserver</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E5%AE%BF%E4%B8%BB%E6%9C%BA%E6%8C%87%E6%A0%87"><span class="toc-number">3.</span> <span class="toc-text">监控宿主机指标</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9%E5%9F%BA%E7%A1%80%E6%8C%87%E6%A0%87"><span class="toc-number">3.1.</span> <span class="toc-text">监控集群节点基础指标</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2node-exporter"><span class="toc-number">3.1.1.</span> <span class="toc-text">部署node_exporter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prometheus%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E4%B8%8ERelabeling"><span class="toc-number">3.2.</span> <span class="toc-text">Prometheus的服务发现与Relabeling</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E6%8C%87%E6%A0%87%E9%87%87%E9%9B%86"><span class="toc-number">3.3.</span> <span class="toc-text">容器指标采集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8cadvisor%E5%AE%9E%E7%8E%B0%E5%AE%B9%E5%99%A8%E6%8C%87%E6%A0%87%E7%9A%84%E9%87%87%E9%9B%86"><span class="toc-number">3.3.1.</span> <span class="toc-text">使用cadvisor实现容器指标的采集</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%87%E9%9B%86kubelet%E7%9A%84%E6%8C%87%E6%A0%87"><span class="toc-number">3.4.</span> <span class="toc-text">采集kubelet的指标</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4Service%E6%9C%8D%E5%8A%A1%E7%9A%84%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87%E9%87%87%E9%9B%86"><span class="toc-number">4.</span> <span class="toc-text">集群Service服务的监控指标采集</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">4.1.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#relabeling%E7%9A%84keep%E5%8A%9F%E8%83%BD"><span class="toc-number">4.2.</span> <span class="toc-text">relabeling的keep功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0label"><span class="toc-number">4.3.</span> <span class="toc-text">添加label</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9path"><span class="toc-number">4.4.</span> <span class="toc-text">修改path</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9port"><span class="toc-number">4.5.</span> <span class="toc-text">修改port</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E6%9B%B4%E5%A4%9A%E7%9A%84label"><span class="toc-number">4.6.</span> <span class="toc-text">添加更多的label</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A8%E9%83%A8%E9%85%8D%E7%BD%AE"><span class="toc-number">4.7.</span> <span class="toc-text">全部配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%EF%BC%8C%E6%9F%A5%E7%9C%8B%E6%95%88%E6%9E%9C"><span class="toc-number">4.8.</span> <span class="toc-text">重新加载配置，查看效果</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#kube-state-metrics%E7%9B%91%E6%8E%A7"><span class="toc-number">5.</span> <span class="toc-text">kube-state-metrics监控</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#kube-state-metrics%E7%9B%91%E6%8E%A7%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">kube-state-metrics监控是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kube-state-metrics%E6%8F%90%E4%BE%9B%E7%9A%84%E6%8C%87%E6%A0%87"><span class="toc-number">5.2.</span> <span class="toc-text">kube-state-metrics提供的指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2kube-state-metrics"><span class="toc-number">5.3.</span> <span class="toc-text">部署kube-state-metrics</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0%E5%88%B0Prometheus%E7%9B%91%E6%8E%A7target%E4%B8%AD"><span class="toc-number">5.4.</span> <span class="toc-text">如何添加到Prometheus监控target中</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%88%E6%9E%9C"><span class="toc-number">5.5.</span> <span class="toc-text">查看效果</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"k8s prometheus 添加监控目标　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/linux-iptables/" title="下一篇: linux iptables 防火墙">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-add-targets/">k8s prometheus 添加监控目标</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-iptables/">linux iptables 防火墙</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-introduction-install/">k8s prometheus监控</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-helm/">k8s helm</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-cni/">k8s 容器网络接口</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-persistent-volume/">k8s 持久卷</a></li><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记总目录</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>

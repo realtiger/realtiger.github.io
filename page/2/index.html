@@ -200,7 +200,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li></ul>
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iptables/" rel="tag">iptables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
                     </div>
                 </section>
                 
@@ -282,6 +282,346 @@
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-k8s-scheduler" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-scheduler/" class="article-date">
+      <time datetime="2023-10-03T10:49:35.000Z" itemprop="datePublished">2023-10-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/k8s-scheduler/">k8s 调度</a>
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">2.7k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>Kubernetes 调度器是 Kubernetes 集群中的一个核心组件，它负责监控新创建的 Pod，并选择一个 Node 让 Pod 在上面运行。Kubernetes 调度器的核心功能是将 Pod 调度到合适的 Node 上，这里的合适是指满足 Pod 的资源需求和其他的一些调度策略。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/k8s-scheduler/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-k8s-etcd" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-etcd/" class="article-date">
+      <time datetime="2023-10-03T02:42:12.000Z" itemprop="datePublished">2023-10-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/k8s-etcd/">k8s etcd</a>
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">1.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">9分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>etcd是k8s的核心组件之一，主要用于存储k8s集群的所有数据，包括集群的配置信息、集群状态、集群资源等。etcd是一个分布式的、高可用的、一致性的、高性能的键值存储系统，是k8s集群的数据存储中心。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/k8s-etcd/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-k8s-service-discovery-and-load-balance" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-service-discovery-and-load-balance/" class="article-date">
+      <time datetime="2023-09-19T02:41:18.000Z" itemprop="datePublished">2023-09-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a>
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">4k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">20分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>k8s 服务发现主要使用的是 <code>CoreDNS</code>，服务访问则需要借助于 <code>Ingress</code>，接下来我们来看看这两个组件。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/k8s-service-discovery-and-load-balance/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-k8s-service" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-service/" class="article-date">
+      <time datetime="2023-09-05T15:03:07.000Z" itemprop="datePublished">2023-09-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/k8s-service/">k8s service</a>
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">2.2k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">10分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>k8s service是k8s中的一个重要组件，它是k8s中的一个抽象层，用来提供一组pod的访问方式，它可以将一组pod的访问方式抽象为一个service，这样就可以通过service来访问这组pod，而不用关心这组pod的具体情况。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/k8s-service/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-k8s-deployment" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -732,7 +1072,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/k8s-learning/">k8s 学习笔记</a>
+      <a class="article-title" href="/k8s-learning/">k8s 学习笔记总目录</a>
     </h1>
   
 
@@ -742,7 +1082,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">266字</span>
+        <span class="post-count">402字</span>
       </span>
     </span>
 
@@ -797,360 +1137,9 @@
 
 
   
-    <article id="post-k8s-introduction" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/k8s-introduction/" class="article-date">
-      <time datetime="2023-08-08T18:08:35.000Z" itemprop="datePublished">2023-08-09</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/k8s-introduction/">k8s 介绍</a>
-    </h1>
-  
-
-          
-              <div style="margin-top:10px">
-    <span class="post-time">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-keyboard-o"></i>
-        <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">3.2k字</span>
-      </span>
-    </span>
-
-    <span class="post-time">
-      &nbsp; | &nbsp;
-      <span class="post-meta-item-icon">
-        <i class="fa fa-hourglass-half"></i>
-        <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">13分</span>
-      </span>
-    </span>
-</div>
-          
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
-<p>接下来学习kubernetes的架构及工作流程，重点介绍如何使用Workload管理业务应用的生命周期，实现服务不中断的滚动更新，通过服务发现和集群内负载均衡来实现集群内部的服务间访问，并通过ingress实现外部使用域名访问集群内部的服务。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/k8s-introduction/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-containerd-introduction" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/containerd-introduction/" class="article-date">
-      <time datetime="2023-08-04T16:17:01.000Z" itemprop="datePublished">2023-08-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a>
-    </h1>
-  
-
-          
-              <div style="margin-top:10px">
-    <span class="post-time">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-keyboard-o"></i>
-        <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">7.4k字</span>
-      </span>
-    </span>
-
-    <span class="post-time">
-      &nbsp; | &nbsp;
-      <span class="post-meta-item-icon">
-        <i class="fa fa-hourglass-half"></i>
-        <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">33分</span>
-      </span>
-    </span>
-</div>
-          
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
-<p>本节主要介绍containerd的基本概念，以及docker的一些总结。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/containerd-introduction/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker-network" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/docker-network/" class="article-date">
-      <time datetime="2023-07-07T11:14:57.000Z" itemprop="datePublished">2023-07-07</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/docker-network/">Docker 网络</a>
-    </h1>
-  
-
-          
-              <div style="margin-top:10px">
-    <span class="post-time">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-keyboard-o"></i>
-        <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">3.7k字</span>
-      </span>
-    </span>
-
-    <span class="post-time">
-      &nbsp; | &nbsp;
-      <span class="post-meta-item-icon">
-        <i class="fa fa-hourglass-half"></i>
-        <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">15分</span>
-      </span>
-    </span>
-</div>
-          
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
-<p>docker容器是一块具有隔离性的虚拟系统，容器内可以有自己独立的网络空间，</p>
-<ul>
-<li>多个容器之间是如何实现通信的呢？</li>
-<li>容器和宿主机之间又是如何实现的通信呢？</li>
-<li>使用-p参数是怎么实现的端口映射?</li>
-</ul>
-<p>带着这些问题，我们来学习一下docker的网络模型，最后我会通过抓包的方式，给大家演示一下数据包在容器和宿主机之间的转换过程。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/docker-network/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker-service-running-principle" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/docker-service-running-principle/" class="article-date">
-      <time datetime="2023-06-19T04:57:42.000Z" itemprop="datePublished">2023-06-19</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/docker-service-running-principle/">docker 运行原理</a>
-    </h1>
-  
-
-          
-              <div style="margin-top:10px">
-    <span class="post-time">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-keyboard-o"></i>
-        <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">2.5k字</span>
-      </span>
-    </span>
-
-    <span class="post-time">
-      &nbsp; | &nbsp;
-      <span class="post-meta-item-icon">
-        <i class="fa fa-hourglass-half"></i>
-        <span class="post-meta-item-text">  阅读时长: </span>
-        <span class="post-count">10分</span>
-      </span>
-    </span>
-</div>
-          
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
-<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p>docker优势主要是轻量级的虚拟化以及容器快速启停。</p>
-<p>而虚拟化核心需要解决两个问题：资源隔离与资源限制</p>
-<ul>
-<li>虚拟机硬件虚拟化技术， 通过一个 hypervisor 层实现对资源的彻底隔离。</li>
-<li>容器则是操作系统级别的虚拟化，利用的是内核的 Cgroup 和 Namespace 特性，此功能完全通过软件实现。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/docker-service-running-principle/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
     </nav>
   
 </div>
