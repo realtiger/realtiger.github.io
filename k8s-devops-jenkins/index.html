@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="aaron">
+
+
+
+<meta name="description" content="全部的 K8S学习笔记总目录，请点击查看。 CI&#x2F;CD 是一种通过在应用开发阶段引入自动化来频繁向客户交付应用的方法。CI&#x2F;CD 的核心概念是持续集成、持续交付和持续部署。作为一种面向开发和运维团队的解决方案，CI&#x2F;CD 主要针对在集成新代码时所引发的问题。这里主要介绍jenkins的使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jenkins 初体验">
+<meta property="og:url" content="http://realtiger.github.io/k8s-devops-jenkins/index.html">
+<meta property="og:site_name" content="一雾银的博客">
+<meta property="og:description" content="全部的 K8S学习笔记总目录，请点击查看。 CI&#x2F;CD 是一种通过在应用开发阶段引入自动化来频繁向客户交付应用的方法。CI&#x2F;CD 的核心概念是持续集成、持续交付和持续部署。作为一种面向开发和运维团队的解决方案，CI&#x2F;CD 主要针对在集成新代码时所引发的问题。这里主要介绍jenkins的使用。">
+<meta property="og:locale">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/devops-roles.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/devops-waterfall.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/devops-agile.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/devops-compire.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/devops-tools.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-index.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-index.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-register.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-login.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-commit.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-create-a-job.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-create-free-style-job.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-git-repo-error.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-git-repo-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-git-auth-username.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-git-auth-password.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-git-auth.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-build-trigger.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-build-steps.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-build-steps-env.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-build-steps-save.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook-url.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook-add.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook-list.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook-test.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-gogs-repo-webhook-test-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-build-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-gogs-push-build-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-gogs-push-build-info.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-gogs-push-build-console.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-gogs-push-build-console-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-list-button.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-list.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-create.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-create-name.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-create-info.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-create-jave-web.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-node-create-success.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-slave-node-command.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-slave-node-online.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-slave-node-test.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-slave-node-test-build.jpg">
+<meta property="og:image" content="http://realtiger.github.io/post/docker/k8s-devops-jenkins-slave-node-test-build-info.jpg">
+<meta property="article:published_time" content="2023-12-12T05:39:41.000Z">
+<meta property="article:modified_time" content="2023-12-29T17:07:33.289Z">
+<meta property="article:author" content="aaron">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="devops">
+<meta property="article:tag" content="jenkins">
+<meta property="article:tag" content="ci&#x2F;cd">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://realtiger.github.io/post/docker/devops-roles.jpg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一雾银的博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>jenkins 初体验 | 一雾银的博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">aaron</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload>
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer" target="_blank"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/realtiger" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/people/realtiger" title="知乎"></a>
+                            
+                                <a class="fa 博客园" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/cdinc" title="博客园"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/StorageClass/" rel="tag">StorageClass</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/alertmanager/" rel="tag">alertmanager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/auth/" rel="tag">auth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certificate/" rel="tag">certificate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ci-cd/" rel="tag">ci&#x2F;cd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cni/" rel="tag">cni</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/containerd/" rel="tag">containerd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/etcd/" rel="tag">etcd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/grafana/" rel="tag">grafana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helm/" rel="tag">helm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hpa/" rel="tag">hpa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/httpx/" rel="tag">httpx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iptables/" rel="tag">iptables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitoring/" rel="tag">monitoring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pv/" rel="tag">pv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pvc/" rel="tag">pvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssl/" rel="tag">ssl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/targets/" rel="tag">targets</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="external nofollow noopener noreferrer" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">一个啥都想学的菜鸡</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">aaron</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">aaron</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">不爱游戏的程序员不是一个好厨师</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:ganchangde@163.com" title="Email" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/realtiger" title="GitHub" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/realtiger" title="知乎" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="https://www.cnblogs.com/cdinc" title="博客园" rel="external nofollow noopener noreferrer"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-k8s-devops-jenkins" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/k8s-devops-jenkins/" class="article-date">
+      <time datetime="2023-12-12T05:39:41.000Z" itemprop="datePublished">2023-12-12</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jenkins 初体验
+    </h1>
+  
+
+          
+              <div style="margin-top:10px">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">5.8k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">24分</span>
+      </span>
+    </span>
+</div>
+          
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ci-cd/" rel="tag">ci&#x2F;cd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/k8s/" rel="tag">k8s</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>全部的 <a href="https://realtiger.github.io/k8s-learning/">K8S学习笔记总目录</a>，请点击查看。</p>
+<p>CI&#x2F;CD 是一种通过在应用开发阶段引入自动化来频繁向客户交付应用的方法。CI&#x2F;CD 的核心概念是持续集成、持续交付和持续部署。作为一种面向开发和运维团队的解决方案，CI&#x2F;CD 主要针对在集成新代码时所引发的问题。这里主要介绍jenkins的使用。</p>
+<span id="more"></span>
+
+<p>ci&#x2F;cd常用的持续集成工具：</p>
+<ul>
+<li>travis-ci</li>
+<li>circleci</li>
+<li>bamboo</li>
+<li>teamcity</li>
+<li>gitlabci</li>
+<li>jenkins</li>
+<li>tekton</li>
+<li>argo</li>
+<li>spinnaker</li>
+<li>drone</li>
+<li>concourse</li>
+<li>等等……</li>
+</ul>
+<p>本次要实现的效果是基于k8s集群部署gitlab、sonarQube、Jenkins等工具，并把上述一些工具集成到Jenkins中，以Django项目和SpringBoot项目为例，通过多分支流水线及Jenkinsfile实现项目代码提交到不同的仓库分支，实现自动代码扫描、单元测试、docker容器构建、k8s服务的自动部署。</p>
+<p>其中包含的内容有：</p>
+<ul>
+<li>DevOps、CI、CD介绍</li>
+<li>Jenkins、sonarQube、gitlab的快速部署</li>
+<li>Jenkins初体验</li>
+<li>流水线入门及Jenkinsfile使用</li>
+<li>Jenkins与Kubernetes的集成</li>
+<li>sonarQube代码扫描与Jenkins的集成</li>
+<li>实践Django项目的基于Jenkinsfile实现开发、测试环境的CI&#x2F;CD</li>
+</ul>
+<h1 id="DevOps、CI、CD介绍"><a href="#DevOps、CI、CD介绍" class="headerlink" title="DevOps、CI、CD介绍"></a>DevOps、CI、CD介绍</h1><p>CI&#x2F;CD就是持续集成 Continuous Integration (<em>CI</em>) &#x2F; 持续交付Continuous Delivery (<em>CD</em>)</p>
+<p>一般的软件交付流程如下：</p>
+<p><img src="/post/docker/devops-roles.jpg" alt="devops-roles"></p>
+<h2 id="软件交付发展历程"><a href="#软件交付发展历程" class="headerlink" title="软件交付发展历程"></a>软件交付发展历程</h2><p>一个软件从零开始到最终交付，大概包括以下几个阶段：规划、编码、构建、测试、发布、部署和维护，基于这些阶段，我们的软件交付模型大致经历了几个阶段：</p>
+<h3 id="瀑布式流程"><a href="#瀑布式流程" class="headerlink" title="瀑布式流程"></a>瀑布式流程</h3><p>软件交付的早期阶段，大家都是采用瀑布式流程，如下图所示：</p>
+<p><img src="/post/docker/devops-waterfall.jpg" alt="devops-waterfall"></p>
+<p>前期需求确立之后，软件开发人员花费数周和数月编写代码，把所有需求一次性开发完，然后将代码交给QA（质量保障）团队进行测试，然后将最终的发布版交给运维团队去部署。</p>
+<p>瀑布模型，简单来说，就是等一个阶段所有工作完成之后，再进入下一个阶段。这种模式的问题也很明显，产品迭代周期长，灵活性差。一个周期动辄几周几个月，适应不了当下产品需要快速迭代的场景。</p>
+<h3 id="敏捷开发"><a href="#敏捷开发" class="headerlink" title="敏捷开发"></a>敏捷开发</h3><p>为了解决瀑布模型的问题，以及更好地适应当下快速迭代的场景，敏捷开发模式越来越多地被采用。敏捷开发模式的核心是任务由大拆小，开发、测试协同工作，注重开发敏捷，不重视交付敏捷。</p>
+<p><img src="/post/docker/devops-agile.jpg" alt="devops-agile"></p>
+<h3 id="DevOps"><a href="#DevOps" class="headerlink" title="DevOps"></a>DevOps</h3><p>敏捷开发模式注重开发敏捷，不重视交付敏捷。那么如何解决交付敏捷呢？DevOps就是为了解决这个问题而诞生的。</p>
+<p><img src="/post/docker/devops-compire.jpg" alt="devops-compire"></p>
+<p>开发、测试、运维协同工作, 持续开发+持续交付。</p>
+<h2 id="DevOps的工具链"><a href="#DevOps的工具链" class="headerlink" title="DevOps的工具链"></a>DevOps的工具链</h2><p>我们是否可以认为DevOps &#x3D; 提倡开发、测试、运维协同工作来实现持续开发、持续交付的一种软件交付模式？为什么最初的开发模式没有直接进入DevOps的时代？</p>
+<p>原因是：沟通成本。</p>
+<p>各角色人员去沟通协作的时候都是手动去做，交流靠嘴，靠人去指挥，很显然会出大问题。所以说不能认为DevOps就是一种交付模式，因为解决不了沟通协作成本，这种模式就不具备可落地性。</p>
+<p>那DevOps时代如何解决角色之间的成本问题？DevOps的核心就是自动化。自动化的能力靠什么来支撑，工具和技术。</p>
+<p>DevOps工具链</p>
+<p><img src="/post/docker/devops-tools.jpg" alt="devops-tools"></p>
+<p>靠这些工具和技术，才实现了自动化流程，进而解决了协作成本，使得devops具备了可落地性。因此我们可以大致给devops一个定义：</p>
+<p>devops &#x3D; 提倡开发、测试、运维协同工作来实现持续开发、持续交付的一种软件交付模式 + 基于工具和技术支撑的自动化流程的落地实践。</p>
+<p>因此devops不是某一个具体的技术，而是一种思想+自动化能力，来使得构建、测试、发布软件能够更加地便捷、频繁和可靠的落地实践。本次核心内容就是要教会大家如何利用工具和技术来实现完整的DevOps平台的建设。我们主要使用的工具有：</p>
+<ol>
+<li>gitlab，代码仓库，企业内部使用最多的代码版本管理工具。</li>
+<li>Jenkins， 一个可扩展的持续集成引擎，用于自动化各种任务，包括构建、测试和部署软件。</li>
+<li>robotFramework， 基于Python的自动化测试框架</li>
+<li>sonarqube，代码质量管理平台</li>
+<li>maven，java包构建管理工具</li>
+<li>Kubernetes</li>
+<li>Docker</li>
+</ol>
+<h1 id="Kubernetes环境中部署jenkins"><a href="#Kubernetes环境中部署jenkins" class="headerlink" title="Kubernetes环境中部署jenkins"></a>Kubernetes环境中部署jenkins</h1><p>本次部署使用helm部署的方式，也可以使用yaml文件部署，参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://jenkins.io/zh/doc/book/installing/">其他部署方式</a></p>
+<p>注意点：</p>
+<ul>
+<li>第一次启动很慢</li>
+<li>因为后面Jenkins会与kubernetes集群进行集成，会需要调用kubernetes集群的api，因此安装的时候创建了ServiceAccount并赋予了cluster-admin的权限</li>
+<li>初始化容器来设置权限</li>
+<li>ingress来外部访问</li>
+<li>数据存储通过pvc挂载到宿主机中</li>
+</ul>
+<h2 id="安装jenkins"><a href="#安装jenkins" class="headerlink" title="安装jenkins"></a>安装jenkins</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">新建chart仓库</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm repo add jenkins https://charts.jenkins.io</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm repo update</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">搜索jenkins</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm search repo jenkins</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载chart包</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm pull jenkins/jenkins</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tar -zxvf jenkins-4.9.1.tgz</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">vim jenkins/values.yaml</span></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">  ingress:</span><br><span class="line">    # 启用ingress</span><br><span class="line">    enabled: true</span><br><span class="line">    ......</span><br><span class="line">    # 配置ingressClassName</span><br><span class="line">    ingressClassName: nginx</span><br><span class="line">    # 配置ingress的hosts</span><br><span class="line">    hostName: jenkins.test.com</span><br><span class="line">    ......</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">不进行测试</span></span><br><span class="line">  testEnabled: false</span><br><span class="line">  ......</span><br><span class="line">persistence:</span><br><span class="line">  enabled: true</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">配置storageClass</span></span><br><span class="line">  storageClass: &quot;nfs-client&quot;</span><br><span class="line">  annotations: &#123;&#125;</span><br><span class="line">  labels: &#123;&#125;</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">设置pvc的模式</span></span><br><span class="line">  accessMode: &quot;ReadWriteMany&quot;</span><br><span class="line"><span class="meta prompt_">  # </span><span class="language-bash">设置pvc的大小</span></span><br><span class="line">  size: &quot;200Gi&quot;</span><br><span class="line">  ......</span><br><span class="line">......</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm -n jenkins upgrade --create-namespace -i jenkins ./jenkins</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">等待安装完成</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl -n jenkins get all</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取登录密码</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl <span class="built_in">exec</span> --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password &amp;&amp; <span class="built_in">echo</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用浏览器访问jenkins，输入账号密码就可以登录了</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/docker/k8s-devops-jenkins-index.jpg" alt="k8s devops jenkins index"></p>
+<p>由于默认的插件地址安装非常慢，我们可以替换成国内清华的源，进入 jenkins 工作目录，目录下面有一个 updates 的目录，下面有一个 default.json 文件，我们执行下面的命令替换插件地址：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n jenkins <span class="built_in">exec</span> -it jenkins-0 -c jenkins -- bash</span><br><span class="line">jenkins@jenkins-0:/$ <span class="built_in">cd</span> /var/jenkins_home/updates</span><br><span class="line">jenkins@jenkins-0:~/updates$ sed -i <span class="string">&#x27;s/https:\/\/www.google.com/https:\/\/www.baidu.com/g&#x27;</span> default.json</span><br><span class="line">jenkins@jenkins-0:~/updates$ sed -i <span class="string">&#x27;s/https:\/\/updates.jenkins.io\/download/https:\/\/mirrors.tuna.tsinghua.edu.cn\/jenkins/g&#x27;</span> default.json</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>暂时先不用重新启动pod，汉化后一起重启。</p>
+</blockquote>
+<p>配置升级站点的URL：</p>
+<ol>
+<li>进入 web ui 的界面，点击 Manage Jenkins -&gt; Plugins 按钮，进入插件管理页面：<a target="_blank" rel="external nofollow noopener noreferrer" href="http://jenkins.test.com/manage/pluginManager/advanced">http://jenkins.test.com/manage/pluginManager/advanced</a></li>
+<li>选择最后一项 Advanced settings</li>
+<li>在 Update Site 中将原有url替换为：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json">https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json</a></li>
+<li>点击 Submit 按钮，保存设置</li>
+</ol>
+<p>接下来我们就可以重启服务了。重启jenkins服务有两种方式：</p>
+<ol>
+<li>删除pod，kubernetes会自动重启</li>
+<li>访问下面这个url重启：<a target="_blank" rel="external nofollow noopener noreferrer" href="http://jenkins.test.com/restart/">http://jenkins.test.com/restart/</a> 这样重启的话，pod不会重建</li>
+</ol>
+<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>分别点击以下菜单 Jenkins -&gt; Manage Jenkins -&gt; Plugins -&gt; Avaliable plugins</p>
+<p>主要安装以下插件：</p>
+<ul>
+<li>GitLab</li>
+<li>Pipeline: Multibranch</li>
+<li>Blue Ocean</li>
+<li>Localization: Chinese (Simplified)</li>
+<li>Gogs （太老了，没有维护，但是gitlab比较重，这里先安装gogs，仅实验使用，之后webhook和gitlab用法相同）</li>
+</ul>
+<p>如果安装超时，需要查看之前更改的数据源是否生效，如果没有生效，需要重新配置。</p>
+<p>选中后，选择[Install]，等待下载完成，然后点击[ Restart Jenkins when installation is complete and no jobs are running ]，让Jenkins自动重启</p>
+<p>启动后，界面默认变成中文。</p>
+<h1 id="Kubernetes环境中部署gogs"><a href="#Kubernetes环境中部署gogs" class="headerlink" title="Kubernetes环境中部署gogs"></a>Kubernetes环境中部署gogs</h1><p>这里我们需要一个git仓库，因为实验使用的环境比较轻量，因此选用gogs来部署。</p>
+<h2 id="安装gogs"><a href="#安装gogs" class="headerlink" title="安装gogs"></a>安装gogs</h2><p>gogs的helm仓库已经很老了，因此整理了以下的资源清单，使用k8s部署gogs。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># postgres secret</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">Opaque</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">cG9zdGdyZXM=</span></span><br><span class="line">    <span class="attr">user:</span> <span class="string">cG9zdGdyZXM=</span></span><br><span class="line">    <span class="attr">dbname:</span> <span class="string">Z29ncw==</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># postgres service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">5432</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">5432</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line">    <span class="attr">selector:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># postgres persistent volume claim</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">accessModes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">    <span class="attr">resources:</span></span><br><span class="line">      <span class="attr">requests:</span></span><br><span class="line">        <span class="attr">storage:</span> <span class="string">10Gi</span></span><br><span class="line">    <span class="attr">storageClassName:</span> <span class="string">nfs-client</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># postgres deployment</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">postgres</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">postgres:15</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">5432</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POSTGRES_PASSWORD</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">secretKeyRef:</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">              <span class="attr">key:</span> <span class="string">password</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POSTGRES_USER</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">secretKeyRef:</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">              <span class="attr">key:</span> <span class="string">user</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">POSTGRES_DB</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">secretKeyRef:</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">              <span class="attr">key:</span> <span class="string">dbname</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/var/lib/postgresql/data</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">postgres</span></span><br><span class="line">        <span class="attr">persistentVolumeClaim:</span></span><br><span class="line">          <span class="attr">claimName:</span> <span class="string">postgres</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># memcache service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">memcache</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">memcache</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">11211</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">11211</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line">    <span class="attr">selector:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">memcache</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># memcache deployment</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">memcache</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">memcache</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">selector:</span></span><br><span class="line">      <span class="attr">matchLabels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">memcached</span></span><br><span class="line">    <span class="attr">template:</span></span><br><span class="line">      <span class="attr">metadata:</span></span><br><span class="line">        <span class="attr">labels:</span></span><br><span class="line">          <span class="attr">app:</span> <span class="string">memcached</span></span><br><span class="line">      <span class="attr">spec:</span></span><br><span class="line">        <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">memcached</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">memcached:1.6.22</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">command:</span> [<span class="string">&quot;memcached&quot;</span>, <span class="string">&quot;-m&quot;</span>, <span class="string">&quot;64&quot;</span>, <span class="string">&quot;-p&quot;</span>, <span class="string">&quot;11211&quot;</span>, <span class="string">&quot;-u&quot;</span>, <span class="string">&quot;memcache&quot;</span>, <span class="string">&quot;-v&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;1024&quot;</span>, <span class="string">&quot;-o&quot;</span>, <span class="string">&quot;modern&quot;</span>]</span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">11211</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">memcached</span></span><br><span class="line">          <span class="attr">livenessProbe:</span></span><br><span class="line">            <span class="attr">tcpSocket:</span></span><br><span class="line">              <span class="attr">port:</span> <span class="string">memcached</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">readinessProbe:</span></span><br><span class="line">            <span class="attr">tcpSocket:</span></span><br><span class="line">              <span class="attr">port:</span> <span class="string">memcached</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">securityContext:</span></span><br><span class="line">            <span class="attr">runAsUser:</span> <span class="number">1000</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># gogs persistent volume claim</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">accessModes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">    <span class="attr">resources:</span></span><br><span class="line">      <span class="attr">requests:</span></span><br><span class="line">        <span class="attr">storage:</span> <span class="string">10Gi</span></span><br><span class="line">    <span class="attr">storageClassName:</span> <span class="string">nfs-client</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># gogs configmap</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gogs-config</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">app.ini:</span> <span class="string">|-</span></span><br><span class="line"><span class="string">    BRAND_NAME = TestGogs</span></span><br><span class="line"><span class="string"></span></span><br><span class="line">    [<span class="string">server</span>]</span><br><span class="line">    <span class="string">EXTERNAL_URL</span> <span class="string">=</span> <span class="string">http://gogs.test.com/</span></span><br><span class="line">    <span class="string">DOMAIN</span> <span class="string">=</span> <span class="string">gogs.test.com</span></span><br><span class="line">    <span class="string">HTTP_PORT</span> <span class="string">=</span> <span class="number">3000</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">database</span>]</span><br><span class="line">    <span class="string">TYPE</span> <span class="string">=</span> <span class="string">postgres</span></span><br><span class="line">    <span class="string">HOST</span> <span class="string">=</span> <span class="string">postgres:5432</span></span><br><span class="line">    <span class="string">NAME</span> <span class="string">=</span> <span class="string">gogs</span></span><br><span class="line">    <span class="string">USER</span> <span class="string">=</span> <span class="string">postgres</span></span><br><span class="line">    <span class="string">PASSWORD</span> <span class="string">=</span> <span class="string">postgres</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">cache</span>]</span><br><span class="line">    <span class="string">ADAPTER</span> <span class="string">=</span> <span class="string">memcache</span></span><br><span class="line">    <span class="string">INTERVAL</span> <span class="string">=</span> <span class="number">60</span></span><br><span class="line">    <span class="string">HOST</span> <span class="string">=</span> <span class="string">memcached:11211</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">ui</span>]</span><br><span class="line">    <span class="string">EXPLORE_PAGING_NUM</span> <span class="string">=</span> <span class="number">50</span></span><br><span class="line">    <span class="string">ISSUE_PAGING_NUM</span> <span class="string">=</span> <span class="number">50</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">ui.user</span>]</span><br><span class="line">    <span class="string">REPO_PAGING_NUM</span> <span class="string">=</span> <span class="number">50</span></span><br><span class="line">    <span class="string">COMMITS_PAGING_NUM</span> <span class="string">=</span> <span class="number">50</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">prometheus</span>]</span><br><span class="line">    <span class="string">ENABLED</span> <span class="string">=</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">other</span>]</span><br><span class="line">    <span class="string">SHOW_FOOTER_BRANDING</span> <span class="string">=</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    [<span class="string">security</span>]</span><br><span class="line">    <span class="string">INSTALL_LOCK</span> <span class="string">=</span> <span class="literal">true</span></span><br><span class="line">    <span class="string">SECRET_KEY</span>   <span class="string">=</span> <span class="string">sHyaED0SMrLCR7x</span></span><br><span class="line">    <span class="string">LOCAL_NETWORK_ALLOWLIST</span> <span class="string">=</span> <span class="string">*</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># gogs service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">3000</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">3000</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ssh</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">22</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">22</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line">    <span class="attr">selector:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">gogs</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># gogs deployment</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">gogs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">    <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">selector:</span></span><br><span class="line">      <span class="attr">matchLabels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">gogs</span></span><br><span class="line">    <span class="attr">template:</span></span><br><span class="line">      <span class="attr">metadata:</span></span><br><span class="line">        <span class="attr">labels:</span></span><br><span class="line">          <span class="attr">app:</span> <span class="string">gogs</span></span><br><span class="line">      <span class="attr">spec:</span></span><br><span class="line">        <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">gogs/gogs:0.13.0</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">3000</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ssh</span></span><br><span class="line">              <span class="attr">containerPort:</span> <span class="number">22</span></span><br><span class="line">          <span class="attr">livenessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">3000</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">readinessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">3000</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">volumeMounts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">              <span class="attr">mountPath:</span> <span class="string">/data</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gogs-config</span></span><br><span class="line">              <span class="attr">mountPath:</span> <span class="string">/data/gogs/conf/app.ini</span></span><br><span class="line">              <span class="attr">subPath:</span> <span class="string">app.ini</span></span><br><span class="line">        <span class="attr">volumes:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">            <span class="attr">persistentVolumeClaim:</span></span><br><span class="line">              <span class="attr">claimName:</span> <span class="string">gogs</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gogs-config</span></span><br><span class="line">            <span class="attr">configMap:</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">gogs-config</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># ingress</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">gogs</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">kubernetes.io/ingress.class:</span> <span class="string">&quot;nginx&quot;</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ingressClassName:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">gogs.test.com</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">        <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">gogs</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">3000</span></span><br></pre></td></tr></table></figure>
+
+<p>有了资源配置清单，我们就可以部署gogs了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建命名空间</span></span><br><span class="line">$ kubectl create namespace gogs</span><br><span class="line"><span class="comment"># 部署gogs</span></span><br><span class="line">$ kubectl apply -f gogs.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看pod</span></span><br><span class="line">$ kubectl get pod -n gogs</span><br></pre></td></tr></table></figure>
+
+<p>全部容器启动成功后，我们就可以配置host然后通过浏览器访问gogs了。</p>
+<p><img src="/post/docker/k8s-devops-gogs-index.jpg" alt="k8s devops gogs index"></p>
+<p>这时可以点击右上角的注册按钮，注册一个账户，在gogs中id&#x3D;0，也就是第一个注册的账户，是管理员账户，可以创建组织、创建仓库等操作。</p>
+<p><img src="/post/docker/k8s-devops-gogs-register.jpg" alt="k8s devops gogs register"></p>
+<p>注册完成后，我们就可以使用这个账户登录gogs了。</p>
+<p><img src="/post/docker/k8s-devops-gogs-login.jpg" alt="k8s devops gogs login"></p>
+<h2 id="创建仓库"><a href="#创建仓库" class="headerlink" title="创建仓库"></a>创建仓库</h2><p>安装完成gogs我们就可以创建一个仓库了。这里创建一个django项目的仓库，仓库名称为moonlight。创建方法与github类似，这里就不再赘述。</p>
+<p>创建完成后的仓库如下图所示：</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo.jpg" alt="k8s devops gogs repo"></p>
+<p>然后就可以创建django项目了，然后将远程仓库地址添加到django项目中，合并后提交到远程仓库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ django-admin startproject moonlight</span><br><span class="line">$ <span class="built_in">cd</span> moonlight</span><br><span class="line">$ git init</span><br><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">&quot;first commit&quot;</span></span><br><span class="line">$ git remote add origin http://gogs.test.com/administrator/moonlight.git</span><br><span class="line">$ git pull --rebase origin master</span><br><span class="line">$ git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>通过gogs的网页，可以看到代码已经提交到了仓库中。</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-commit.jpg" alt="k8s devops gogs repo commit"></p>
+<h2 id="配置jenkins"><a href="#配置jenkins" class="headerlink" title="配置jenkins"></a>配置jenkins</h2><p>在gogs中，我们可以配置webhook，当代码提交到仓库后，会触发webhook，然后调用jenkins的接口，从而触发jenkins的流水线。</p>
+<p>webhook触发的是jenkins的流水线，因此我们需要先创建一个流水线，然后再配置webhook。</p>
+<p>因此我们先创建一个流水线</p>
+<p><img src="/post/docker/k8s-devops-jenkins-create-a-job.jpg" alt="k8s devops jenkins create a job"></p>
+<p>然后选择自由风格的软件项目，名字叫free-style-demo，然后点击确定。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-create-free-style-job.jpg" alt="k8s devops jenkins create free style job"></p>
+<p>然后我们就可以配置流水线了。首先我们先配置源码管理。选择git，然后填写仓库地址，这里填写的是gogs的仓库地址。然后当焦点离开仓库地址的时候，会发现git报错了，提示指定一个git仓库。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-git-repo-error.jpg" alt="k8s devops jenkins git repo error"></p>
+<p>这是因为我们使用的是url地址，而k8s内部无法解析这个地址，要想解决这个问题，有两种方式：</p>
+<ol>
+<li>在容器内配置hosts</li>
+<li>配置coredns的静态解析</li>
+</ol>
+<p>这里我们使用第二种方式，配置coredns的静态解析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system edit configmap coredns</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">apiVersion: v1</span><br><span class="line">data:</span><br><span class="line">  Corefile: |</span><br><span class="line">    .:53 &#123;</span><br><span class="line">        errors</span><br><span class="line">        health &#123;</span><br><span class="line">           lameduck 5s</span><br><span class="line">        &#125;</span><br><span class="line">        ready</span><br><span class="line">        kubernetes cluster.local in-addr.arpa ip6.arpa &#123;</span><br><span class="line">           pods insecure</span><br><span class="line">           fallthrough in-addr.arpa ip6.arpa</span><br><span class="line">           ttl 30</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment"># hosts字段为新加内容，将解析地址填入。我们将git仓库和jenkins的地址都做了解析，是因为之后使用git的webhook的时候还得用jenkins的url，因此也需要解析。</span></span><br><span class="line">        hosts &#123;</span><br><span class="line">          192.168.100.1 gogs.test.com jenkins.test.com</span><br><span class="line">          fallthrough</span><br><span class="line">        &#125;</span><br><span class="line">        prometheus :9153</span><br><span class="line">        forward . /etc/resolv.conf &#123;</span><br><span class="line">           max_concurrent 1000</span><br><span class="line">        &#125;</span><br><span class="line">        cache 30</span><br><span class="line">        loop</span><br><span class="line">        reload</span><br><span class="line">        loadbalance</span><br><span class="line">    &#125;</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>然后保存即可。保存后我们再回到jenkins的配置页面，重新刷新配置，发现git的报错已经消失了。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-git-repo-success.jpg" alt="k8s devops jenkins git repo success"></p>
+<p>因为这里我们的仓库是公有的，因此不需要配置认证信息，如果是私有仓库，需要配置认证信息。</p>
+<p>这里我们直接配置认证信息，做一个演示。点击添加，选择用户名密码，然后填写用户名密码，id保证内部唯一即可，然后点击添加。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-git-auth-username.jpg" alt="k8s devops jenkins git auth username"></p>
+<p><img src="/post/docker/k8s-devops-jenkins-git-auth-password.jpg" alt="k8s devops jenkins git auth password"></p>
+<p>然后认证选择刚刚添加的认证信息。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-git-auth.jpg" alt="k8s devops jenkins git auth"></p>
+<p>往下走，构建触发器。这里我们选择”Build when a change is pushed to GoGS”，也就是当代码提交到gogs的时候，触发构建。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-build-trigger.jpg" alt="k8s devops jenkins build trigger"></p>
+<p>再往下，Build Steps，我们选择执行shell命令。这个就是说，当代码提交到gogs的时候，jenkins会下载代码，然后执行Buile Steps中的命令。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-build-steps.jpg" alt="k8s devops jenkins build steps"></p>
+<p>这里我们主要是测试，先写一个简单点的<code>echo success</code>，点击”可用的环境变量”，可以看到jenkins提供了很多环境变量，这些环境变量可以在shell中使用，这里也打印一个环境变量。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-build-steps-env.jpg" alt="k8s devops jenkins build steps env"></p>
+<p>然后点击保存即可。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-build-steps-save.jpg" alt="k8s devops jenkins build steps save"></p>
+<h2 id="配置webhook"><a href="#配置webhook" class="headerlink" title="配置webhook"></a>配置webhook</h2><p>jenkins的流水线配置完成后，我们就可以配置webhook了。点击仓库的设置按钮，然后选择管理Web钩子，点击添加Web钩子，选择Gogs</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook.jpg" alt="k8s devops gogs repo webhook"></p>
+<p>然后填写推送地址，推送地址为 <code>http://jenkins.test.com/gogs-webhook/?job=free-style-demo</code> ，这里的<code>free-style-demo</code>为jenkins的流水线名称。</p>
+<blockquote>
+<p>gogs 配置的推送地址格式为 <code>http(s)://&lt;Jenkins地址&gt;/gogs-webhook/?job=&lt;Jenkins任务名&gt;</code></p>
+</blockquote>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook-url.jpg" alt="k8s devops gogs repo webhook url"></p>
+<p>然后点击添加Web钩子即可。</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook-add.jpg" alt="k8s devops gogs repo webhook add"></p>
+<p>添加成功后能看到Web钩子列表中多了一个Web钩子。</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook-list.jpg" alt="k8s devops gogs repo webhook list"></p>
+<p>然后我们点进去，点击测试按钮，测试一下是否能够触发jenkins的流水线。然后就能看到测试已经推送了。</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook-test.jpg" alt="k8s devops gogs repo webhook test"></p>
+<p>测试按钮底下也有一个成功的推送记录。</p>
+<p><img src="/post/docker/k8s-devops-gogs-repo-webhook-test-success.jpg" alt="k8s devops gogs repo webhook test success"></p>
+<p>此时，去jenkins的流水线页面，可以看到流水线已经触发了。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-build-success.jpg" alt="k8s devops jenkins build success"></p>
+<h2 id="触发构建"><a href="#触发构建" class="headerlink" title="触发构建"></a>触发构建</h2><p>在<code>moonlight</code>项目中，创建一个<code>test.md</code>文件，然后提交到远程仓库，触发jenkins的流水线。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;test&quot;</span> &gt; test.md</span><br><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">&quot;test&quot;</span></span><br><span class="line">$ git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以看到jenkins的流水线已经触发了。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-gogs-push-build-success.jpg" alt="k8s devops jenkins gogs push build success"></p>
+<p>等待build完成后，点击序号，可以看到build的日志。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-gogs-push-build-info.jpg" alt="k8s devops jenkins gogs push build info"></p>
+<p>点击控制台输出，可以看到整个流水线的执行过程以及日志。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-gogs-push-build-console.jpg" alt="k8s devops jenkins gogs push build console"></p>
+<p>拉倒最后可以看到整体是先把git仓库拉取到本地，然后执行了我们配置的shell命令。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-gogs-push-build-console-success.jpg" alt="k8s devops jenkins gogs push build console success"></p>
+<h1 id="Jenkins-的-Master-Slave-模式"><a href="#Jenkins-的-Master-Slave-模式" class="headerlink" title="Jenkins 的 Master-Slave 模式"></a>Jenkins 的 Master-Slave 模式</h1><h2 id="工作节点"><a href="#工作节点" class="headerlink" title="工作节点"></a>工作节点</h2><p>在 Jenkins 页面中，点击<code>系统管理</code>, 然后点击<code>节点和云管理</code>，可以看到 Jenkins 的工作节点列表。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-list-button.jpg" alt="k8s devops jenkins node list button"></p>
+<p>可以看到在 Jenkins 中，只有一个节点，这个节点就是 Jenkins 的 Master 节点，也就是 Jenkins 的主节点。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-list.jpg" alt="k8s devops jenkins node list"></p>
+<p>如果有多个任务都在master节点执行，对master节点的性能就会造成一定影响。因此我们可以添加多个工作节点，让工作节点来执行任务，这样就可以减轻master节点的压力。</p>
+<p>Jenkins 的 Master-Slave 模式是指 Jenkins 的 Master 节点负责分发任务，Slave 节点负责执行任务。这样做的好处是可以将任务分发到不同的节点上执行，从而提高任务的执行效率。</p>
+<h2 id="添加工作节点"><a href="#添加工作节点" class="headerlink" title="添加工作节点"></a>添加工作节点</h2><blockquote>
+<p>因为目前这个环境已经接入了k8s集群，因此我们使用k8s集群中的节点作为jenkins的工作节点。以下内容仅作为演示，最后还是会切换回k8s集群中的节点。<br>多个k8s管理和多个slave节点的添加方式大致相同，这里不再赘述，可以尝试添加基本就会了。</p>
+</blockquote>
+<p>点击<code>新建节点</code>，进入新建节点页面。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-create.jpg" alt="k8s devops jenkins node create"></p>
+<p>定义一个节点名称，这里我们定义为<code>slave</code>，然后选择<code>固定节点</code>，然后点击确定。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-create-name.jpg" alt="k8s devops jenkins node create name"></p>
+<p>之后是填写更详细的信息</p>
+<ul>
+<li>Number of executors：这个是指这个节点可以同时执行多少个任务，这里我们填写5，也就是这个节点可以同时执行5个任务。</li>
+<li>远程工作目录：这个是指这个节点的工作目录，这里我们填写<code>/home/jenkins</code>，也就是这个节点的工作目录为<code>/home/jenkins</code>。</li>
+<li>标签：这个是指这个节点的标签，这里我们填写<code>slave</code>，也就是这个节点的标签为<code>slave</code>。之后我们可以在任务中指定任务执行在哪个节点上，就是通过标签来进行控制。</li>
+<li>启动方法：这个是指这个节点的启动方式，也就是通过什么方式实现Master-Slave的通信。这里我们选择<code>通过Java Web启动代理</code>，也就是通过Java Web启动代理的方式来实现Master-Slave的通信。<ul>
+<li>自定义工作目录：这个是指这个节点的工作目录，这里我们填写<code>/home/jenkins</code>，也就是和上面的远程工作目录一样。</li>
+<li>Tunnel连接位置：点开”高级”按钮就可以看到了。<ul>
+<li>这个是指这个节点连接到Master节点的时候，通过什么方式来连接。这里我们填入<code>10.99.223.156:50000</code>。</li>
+<li>Jenkins 默认就会开放50000端口供Slave节点连接、通信。</li>
+<li>因为我们使用的node节点，因此ClusterIP就可以在集群内部访问，因此填写Jenkins的ClusterIP即可。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/post/docker/k8s-devops-jenkins-node-create-info.jpg" alt="k8s devops jenkins node create info"></p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-create-jave-web.jpg" alt="k8s devops jenkins node create jave web"></p>
+<p>填写完成后，点击保存即可。</p>
+<p>保存后，我们可以看到节点列表中多了一个节点。但是节点的状态是离线的，因为我们还没有启动这个节点。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-node-create-success.jpg" alt="k8s devops jenkins node create success"></p>
+<h2 id="启动工作节点"><a href="#启动工作节点" class="headerlink" title="启动工作节点"></a>启动工作节点</h2><p>点击节点列表中的节点名称，进入节点详情页面。可以看到连接节点的命令，这个命令就是启动节点的命令。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-slave-node-command.jpg" alt="k8s devops jenkins slave node command"></p>
+<p>我们在node节点上执行这个命令，启动节点。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 首先配置hosts确保能够解析jenkins的地址</span></span><br><span class="line">$ sudo vim /etc/hosts</span><br><span class="line"></span><br><span class="line">192.168.100.1 jenkins.test.com gogs.test.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 因为命令是java的，因此需要先安装java，注意java的版本，要和jenkins的版本一致，jenkins的pod启动的镜像名称会包含java的版本。比如本次启动的镜像是jenkins/jenkins:2.426.1-jdk17，因此我们安装的java版本也要是jdk17。</span></span><br><span class="line">$ sudo yum install java-17-openjdk.x86_64 -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保证工作目录存在</span></span><br><span class="line">$ sudo <span class="built_in">mkdir</span> -p /home/jenkins</span><br><span class="line"><span class="comment"># 修改工作目录的权限，这里修改的用户就是下面执行java命令的用户</span></span><br><span class="line">$ sudo <span class="built_in">chown</span> -R jenkins:jenkins /home/jenkins</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行命令启动节点</span></span><br><span class="line">$ curl -sO http://jenkins.test.com/jnlpJars/agent.jar</span><br><span class="line">$ java -jar agent.jar -jnlpUrl http://jenkins.test.com/computer/slave/jenkins-agent.jnlp -secret e74b242a6a58da754a7bdecb0e0511a0fa70f305321974b052a79d6aa8d9c56d -workDir <span class="string">&quot;/home/jenkins&quot;</span></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">12月 29, 2023 11:56:51 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Agent discovery successful</span><br><span class="line">  Agent address: 10.99.223.156</span><br><span class="line">  Agent port:    50000</span><br><span class="line">  Identity:      de:25:39:3d:94:4e:ca:0b:9b:c7:e8:fb:19:e2:92:70</span><br><span class="line">12月 29, 2023 11:56:51 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Handshaking</span><br><span class="line">12月 29, 2023 11:56:51 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Connecting to 10.99.223.156:50000</span><br><span class="line">12月 29, 2023 11:56:51 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Trying protocol: JNLP4-connect</span><br><span class="line">12月 29, 2023 11:56:51 下午 org.jenkinsci.remoting.protocol.impl.BIONetworkLayer<span class="variable">$Reader</span> run</span><br><span class="line">信息: Waiting <span class="keyword">for</span> ProtocolStack to start.</span><br><span class="line">12月 29, 2023 11:56:52 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Remote identity confirmed: de:25:39:3d:94:4e:ca:0b:9b:c7:e8:fb:19:e2:92:70</span><br><span class="line">12月 29, 2023 11:56:52 下午 hudson.remoting.jnlp.Main<span class="variable">$CuiListener</span> status</span><br><span class="line">信息: Connected</span><br></pre></td></tr></table></figure>
+
+<p>此时我们再回到jenkins的节点列表中，可以看到节点的状态已经变成在线了。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-slave-node-online.jpg" alt="k8s devops jenkins slave node online"></p>
+<h2 id="测试工作节点"><a href="#测试工作节点" class="headerlink" title="测试工作节点"></a>测试工作节点</h2><p>此时我们进入到<code>free-style-demo</code>任务中，然后点击<code>配置</code>，在<code>Gogs Webhook</code>中，选择<code>限制项目的运行节点</code>，然后填入<code>slave</code>，也就是这个任务只能在<code>slave</code>节点上执行。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-slave-node-test.jpg" alt="k8s devops jenkins slave node test"></p>
+<p>然后点击保存，保存成功后，我们再次提交代码，触发jenkins的流水线。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;test again&quot;</span> &gt; test.md</span><br><span class="line">$ git commit -am <span class="string">&quot;test again&quot;</span></span><br><span class="line">$ git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以看到jenkins的流水线已经触发了。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-slave-node-test-build.jpg" alt="k8s devops jenkins slave node test build"></p>
+<p>等待build完成后，点击序号，查看build的日志。可以看到build的时候，是在slave节点上执行的。</p>
+<p><img src="/post/docker/k8s-devops-jenkins-slave-node-test-build-info.jpg" alt="k8s devops jenkins slave node test build info"></p>
+<p>登录到slave节点上，可以看到slave节点上已经有了我们的代码。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ls</span> /home/jenkins/workspace/free-style-demo</span></span><br><span class="line">LICENSE  manage.py  moonlight  README.md  test.md</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> /home/jenkins/workspace/free-style-demo</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> test.md</span></span><br><span class="line">test again</span><br></pre></td></tr></table></figure>
+
+<h1 id="Jenkins定制化容器"><a href="#Jenkins定制化容器" class="headerlink" title="Jenkins定制化容器"></a>Jenkins定制化容器</h1><p>由于每次新部署Jenkins环境，都需要安装很多必要的插件，因此考虑把插件提前做到镜像中，这样再部署的时候就不需要再在线安装插件了。</p>
+<p>首先得知道插件都有哪些，我们可以访问Jenkins的url，然后生成插件列表文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># admin:admin@jenkins.test.com 需要替换成Jenkins的用户名、密码及访问地址</span></span><br><span class="line"></span><br><span class="line">curl -sSL <span class="string">&quot;http://admin:admin@jenkins.test.com/pluginManager/api/xml?depth=1&amp;xpath=/*/*/shortName|/*/*/version&amp;wrapper=plugins&quot;</span> | perl -pe <span class="string">&#x27;s/.*?&lt;shortName&gt;([\w-]+).*?&lt;version&gt;([^&lt;]+)()(&lt;\/\w+&gt;)+/\1:\2\n/g&#x27;</span>|sed <span class="string">&#x27;s/ /:/&#x27;</span> &gt; plugins.txt</span><br></pre></td></tr></table></figure>
+
+<p>插件列表文件大致格式如下，这个文件中包含了我们需要安装的插件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ace-editor:1.1</span><br><span class="line">allure-jenkins-plugin:2.28.1</span><br><span class="line">ant:1.10</span><br><span class="line">antisamy-markup-formatter:1.6</span><br><span class="line">apache-httpcomponents-client-4-api:4.5.10-1.0</span><br><span class="line">authentication-tokens:1.3</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>下面是一个定制化的Jenkins镜像的Dockerfile文件，主要为了构建一个包含插件的镜像。</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> jenkinsci/blueocean:<span class="number">1.25</span>.<span class="number">2</span></span><br><span class="line"><span class="keyword">LABEL</span><span class="language-bash"> maintainer=<span class="string">&quot;me@example.com&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> JENKINS_UC https://updates.jenkins-zh.cn</span><br><span class="line"><span class="keyword">ENV</span> JENKINS_UC_DOWNLOAD https://mirrors.tuna.tsinghua.edu.cn/jenkins</span><br><span class="line"><span class="keyword">ENV</span> JENKINS_OPTS=<span class="string">&quot;-Dhudson.model.UpdateCenter.updateCenterUrl=https://updates.jenkins-zh.cn/update-center.json&quot;</span></span><br><span class="line"><span class="keyword">ENV</span> JENKINS_OPTS=<span class="string">&quot;-Djenkins.install.runSetupWizard=false&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 用最新的插件列表文件替换默认插件文件</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> plugins.txt /usr/share/jenkins/ref/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 执行插件安装</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt</span></span><br></pre></td></tr></table></figure>
+
+<p>执行构建，定制jenkins容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker build . -t harbor.test.com/jenkins:v1 -f Dockerfile</span><br><span class="line">$ docker push harbor.test.com/jenkins:v1</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们已经有了定制化的Jenkins镜像，接下来我们就可以使用这个镜像来部署Jenkins了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑现有jenkins的statefulset，将镜像替换成我们定制化的镜像，保存即可</span></span><br><span class="line">$ kubectl -n jenkins edit statefulset jenkins</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/k8s-devops-jenkins/">jenkins 初体验</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">aaron</a></p>
+        <p><span>发布时间:</span>2023-12-12, 13:39:41</p>
+        <p><span>最后更新:</span>2023-12-30, 01:07:33</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/k8s-devops-jenkins/" title="jenkins 初体验">http://realtiger.github.io/k8s-devops-jenkins/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://realtiger.github.io/k8s-devops-jenkins/　　作者: aaron" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="external nofollow noopener noreferrer" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/python-httpx/">
+                    python第三方网络库httpx
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/k8s-prometheus-grafana/">
+                    k8s prometheus 展示与告警
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DevOps%E3%80%81CI%E3%80%81CD%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">DevOps、CI、CD介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E4%BA%A4%E4%BB%98%E5%8F%91%E5%B1%95%E5%8E%86%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">软件交付发展历程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%80%91%E5%B8%83%E5%BC%8F%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.1.</span> <span class="toc-text">瀑布式流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%8D%B7%E5%BC%80%E5%8F%91"><span class="toc-number">1.1.2.</span> <span class="toc-text">敏捷开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DevOps"><span class="toc-number">1.1.3.</span> <span class="toc-text">DevOps</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DevOps%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="toc-number">1.2.</span> <span class="toc-text">DevOps的工具链</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes%E7%8E%AF%E5%A2%83%E4%B8%AD%E9%83%A8%E7%BD%B2jenkins"><span class="toc-number">2.</span> <span class="toc-text">Kubernetes环境中部署jenkins</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85jenkins"><span class="toc-number">2.1.</span> <span class="toc-text">安装jenkins</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">安装插件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes%E7%8E%AF%E5%A2%83%E4%B8%AD%E9%83%A8%E7%BD%B2gogs"><span class="toc-number">3.</span> <span class="toc-text">Kubernetes环境中部署gogs</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85gogs"><span class="toc-number">3.1.</span> <span class="toc-text">安装gogs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-number">3.2.</span> <span class="toc-text">创建仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEjenkins"><span class="toc-number">3.3.</span> <span class="toc-text">配置jenkins</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEwebhook"><span class="toc-number">3.4.</span> <span class="toc-text">配置webhook</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91%E6%9E%84%E5%BB%BA"><span class="toc-number">3.5.</span> <span class="toc-text">触发构建</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Jenkins-%E7%9A%84-Master-Slave-%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">Jenkins 的 Master-Slave 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="toc-number">4.1.</span> <span class="toc-text">工作节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E5%B7%A5%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="toc-number">4.2.</span> <span class="toc-text">添加工作节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E5%B7%A5%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="toc-number">4.3.</span> <span class="toc-text">启动工作节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="toc-number">4.4.</span> <span class="toc-text">测试工作节点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Jenkins%E5%AE%9A%E5%88%B6%E5%8C%96%E5%AE%B9%E5%99%A8"><span class="toc-number">5.</span> <span class="toc-text">Jenkins定制化容器</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"jenkins 初体验　| 一雾银的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/python-httpx/" title="上一篇: python第三方网络库httpx">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/k8s-prometheus-grafana/" title="下一篇: k8s prometheus 展示与告警">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/python-httpx/">python第三方网络库httpx</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-devops-jenkins/">jenkins 初体验</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-grafana/">k8s prometheus 展示与告警</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-add-targets/">k8s prometheus 添加监控目标</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-iptables/">linux iptables 防火墙</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-prometheus-introduction-install/">k8s prometheus监控</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-helm/">k8s helm</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-cni/">k8s 容器网络接口</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-persistent-volume/">k8s 持久卷</a></li><li class="post-list-item"><a class="post-list-link" href="/generate-a-self-signed-ssl-certificate/">生成自签名SSL证书</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-hpa/">k8s 动态扩缩容</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-auth/">k8s 认证和授权</a></li><li class="post-list-item"><a class="post-list-link" href="/rabbitmq-for-python/">rabbitmq for python</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-scheduler/">k8s 调度</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-etcd/">k8s etcd</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service-discovery-and-load-balance/">k8s 服务发现和负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-service/">k8s service</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-deployment/">k8s deployment</a></li><li class="post-list-item"><a class="post-list-link" href="/pod-settings-and-config/">pod 常用设置和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-force-delete-resource/">k8s 强制删除 pod/pvc/pv/ns 的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-systemd-service-file/">linux中systemd及其service文件</a></li><li class="post-list-item"><a class="post-list-link" href="/linux-signals/">linux 信号介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-learning/">k8s 学习笔记总目录</a></li><li class="post-list-item"><a class="post-list-link" href="/k8s-introduction/">k8s 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/containerd-introduction/">containerd 介绍 与 docker 总结</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-network/">Docker 网络</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-service-running-principle/">docker 运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/sphinx-python-documentation-generator/">sphinx - python文档生成器</a></li><li class="post-list-item"><a class="post-list-link" href="/centos8-python-upgrade/">centos8 升级 python 版本</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-file/">docker file</a></li><li class="post-list-item"><a class="post-list-link" href="/yaml-introduction/">yaml 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/docker-introduction/">docker 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-02/">python 设计模式 02</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-03/">python 设计模式 03</a></li><li class="post-list-item"><a class="post-list-link" href="/python-design-patterns-01/">python 设计模式 01</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2023 aaron
+            </div>
+            <div class="footer-right">
+                <!--<a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>-->
+                <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 10;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+
+
+
+    <script async src="/live2d-widget/autoload.js"></script>
+
+
+  </div>
+</body>
+</html>
